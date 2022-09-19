@@ -7,7 +7,7 @@
  * https://opensource.org/licenses/MIT
  */
 
-#include "K2Node_SetPropertyByName.h"
+#include "K2Node_SetVariableByName.h"
 
 #include "BlueprintNodeSpawner.h"
 #include "EditorCategoryUtils.h"
@@ -439,7 +439,7 @@ UClass* UK2Node_SetVariableByNameNode::GetTargetClass(UEdGraphPin* Pin)
 UFunction* UK2Node_SetVariableByNameNode::FindSetterFunction(UEdGraphPin* Pin)
 {
 	FEdGraphPinType PinType = Pin->PinType;
-	UClass* FunctionLibrary = UPropertyValueSetterFunctionLibarary::StaticClass();
+	UClass* FunctionLibrary = UVariableSetterFunctionLibarary::StaticClass();
 
 	switch (PinType.ContainerType)
 	{

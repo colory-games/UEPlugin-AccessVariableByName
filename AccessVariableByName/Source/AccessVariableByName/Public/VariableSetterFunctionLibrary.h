@@ -15,7 +15,7 @@
 
 
 UCLASS()
-class GETPROPERTYBYNAME_API UVariableSetterFunctionLibarary : public UBlueprintFunctionLibrary
+class ACCESSVARIABLEBYNAME_API UVariableSetterFunctionLibarary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 

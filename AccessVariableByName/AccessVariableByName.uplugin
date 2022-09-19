@@ -16,7 +16,7 @@
   "Installed": false,
   "Modules": [
     {
-      "Name": "GetPropertyByName",
+      "Name": "AccessVariableByName",
       "Type": "UncookedOnly",
       "LoadingPhase": "PreLoadingScreen",
       "WhitelistPlatforms": [

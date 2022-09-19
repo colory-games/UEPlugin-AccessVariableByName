@@ -11,11 +11,11 @@
 
 #include "Kismet/BlueprintFunctionLibrary.h"
 
-#include "ValueGetterFunctionLibrary.generated.h"
+#include "VariableGetterFunctionLibrary.generated.h"
 
 
 UCLASS()
-class GETPROPERTYBYNAME_API UVariableGetterFunctionLibarary : public UBlueprintFunctionLibrary
+class ACCESSVARIABLEBYNAME_API UVariableGetterFunctionLibarary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 

@@ -14,7 +14,7 @@
 #include "GraphEditorSettings.h"
 #include "KismetCompiler.h"
 #include "K2Node_CallFunction.h"
-#include "PropertyGetterFunctionLibrary.h"
+#include "VariableGetterFunctionLibrary.h"
 #include "Common.h"
 
 #define LOCTEXT_NAMESPACE "K2Node"
@@ -600,7 +600,7 @@ UClass* UK2Node_GetVariableByNameNode::GetTargetClass(UEdGraphPin* Pin)
 UFunction* UK2Node_GetVariableByNameNode::FindGetterFunction(UEdGraphPin* Pin)
 {
 	FEdGraphPinType PinType = Pin->PinType;
-	UClass* FunctionLibrary = UPropertyValueGetterFunctionLibarary::StaticClass();
+	UClass* FunctionLibrary = UVariableGetterFunctionLibarary::StaticClass();
 
 	if (bIsNestedVarName)
 	{
