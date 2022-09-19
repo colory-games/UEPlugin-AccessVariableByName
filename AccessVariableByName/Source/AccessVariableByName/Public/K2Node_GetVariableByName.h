@@ -48,6 +48,7 @@ protected:
 	void CreateResultPin(FName PinCategory, UObject* PinSubCategoryObject, EPinContainerType PinContainerType,
 		const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
 	void RecreateResultPin();
+	void RecreateResultPinInternal(UClass* TargetClass, const FString& VarName);
 	UClass* GetTargetClass(UEdGraphPin* Pin = nullptr);
 	UFunction* FindGetterFunction(UEdGraphPin* Pin);
 	bool IsResultPin(const UEdGraphPin* Pin) const;

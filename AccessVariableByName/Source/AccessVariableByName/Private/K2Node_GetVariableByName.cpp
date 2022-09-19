@@ -19,31 +19,11 @@
 
 #define LOCTEXT_NAMESPACE "K2Node"
 
-const FName ExecThenPinName(TEXT("ExecThen"));
-const FName TargetPinName(TEXT("Target"));
-const FName VarNamePinName(TEXT("VarName"));
-const FName SuccessPinName(TEXT("Success"));
-const FName ResultPinNamePrefix(TEXT("Result_"));
+FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass);
 
-const FString ExecThenPinFriendlyName(TEXT(" "));
-const FString TargetPinFriendlyName(TEXT("Target"));
-const FString VarNamePinFriendlyName(TEXT("Var Name"));
-const FString SuccessPinFriendlyName(TEXT("Success"));
-
-FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass)
+FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property)
 {
 	const FVarDescription& Desc = VarDescs[VarDepth];
-
-	if (!Desc.bIsValid)
-	{
-		return nullptr;
-	}
-
-	FProperty* Property = FindFProperty<FProperty>(OuterClass, *Desc.VarName);
-	if (Property == nullptr)
-	{
-		return nullptr;
-	}
 
 	if (Desc.VarType == EContainerType::None)
 	{
@@ -112,6 +92,24 @@ FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 Va
 	return nullptr;
 }
 
+FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass)
+{
+	const FVarDescription& Desc = VarDescs[VarDepth];
+
+	if (!Desc.bIsValid)
+	{
+		return nullptr;
+	}
+
+	FProperty* Property = FindFProperty<FProperty>(OuterClass, *Desc.VarName);
+	if (Property == nullptr)
+	{
+		return nullptr;
+	}
+
+	return GetTerminalPropertyInternal(VarDescs, VarDepth, Property);
+}
+
 FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass)
 {
 	const FVarDescription& Desc = VarDescs[VarDepth];
@@ -127,71 +125,7 @@ FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 Va
 		return nullptr;
 	}
 
-	if (Desc.VarType == EContainerType::None)
-	{
-		if (VarDescs.Num() == VarDepth + 1)
-		{
-			return Property;
-		}
-
-		if (!Property->IsA<FStructProperty>())
-		{
-			return nullptr;
-		}
-
-		FStructProperty* StructProperty = CastChecked<FStructProperty>(Property);
-		UScriptStruct* ScriptStruct = StructProperty->Struct;
-
-		return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
-	}
-	else if (Desc.VarType == EContainerType::Array)
-	{
-		if (!Property->IsA<FArrayProperty>())
-		{
-			return nullptr;
-		}
-		FArrayProperty* ArrayProperty = CastChecked<FArrayProperty>(Property);
-
-		if (VarDescs.Num() == VarDepth + 1)
-		{
-			return ArrayProperty->Inner;
-		}
-
-		FProperty* InnerProperty = ArrayProperty->Inner;
-		if (!InnerProperty->IsA<FStructProperty>())
-		{
-			return nullptr;
-		}
-		FStructProperty* StructProperty = CastChecked<FStructProperty>(InnerProperty);
-		UScriptStruct* ScriptStruct = StructProperty->Struct;
-
-		return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
-	}
-	else if (Desc.VarType == EContainerType::Map)
-	{
-		if (!Property->IsA<FMapProperty>())
-		{
-			return nullptr;
-		}
-		FMapProperty* MapProperty = CastChecked<FMapProperty>(Property);
-
-		if (VarDescs.Num() == VarDepth + 1)
-		{
-			return MapProperty->ValueProp;
-		}
-
-		FProperty* ValueProperty = MapProperty->ValueProp;
-		if (!ValueProperty->IsA<FStructProperty>())
-		{
-			return nullptr;
-		}
-		FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
-		UScriptStruct* ScriptStruct = StructProperty->Struct;
-
-		return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
-	}
-
-	return nullptr;
+	return GetTerminalPropertyInternal(VarDescs, VarDepth, Property);
 }
 
 UK2Node_GetVariableByNameNode::UK2Node_GetVariableByNameNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -309,50 +243,8 @@ void UK2Node_GetVariableByNameNode::ReallocatePinsDuringReconstruction(TArray<UE
 	AllocateDefaultPins();
 
 	UClass* TargetClass = GetTargetClass(OldTargetPin);
-	if (TargetClass != nullptr)
-	{
-		// Create new result pin.
-		FString VarName = OldVarNamePin->DefaultValue;
-		TArray<FString> Vars;
-		SplitVarName(VarName, &Vars);
-		TArray<FVarDescription> VarDescs;
-		AnalyzeVarNames(Vars, &VarDescs);
-
-		if (VarDescs.Num() == 0)
-		{
-			bIsNestedVarName = false;
-		}
-		else
-		{
-			bIsNestedVarName = !(VarDescs.Num() == 1 && VarDescs[0].VarType == EContainerType::None);
-
-			FProperty* Property = GetTerminalProperty(VarDescs, 0, TargetClass);
-			if (Property != nullptr)
-			{
-				// TODO: support input from independent variable
-
-				const UEdGraphSchema_K2* Schema = GetDefault<UEdGraphSchema_K2>();
-
-				FEdGraphPinType PinType;
-				Schema->ConvertPropertyToPinType(Property, PinType);
-				if (PinType.PinCategory == UEdGraphSchema_K2::PC_Struct || PinType.PinCategory == UEdGraphSchema_K2::PC_Object ||
-					(PinType.PinCategory == UEdGraphSchema_K2::PC_Byte && PinType.PinSubCategoryObject != nullptr))
-				{
-					CreateResultPin(PinType.PinCategory, PinType.PinSubCategoryObject.Get(), PinType.ContainerType,
-						PinType.PinValueType, Property->GetName(), 0);
-				}
-				else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Real && PinType.PinSubCategory == "double")
-				{
-					CreateResultPin(PinType.PinCategory, PinType.PinSubCategory, PinType.ContainerType, PinType.PinValueType,
-						Property->GetName(), 0);
-				}
-				else
-				{
-					CreateResultPin(PinType.PinCategory, PinType.ContainerType, PinType.PinValueType, Property->GetName(), 0);
-				}
-			}
-		}
-	}
+	FString VarName = OldVarNamePin->DefaultValue;
+	RecreateResultPinInternal(TargetClass, VarName);
 
 	RestoreSplitPins(OldPins);
 }
@@ -494,24 +386,10 @@ void UK2Node_GetVariableByNameNode::CreateResultPin(FName PinCategory, UObject* 
 	Pin->PinFriendlyName = FText::AsCultureInvariant(ResultPinFriendlyName);
 }
 
-void UK2Node_GetVariableByNameNode::RecreateResultPin()
+void UK2Node_GetVariableByNameNode::RecreateResultPinInternal(UClass* TargetClass, const FString& VarName)
 {
-	Modify();
+	check(TargetClass);
 
-	TArray<UEdGraphPin*> UnusedPins = MoveTemp(Pins);
-	for (int32 Index = 0; Index < UnusedPins.Num(); ++Index)
-	{
-		UEdGraphPin* OldPin = UnusedPins[Index];
-		if (!IsResultPin(OldPin))
-		{
-			UnusedPins.RemoveAt(Index--, 1, false);
-			Pins.Add(OldPin);
-		}
-	}
-
-	// Create new result pin.
-	UClass* TargetClass = GetTargetClass();
-	FString VarName = GetVarNamePin()->DefaultValue;
 	TArray<FString> Vars;
 	SplitVarName(VarName, &Vars);
 	TArray<FVarDescription> VarDescs;
@@ -551,6 +429,27 @@ void UK2Node_GetVariableByNameNode::RecreateResultPin()
 			}
 		}
 	}
+}
+
+void UK2Node_GetVariableByNameNode::RecreateResultPin()
+{
+	Modify();
+
+	TArray<UEdGraphPin*> UnusedPins = MoveTemp(Pins);
+	for (int32 Index = 0; Index < UnusedPins.Num(); ++Index)
+	{
+		UEdGraphPin* OldPin = UnusedPins[Index];
+		if (!IsResultPin(OldPin))
+		{
+			UnusedPins.RemoveAt(Index--, 1, false);
+			Pins.Add(OldPin);
+		}
+	}
+
+	// Create new result pin.
+	UClass* TargetClass = GetTargetClass();
+	FString VarName = GetVarNamePin()->DefaultValue;
+	RecreateResultPinInternal(TargetClass, VarName);
 
 	// Restore connection.
 	RestoreSplitPins(UnusedPins);

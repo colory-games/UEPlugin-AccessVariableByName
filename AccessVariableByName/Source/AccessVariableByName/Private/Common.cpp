@@ -11,6 +11,19 @@
 
 #include "Internationalization/Regex.h"
 
+const FName ExecThenPinName(TEXT("ExecThen"));
+const FName TargetPinName(TEXT("Target"));
+const FName VarNamePinName(TEXT("VarName"));
+const FName SuccessPinName(TEXT("Success"));
+const FName NewValuePinName(TEXT("NewValue"));
+const FName ResultPinNamePrefix(TEXT("Result_"));
+
+const FString ExecThenPinFriendlyName(TEXT(" "));
+const FString TargetPinFriendlyName(TEXT("Target"));
+const FString VarNamePinFriendlyName(TEXT("Var Name"));
+const FString SuccessPinFriendlyName(TEXT("Success"));
+const FString NewValuePinFriendlyName(TEXT("New Value"));
+
 void SplitVarNameInternal(const FString& In, int32 StartIndex, TArray<FString>* Out)
 {
 	bool bInString = false;

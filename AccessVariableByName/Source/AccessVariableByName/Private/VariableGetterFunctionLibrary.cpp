@@ -12,47 +12,12 @@
 #include "Common.h"
 
 bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty, void* OuterAddr,
+	FProperty* Dest, void* DestAddr);
+
+bool CopyTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property, void* OuterAddr,
 	FProperty* Dest, void* DestAddr)
 {
 	const FVarDescription& Desc = VarDescs[VarDepth];
-
-	if (!Desc.bIsValid)
-	{
-		return false;
-	}
-
-	UScriptStruct* ScriptStruct = OuterProperty->Struct;
-	FProperty* Property = nullptr;
-	if (ScriptStruct->IsNative())
-	{
-		Property = ScriptStruct->FindPropertyByName(*Desc.VarName);
-	}
-	else
-	{
-		FField* Field = ScriptStruct->ChildProperties;
-		while (Field)
-		{
-			FString FieldName = Field->GetName();
-			int32 Index = FieldName.Len();
-			for (int Iter = 0; Iter < 2; ++Iter)
-			{
-				Index = FieldName.Find(FString("_"), ESearchCase::CaseSensitive, ESearchDir::FromEnd, Index);
-			}
-			FString PropertyName = FieldName.Left(Index);
-
-			if (PropertyName == Desc.VarName)
-			{
-				Property = ScriptStruct->FindPropertyByName(*FieldName);
-				break;
-			}
-
-			Field = Field->Next;
-		}
-	}
-	if (Property == nullptr)
-	{
-		return false;
-	}
 
 	if (Desc.VarType == EContainerType::None)
 	{
@@ -67,7 +32,6 @@ bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDept
 		{
 			return false;
 		}
-
 		FStructProperty* StructProperty = CastChecked<FStructProperty>(Property);
 		void* StructAddr = Property->ContainerPtrToValuePtr<void>(OuterAddr);
 
@@ -79,7 +43,6 @@ bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDept
 		{
 			return false;
 		}
-
 		FArrayProperty* ArrayProperty = CastChecked<FArrayProperty>(Property);
 		void* ArrayAddr = ArrayProperty->ContainerPtrToValuePtr<void>(OuterAddr);
 		auto ArrayPtr = ArrayProperty->GetPropertyValuePtr(ArrayAddr);
@@ -87,7 +50,6 @@ bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDept
 		if (VarDescs.Num() == VarDepth + 1)
 		{
 			int32 Index = Desc.ArrayIndex;
-
 			if (Index >= ArrayPtr->Num())
 			{
 				return false;
@@ -107,10 +69,9 @@ bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDept
 		{
 			return false;
 		}
-
 		FStructProperty* StructProperty = CastChecked<FStructProperty>(InnerProperty);
-		int32 Index = Desc.ArrayIndex;
 
+		int32 Index = Desc.ArrayIndex;
 		if (Index >= ArrayPtr->Num())
 		{
 			return false;
@@ -128,8 +89,8 @@ bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDept
 		{
 			return false;
 		}
-
 		FMapProperty* MapProperty = CastChecked<FMapProperty>(Property);
+
 		FProperty* KeyProperty = MapProperty->KeyProp;
 		if (!KeyProperty->IsA<FStrProperty>())
 		{
@@ -178,6 +139,52 @@ bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDept
 	return false;
 }
 
+bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty, void* OuterAddr,
+	FProperty* Dest, void* DestAddr)
+{
+	const FVarDescription& Desc = VarDescs[VarDepth];
+
+	if (!Desc.bIsValid)
+	{
+		return false;
+	}
+
+	UScriptStruct* ScriptStruct = OuterProperty->Struct;
+	FProperty* Property = nullptr;
+	if (ScriptStruct->IsNative())
+	{
+		Property = ScriptStruct->FindPropertyByName(*Desc.VarName);
+	}
+	else
+	{
+		FField* Field = ScriptStruct->ChildProperties;
+		while (Field)
+		{
+			FString FieldName = Field->GetName();
+			int32 Index = FieldName.Len();
+			for (int Iter = 0; Iter < 2; ++Iter)
+			{
+				Index = FieldName.Find(FString("_"), ESearchCase::CaseSensitive, ESearchDir::FromEnd, Index);
+			}
+			FString PropertyName = FieldName.Left(Index);
+
+			if (PropertyName == Desc.VarName)
+			{
+				Property = ScriptStruct->FindPropertyByName(*FieldName);
+				break;
+			}
+
+			Field = Field->Next;
+		}
+	}
+	if (Property == nullptr)
+	{
+		return false;
+	}
+
+	return CopyTerminalPropertyInternal(VarDescs, VarDepth, Property, OuterAddr, Dest, DestAddr);
+}
+
 bool CopyTerminalProperty(
 	const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest, void* DestAddr)
 {
@@ -194,126 +201,7 @@ bool CopyTerminalProperty(
 		return false;
 	}
 
-	if (Desc.VarType == EContainerType::None)
-	{
-		if (VarDescs.Num() == VarDepth + 1)
-		{
-			void* SrcAddr = Property->ContainerPtrToValuePtr<void>(OuterObject);
-			Property->CopyCompleteValue(DestAddr, SrcAddr);
-			return true;
-		}
-
-		if (!Property->IsA<FStructProperty>())
-		{
-			return false;
-		}
-
-		FStructProperty* StructProperty = CastChecked<FStructProperty>(Property);
-		void* StructAddr = Property->ContainerPtrToValuePtr<void>(OuterObject);
-
-		return CopyTerminalProperty(VarDescs, VarDepth + 1, StructProperty, StructAddr, Dest, DestAddr);
-	}
-	else if (Desc.VarType == EContainerType::Array)
-	{
-		if (!Property->IsA<FArrayProperty>())
-		{
-			return false;
-		}
-
-		FArrayProperty* ArrayProperty = CastChecked<FArrayProperty>(Property);
-		void* ArrayAddr = ArrayProperty->ContainerPtrToValuePtr<void>(OuterObject);
-		auto ArrayPtr = ArrayProperty->GetPropertyValuePtr(ArrayAddr);
-
-		if (VarDescs.Num() == VarDepth + 1)
-		{
-			int32 Index = Desc.ArrayIndex;
-			if (Index >= ArrayPtr->Num())
-			{
-				return false;
-			}
-
-			int32 Stride = Dest->ArrayDim * Dest->ElementSize;
-			int8* InnerAddr = static_cast<int8*>(ArrayPtr->GetData());
-			void* InnerItemAddr = InnerAddr + Index * Stride;
-
-			Dest->CopyCompleteValue(DestAddr, InnerItemAddr);
-
-			return true;
-		}
-
-		FProperty* InnerProperty = ArrayProperty->Inner;
-		if (!InnerProperty->IsA<FStructProperty>())
-		{
-			return false;
-		}
-
-		FStructProperty* StructProperty = CastChecked<FStructProperty>(InnerProperty);
-		int32 Index = Desc.ArrayIndex;
-		if (Index >= ArrayPtr->Num())
-		{
-			return false;
-		}
-
-		int32 Stride = StructProperty->ArrayDim * StructProperty->ElementSize;
-		int8* InnerAddr = static_cast<int8*>(ArrayPtr->GetData());
-		void* InnerItemAddr = InnerAddr + Index * Stride;
-
-		return CopyTerminalProperty(VarDescs, VarDepth + 1, StructProperty, InnerItemAddr, Dest, DestAddr);
-	}
-	else if (Desc.VarType == EContainerType::Map)
-	{
-		if (!Property->IsA<FMapProperty>())
-		{
-			return false;
-		}
-
-		FMapProperty* MapProperty = CastChecked<FMapProperty>(Property);
-		FProperty* KeyProperty = MapProperty->KeyProp;
-		if (!KeyProperty->IsA<FStrProperty>())
-		{
-			return false;
-		}
-
-		if (VarDescs.Num() == VarDepth + 1)
-		{
-			void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterObject);
-			auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
-			FString Key = Desc.MapKey;
-			uint8* ValueAddr = MapPtr->FindValue(
-				&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-				[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
-			if (ValueAddr == nullptr)
-			{
-				return false;
-			}
-
-			Dest->CopyCompleteValue(DestAddr, ValueAddr);
-
-			return true;
-		}
-
-		FProperty* ValueProperty = MapProperty->ValueProp;
-		if (!ValueProperty->IsA<FStructProperty>())
-		{
-			return false;
-		}
-
-		FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
-		void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterObject);
-		auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
-		FString Key = Desc.MapKey;
-		uint8* ValueAddr = MapPtr->FindValue(
-			&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-			[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
-		if (ValueAddr == nullptr)
-		{
-			return false;
-		}
-
-		return CopyTerminalProperty(VarDescs, VarDepth + 1, StructProperty, ValueAddr, Dest, DestAddr);
-	}
-
-	return false;
+	return CopyTerminalPropertyInternal(VarDescs, VarDepth, Property, OuterObject, Dest, DestAddr);
 }
 
 void UVariableGetterFunctionLibarary::GetBooleanVariableByName(UObject* Target, FName VarName, bool& Success, bool& Result)
