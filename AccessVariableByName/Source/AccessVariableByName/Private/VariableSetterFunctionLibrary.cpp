@@ -9,7 +9,6 @@
 
 #include "VariableSetterFunctionLibrary.h"
 
-
 void UVariableSetterFunctionLibarary::SetBooleanVariableByName(
 	UObject* Target, FName VarName, bool NewValue, bool& Success, bool& Result)
 {

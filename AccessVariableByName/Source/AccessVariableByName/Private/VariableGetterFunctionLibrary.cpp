@@ -143,8 +143,7 @@ bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDept
 			FString Key = Desc.MapKey;
 			uint8* ValueAddr = MapPtr->FindValue(
 				&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-				[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); }
-			);
+				[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
 			if (ValueAddr == nullptr)
 			{
 				return false;
@@ -167,8 +166,7 @@ bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDept
 		FString Key = Desc.MapKey;
 		uint8* ValueAddr = MapPtr->FindValue(
 			&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-			[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); }
-		);
+			[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
 		if (ValueAddr == nullptr)
 		{
 			return false;
@@ -283,8 +281,7 @@ bool CopyTerminalProperty(
 			FString Key = Desc.MapKey;
 			uint8* ValueAddr = MapPtr->FindValue(
 				&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-				[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); }
-			);
+				[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
 			if (ValueAddr == nullptr)
 			{
 				return false;
@@ -307,8 +304,7 @@ bool CopyTerminalProperty(
 		FString Key = Desc.MapKey;
 		uint8* ValueAddr = MapPtr->FindValue(
 			&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-			[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); }
-		);
+			[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
 		if (ValueAddr == nullptr)
 		{
 			return false;

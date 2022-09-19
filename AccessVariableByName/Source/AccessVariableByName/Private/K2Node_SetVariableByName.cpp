@@ -446,7 +446,7 @@ UFunction* UK2Node_SetVariableByNameNode::FindSetterFunction(UEdGraphPin* Pin)
 
 	switch (PinType.ContainerType)
 	{
-	case EPinContainerType::Array:
+		case EPinContainerType::Array:
 			return FunctionLibrary->FindFunctionByName(FName("SetArrayVariableByName"));
 		case EPinContainerType::Set:
 			return FunctionLibrary->FindFunctionByName(FName("SetSetVariableByName"));
