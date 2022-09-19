@@ -9,11 +9,10 @@
 
 #pragma once
 
-#include "K2Node.h"
 #include "BlueprintActionDatabaseRegistrar.h"
+#include "K2Node.h"
 
 #include "K2Node_SetVariableByName.generated.h"
-
 
 UCLASS(MinimalAPI)
 class UK2Node_SetVariableByNameNode : public UK2Node
@@ -42,12 +41,16 @@ protected:
 	void CreateTargetPin();
 	void CreateVarNamePin();
 	void CreateNewValuePin(FName PinCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType);
-	void CreateNewValuePin(FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType);
-	void CreateNewValuePin(FName PinCategory, UObject* PinSubCategoryObject, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType);
+	void CreateNewValuePin(
+		FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType);
+	void CreateNewValuePin(FName PinCategory, UObject* PinSubCategoryObject, EPinContainerType PinContainerType,
+		const FEdGraphTerminalType& PinValueType);
 	void CreateSuccessPin();
 	void CreateResultPin(FName PinCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType);
-	void CreateResultPin(FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType);
-	void CreateResultPin(FName PinCategory, UObject* PinSubCategoryObject, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType);
+	void CreateResultPin(
+		FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType);
+	void CreateResultPin(FName PinCategory, UObject* PinSubCategoryObject, EPinContainerType PinContainerType,
+		const FEdGraphTerminalType& PinValueType);
 	void RecreateResultPin();
 	UClass* GetTargetClass(UEdGraphPin* Pin = nullptr);
 	UFunction* FindSetterFunction(UEdGraphPin* Pin);

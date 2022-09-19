@@ -10,7 +10,8 @@
 #include "VariableSetterFunctionLibrary.h"
 
 
-void UVariableSetterFunctionLibarary::SetBooleanVariableByName(UObject* Target, FName VarName, bool NewValue, bool& Success, bool& Result)
+void UVariableSetterFunctionLibarary::SetBooleanVariableByName(
+	UObject* Target, FName VarName, bool NewValue, bool& Success, bool& Result)
 {
 	Success = false;
 
@@ -30,7 +31,8 @@ void UVariableSetterFunctionLibarary::SetBooleanVariableByName(UObject* Target, 
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetByteVariableByName(UObject* Target, FName VarName, uint8 NewValue, bool& Success, uint8& Result)
+void UVariableSetterFunctionLibarary::SetByteVariableByName(
+	UObject* Target, FName VarName, uint8 NewValue, bool& Success, uint8& Result)
 {
 	Success = false;
 
@@ -50,7 +52,8 @@ void UVariableSetterFunctionLibarary::SetByteVariableByName(UObject* Target, FNa
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetClassVariableByName(UObject* Target, FName VarName, UClass* NewValue, bool& Success, UClass*& Result)
+void UVariableSetterFunctionLibarary::SetClassVariableByName(
+	UObject* Target, FName VarName, UClass* NewValue, bool& Success, UClass*& Result)
 {
 	Success = false;
 
@@ -70,7 +73,8 @@ void UVariableSetterFunctionLibarary::SetClassVariableByName(UObject* Target, FN
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetIntVariableByName(UObject* Target, FName VarName, int32 NewValue, bool& Success, int32& Result)
+void UVariableSetterFunctionLibarary::SetIntVariableByName(
+	UObject* Target, FName VarName, int32 NewValue, bool& Success, int32& Result)
 {
 	Success = false;
 
@@ -90,7 +94,8 @@ void UVariableSetterFunctionLibarary::SetIntVariableByName(UObject* Target, FNam
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetInt64VariableByName(UObject* Target, FName VarName, int64 NewValue, bool& Success, int64& Result)
+void UVariableSetterFunctionLibarary::SetInt64VariableByName(
+	UObject* Target, FName VarName, int64 NewValue, bool& Success, int64& Result)
 {
 	Success = false;
 
@@ -110,7 +115,8 @@ void UVariableSetterFunctionLibarary::SetInt64VariableByName(UObject* Target, FN
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetFloatVariableByName(UObject* Target, FName VarName, float NewValue, bool& Success, float& Result)
+void UVariableSetterFunctionLibarary::SetFloatVariableByName(
+	UObject* Target, FName VarName, float NewValue, bool& Success, float& Result)
 {
 	Success = false;
 
@@ -130,7 +136,8 @@ void UVariableSetterFunctionLibarary::SetFloatVariableByName(UObject* Target, FN
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetFloat64VariableByName(UObject* Target, FName VarName, double NewValue, bool& Success, double& Result)
+void UVariableSetterFunctionLibarary::SetFloat64VariableByName(
+	UObject* Target, FName VarName, double NewValue, bool& Success, double& Result)
 {
 	Success = false;
 
@@ -150,7 +157,8 @@ void UVariableSetterFunctionLibarary::SetFloat64VariableByName(UObject* Target, 
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetNameVariableByName(UObject* Target, FName VarName, FName NewValue, bool& Success, FName& Result)
+void UVariableSetterFunctionLibarary::SetNameVariableByName(
+	UObject* Target, FName VarName, FName NewValue, bool& Success, FName& Result)
 {
 	Success = false;
 
@@ -170,7 +178,8 @@ void UVariableSetterFunctionLibarary::SetNameVariableByName(UObject* Target, FNa
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetObjectVariableByName(UObject* Target, FName VarName, UObject* NewValue, bool& Success, UObject*& Result)
+void UVariableSetterFunctionLibarary::SetObjectVariableByName(
+	UObject* Target, FName VarName, UObject* NewValue, bool& Success, UObject*& Result)
 {
 	Success = false;
 
@@ -190,7 +199,8 @@ void UVariableSetterFunctionLibarary::SetObjectVariableByName(UObject* Target, F
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetStringVariableByName(UObject* Target, FName VarName, FString NewValue, bool& Success, FString& Result)
+void UVariableSetterFunctionLibarary::SetStringVariableByName(
+	UObject* Target, FName VarName, FString NewValue, bool& Success, FString& Result)
 {
 	Success = false;
 
@@ -210,7 +220,8 @@ void UVariableSetterFunctionLibarary::SetStringVariableByName(UObject* Target, F
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetTextVariableByName(UObject* Target, FName VarName, FText NewValue, bool& Success, FText& Result)
+void UVariableSetterFunctionLibarary::SetTextVariableByName(
+	UObject* Target, FName VarName, FText NewValue, bool& Success, FText& Result)
 {
 	Success = false;
 
@@ -230,12 +241,14 @@ void UVariableSetterFunctionLibarary::SetTextVariableByName(UObject* Target, FNa
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetStructVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
+void UVariableSetterFunctionLibarary::SetStructVariableByName(
+	UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
 {
 	check(0);
 }
 
-void UVariableSetterFunctionLibarary::GenericSetStructVariableByName(UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue)
+void UVariableSetterFunctionLibarary::GenericSetStructVariableByName(
+	UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue)
 {
 	Success = false;
 
@@ -261,12 +274,14 @@ void UVariableSetterFunctionLibarary::GenericSetStructVariableByName(UObject* Ta
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetEnumVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
+void UVariableSetterFunctionLibarary::SetEnumVariableByName(
+	UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
 {
 	check(0);
 }
 
-void UVariableSetterFunctionLibarary::GenericSetEnumVariableByName(UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue)
+void UVariableSetterFunctionLibarary::GenericSetEnumVariableByName(
+	UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue)
 {
 	Success = false;
 
@@ -292,12 +307,14 @@ void UVariableSetterFunctionLibarary::GenericSetEnumVariableByName(UObject* Targ
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetArrayVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
+void UVariableSetterFunctionLibarary::SetArrayVariableByName(
+	UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
 {
 	check(0);
 }
 
-void UVariableSetterFunctionLibarary::GenericSetArrayVariableByName(UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue)
+void UVariableSetterFunctionLibarary::GenericSetArrayVariableByName(
+	UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue)
 {
 	Success = false;
 
@@ -323,12 +340,14 @@ void UVariableSetterFunctionLibarary::GenericSetArrayVariableByName(UObject* Tar
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetSetVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
+void UVariableSetterFunctionLibarary::SetSetVariableByName(
+	UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
 {
 	check(0);
 }
 
-void UVariableSetterFunctionLibarary::GenericSetSetVariableByName(UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue)
+void UVariableSetterFunctionLibarary::GenericSetSetVariableByName(
+	UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue)
 {
 	Success = false;
 
@@ -354,12 +373,14 @@ void UVariableSetterFunctionLibarary::GenericSetSetVariableByName(UObject* Targe
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetMapVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
+void UVariableSetterFunctionLibarary::SetMapVariableByName(
+	UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
 {
 	check(0);
 }
 
-void UVariableSetterFunctionLibarary::GenericSetMapVariableByName(UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue)
+void UVariableSetterFunctionLibarary::GenericSetMapVariableByName(
+	UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue)
 {
 	Success = false;
 

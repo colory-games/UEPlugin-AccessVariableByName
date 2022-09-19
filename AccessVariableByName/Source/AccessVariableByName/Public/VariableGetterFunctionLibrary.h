@@ -13,14 +13,12 @@
 
 #include "VariableGetterFunctionLibrary.generated.h"
 
-
 UCLASS()
 class ACCESSVARIABLEBYNAME_API UVariableGetterFunctionLibarary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
 public:
-
 	UFUNCTION(BlueprintCallable)
 	static void GetBooleanVariableByName(UObject* Target, FName VarName, bool& Success, bool& Result);
 
@@ -162,7 +160,8 @@ public:
 	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result"))
 	static void GetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result);
 
-	static void GenericGetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty* ResultProperty, void* ResultAddr);
+	static void GenericGetNestedVariableByName(
+		UObject* Target, FName VarName, bool& Success, UProperty* ResultProperty, void* ResultAddr);
 
 	DECLARE_FUNCTION(execGetNestedVariableByName)
 	{

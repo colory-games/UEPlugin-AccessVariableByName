@@ -11,8 +11,8 @@
 
 #include "Common.h"
 
-
-bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty, void* OuterAddr, FProperty* Dest, void* DestAddr)
+bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty, void* OuterAddr,
+	FProperty* Dest, void* DestAddr)
 {
 	const FVarDescription& Desc = VarDescs[VarDepth];
 
@@ -142,9 +142,7 @@ bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDept
 			auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
 			FString Key = Desc.MapKey;
 			uint8* ValueAddr = MapPtr->FindValue(
-				&Key,
-				MapProperty->MapLayout,
-				[KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
+				&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
 				[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); }
 			);
 			if (ValueAddr == nullptr)
@@ -168,9 +166,7 @@ bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDept
 		auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
 		FString Key = Desc.MapKey;
 		uint8* ValueAddr = MapPtr->FindValue(
-			&Key,
-			MapProperty->MapLayout,
-			[KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
+			&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
 			[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); }
 		);
 		if (ValueAddr == nullptr)
@@ -184,7 +180,8 @@ bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDept
 	return false;
 }
 
-bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest, void* DestAddr)
+bool CopyTerminalProperty(
+	const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest, void* DestAddr)
 {
 	const FVarDescription& Desc = VarDescs[VarDepth];
 
@@ -285,9 +282,7 @@ bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDept
 			auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
 			FString Key = Desc.MapKey;
 			uint8* ValueAddr = MapPtr->FindValue(
-				&Key,
-				MapProperty->MapLayout,
-				[KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
+				&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
 				[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); }
 			);
 			if (ValueAddr == nullptr)
@@ -311,9 +306,7 @@ bool CopyTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDept
 		auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
 		FString Key = Desc.MapKey;
 		uint8* ValueAddr = MapPtr->FindValue(
-			&Key,
-			MapProperty->MapLayout,
-			[KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
+			&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
 			[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); }
 		);
 		if (ValueAddr == nullptr)
@@ -691,7 +684,8 @@ void UVariableGetterFunctionLibarary::GetNestedVariableByName(UObject* Target, F
 	check(0);
 }
 
-void UVariableGetterFunctionLibarary::GenericGetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty* ResultProperty, void* ResultAddr)
+void UVariableGetterFunctionLibarary::GenericGetNestedVariableByName(
+	UObject* Target, FName VarName, bool& Success, UProperty* ResultProperty, void* ResultAddr)
 {
 	TArray<FString> Vars;
 	TArray<FVarDescription> VarDescs;

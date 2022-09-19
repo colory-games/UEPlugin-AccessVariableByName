@@ -8,7 +8,6 @@
  */
 
 #include "AccessVariableByNameModule.h"
-
 #include "EdGraphUtilities.h"
 
 #define LOCTEXT_NAMESPACE "FAccessVariableByNameModule"

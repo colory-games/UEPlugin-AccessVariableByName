@@ -13,14 +13,12 @@
 
 #include "VariableSetterFunctionLibrary.generated.h"
 
-
 UCLASS()
 class ACCESSVARIABLEBYNAME_API UVariableSetterFunctionLibarary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
 public:
-
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly)
 	static void SetBooleanVariableByName(UObject* Target, FName VarName, bool NewValue, bool& Success, bool& Result);
 

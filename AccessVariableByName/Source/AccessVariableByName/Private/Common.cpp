@@ -11,7 +11,6 @@
 
 #include "Internationalization/Regex.h"
 
-
 void SplitVarNameInternal(const FString& In, int32 StartIndex, TArray<FString>* Out)
 {
 	bool bInString = false;

@@ -9,11 +9,10 @@
 
 #pragma once
 
-#include "K2Node.h"
 #include "BlueprintActionDatabaseRegistrar.h"
+#include "K2Node.h"
 
 #include "K2Node_GetVariableByName.generated.h"
-
 
 UCLASS(MinimalAPI)
 class UK2Node_GetVariableByNameNode : public UK2Node
@@ -42,9 +41,12 @@ protected:
 	void CreateTargetPin();
 	void CreateVarNamePin();
 	void CreateSuccessPin();
-	void CreateResultPin(FName PinCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
-	void CreateResultPin(FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
-	void CreateResultPin(FName PinCategory, UObject* PinSubCategoryObject, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
+	void CreateResultPin(FName PinCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType,
+		FString PropertyName, int32 Index);
+	void CreateResultPin(FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType,
+		const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
+	void CreateResultPin(FName PinCategory, UObject* PinSubCategoryObject, EPinContainerType PinContainerType,
+		const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
 	void RecreateResultPin();
 	UClass* GetTargetClass(UEdGraphPin* Pin = nullptr);
 	UFunction* FindGetterFunction(UEdGraphPin* Pin);
