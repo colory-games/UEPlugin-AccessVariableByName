@@ -64,4 +64,7 @@ public:
 	UEdGraphPin* GetNewValuePin();
 	UEdGraphPin* GetSuccessPin();
 	UEdGraphPin* GetResultPin();
+
+	UPROPERTY()
+	bool bIsNestedVarName = false;
 };

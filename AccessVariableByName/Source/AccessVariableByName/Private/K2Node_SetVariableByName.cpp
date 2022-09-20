@@ -22,6 +22,119 @@
 const FName SetResultPinName(TEXT("Result"));
 const FString SetResultPinFriendlyName(TEXT("Result"));
 
+namespace {
+
+FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass);
+
+FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property)
+{
+	const FVarDescription& Desc = VarDescs[VarDepth];
+
+	if (Desc.VarType == EContainerType::None)
+	{
+		if (VarDescs.Num() == VarDepth + 1)
+		{
+			return Property;
+		}
+
+		if (!Property->IsA<FStructProperty>())
+		{
+			return nullptr;
+		}
+
+		FStructProperty* StructProperty = CastChecked<FStructProperty>(Property);
+		UScriptStruct* ScriptStruct = StructProperty->Struct;
+
+		return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
+	}
+	else if (Desc.VarType == EContainerType::Array)
+	{
+		if (!Property->IsA<FArrayProperty>())
+		{
+			return nullptr;
+		}
+		FArrayProperty* ArrayProperty = CastChecked<FArrayProperty>(Property);
+
+		if (VarDescs.Num() == VarDepth + 1)
+		{
+			return ArrayProperty->Inner;
+		}
+
+		FProperty* InnerProperty = ArrayProperty->Inner;
+		if (!InnerProperty->IsA<FStructProperty>())
+		{
+			return nullptr;
+		}
+		FStructProperty* StructProperty = CastChecked<FStructProperty>(InnerProperty);
+		UScriptStruct* ScriptStruct = StructProperty->Struct;
+
+		return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
+	}
+	else if (Desc.VarType == EContainerType::Map)
+	{
+		if (!Property->IsA<FMapProperty>())
+		{
+			return nullptr;
+		}
+		FMapProperty* MapProperty = CastChecked<FMapProperty>(Property);
+
+		if (VarDescs.Num() == VarDepth + 1)
+		{
+			return MapProperty->ValueProp;
+		}
+
+		FProperty* ValueProperty = MapProperty->ValueProp;
+		if (!ValueProperty->IsA<FStructProperty>())
+		{
+			return nullptr;
+		}
+		FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
+		UScriptStruct* ScriptStruct = StructProperty->Struct;
+
+		return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
+	}
+
+	return nullptr;
+}
+
+FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass)
+{
+	const FVarDescription& Desc = VarDescs[VarDepth];
+
+	if (!Desc.bIsValid)
+	{
+		return nullptr;
+	}
+
+	FProperty* Property = FindFProperty<FProperty>(OuterClass, *Desc.VarName);
+	if (Property == nullptr)
+	{
+		return nullptr;
+	}
+
+	return GetTerminalPropertyInternal(VarDescs, VarDepth, Property);
+}
+
+FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass)
+{
+	const FVarDescription& Desc = VarDescs[VarDepth];
+
+	if (!Desc.bIsValid)
+	{
+		return nullptr;
+	}
+
+	FProperty* Property = FindFProperty<FProperty>(OuterClass, *Desc.VarName);
+	if (Property == nullptr)
+	{
+		return nullptr;
+	}
+
+	return GetTerminalPropertyInternal(VarDescs, VarDepth, Property);
+}
+
+} // namespace
+
 UK2Node_SetVariableByNameNode::UK2Node_SetVariableByNameNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 }
@@ -145,30 +258,46 @@ void UK2Node_SetVariableByNameNode::ReallocatePinsDuringReconstruction(TArray<UE
 	UClass* TargetClass = GetTargetClass(OldTargetPin);
 	if (TargetClass != nullptr)
 	{
-		FProperty* Property = FindFProperty<FProperty>(TargetClass, *OldVarNamePin->DefaultValue);
-		if (Property != nullptr)
-		{
-			const UEdGraphSchema_K2* Schema = GetDefault<UEdGraphSchema_K2>();
+		FString VarName = GetVarNamePin()->DefaultValue;
 
-			FEdGraphPinType PinType;
-			Schema->ConvertPropertyToPinType(Property, PinType);
-			if (PinType.PinCategory == UEdGraphSchema_K2::PC_Struct || PinType.PinCategory == UEdGraphSchema_K2::PC_Object ||
-				(PinType.PinCategory == UEdGraphSchema_K2::PC_Byte && PinType.PinSubCategoryObject != nullptr))
+		TArray<FString> Vars;
+		SplitVarName(VarName, &Vars);
+		TArray<FVarDescription> VarDescs;
+		AnalyzeVarNames(Vars, &VarDescs);
+
+		if (VarDescs.Num() == 0)
+		{
+			bIsNestedVarName = false;
+		}
+		else
+		{
+			bIsNestedVarName = !(VarDescs.Num() == 1 && VarDescs[0].VarType == EContainerType::None);
+
+			FProperty* Property = GetTerminalProperty(VarDescs, 0, TargetClass);
+			if (Property != nullptr)
 			{
-				CreateNewValuePin(
-					PinType.PinCategory, PinType.PinSubCategoryObject.Get(), PinType.ContainerType, PinType.PinValueType);
-				CreateResultPin(
-					PinType.PinCategory, PinType.PinSubCategoryObject.Get(), PinType.ContainerType, PinType.PinValueType);
-			}
-			else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Real && PinType.PinSubCategory == "double")
-			{
-				CreateNewValuePin(PinType.PinCategory, PinType.PinSubCategory, PinType.ContainerType, PinType.PinValueType);
-				CreateResultPin(PinType.PinCategory, PinType.PinSubCategory, PinType.ContainerType, PinType.PinValueType);
-			}
-			else
-			{
-				CreateNewValuePin(PinType.PinCategory, PinType.ContainerType, PinType.PinValueType);
-				CreateResultPin(PinType.PinCategory, PinType.ContainerType, PinType.PinValueType);
+				const UEdGraphSchema_K2* Schema = GetDefault<UEdGraphSchema_K2>();
+
+				FEdGraphPinType PinType;
+				Schema->ConvertPropertyToPinType(Property, PinType);
+				if (PinType.PinCategory == UEdGraphSchema_K2::PC_Struct || PinType.PinCategory == UEdGraphSchema_K2::PC_Object ||
+					(PinType.PinCategory == UEdGraphSchema_K2::PC_Byte && PinType.PinSubCategoryObject != nullptr))
+				{
+					CreateNewValuePin(
+						PinType.PinCategory, PinType.PinSubCategoryObject.Get(), PinType.ContainerType, PinType.PinValueType);
+					CreateResultPin(
+						PinType.PinCategory, PinType.PinSubCategoryObject.Get(), PinType.ContainerType, PinType.PinValueType);
+				}
+				else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Real && PinType.PinSubCategory == "double")
+				{
+					CreateNewValuePin(PinType.PinCategory, PinType.PinSubCategory, PinType.ContainerType, PinType.PinValueType);
+					CreateResultPin(PinType.PinCategory, PinType.PinSubCategory, PinType.ContainerType, PinType.PinValueType);
+				}
+				else
+				{
+					CreateNewValuePin(PinType.PinCategory, PinType.ContainerType, PinType.PinValueType);
+					CreateResultPin(PinType.PinCategory, PinType.ContainerType, PinType.PinValueType);
+				}
 			}
 		}
 	}
@@ -354,29 +483,45 @@ void UK2Node_SetVariableByNameNode::RecreateResultPin()
 
 	// Create new result pin.
 	UClass* TargetClass = GetTargetClass();
-	FProperty* Property = FindFProperty<FProperty>(TargetClass, *GetVarNamePin()->DefaultValue);
-	if (Property != nullptr)
-	{
-		// TODO: support input from independent variable
-		const UEdGraphSchema_K2* Schema = GetDefault<UEdGraphSchema_K2>();
+	FString VarName = GetVarNamePin()->DefaultValue;
 
-		FEdGraphPinType PinType;
-		Schema->ConvertPropertyToPinType(Property, PinType);
-		if (PinType.PinCategory == UEdGraphSchema_K2::PC_Struct || PinType.PinCategory == UEdGraphSchema_K2::PC_Object ||
-			(PinType.PinCategory == UEdGraphSchema_K2::PC_Byte && PinType.PinSubCategoryObject != nullptr))
+	TArray<FString> Vars;
+	SplitVarName(VarName, &Vars);
+	TArray<FVarDescription> VarDescs;
+	AnalyzeVarNames(Vars, &VarDescs);
+
+	if (VarDescs.Num() == 0)
+	{
+		bIsNestedVarName = false;
+	}
+	else
+	{
+		bIsNestedVarName = !(VarDescs.Num() == 1 && VarDescs[0].VarType == EContainerType::None);
+
+		FProperty* Property = GetTerminalProperty(VarDescs, 0, TargetClass);
+		if (Property != nullptr)
 		{
-			CreateNewValuePin(PinType.PinCategory, PinType.PinSubCategoryObject.Get(), PinType.ContainerType, PinType.PinValueType);
-			CreateResultPin(PinType.PinCategory, PinType.PinSubCategoryObject.Get(), PinType.ContainerType, PinType.PinValueType);
-		}
-		else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Real && PinType.PinSubCategory == "double")
-		{
-			CreateNewValuePin(PinType.PinCategory, PinType.PinSubCategory, PinType.ContainerType, PinType.PinValueType);
-			CreateResultPin(PinType.PinCategory, PinType.PinSubCategory, PinType.ContainerType, PinType.PinValueType);
-		}
-		else
-		{
-			CreateNewValuePin(PinType.PinCategory, PinType.ContainerType, PinType.PinValueType);
-			CreateResultPin(PinType.PinCategory, PinType.ContainerType, PinType.PinValueType);
+			// TODO: support input from independent variable
+			const UEdGraphSchema_K2* Schema = GetDefault<UEdGraphSchema_K2>();
+
+			FEdGraphPinType PinType;
+			Schema->ConvertPropertyToPinType(Property, PinType);
+			if (PinType.PinCategory == UEdGraphSchema_K2::PC_Struct || PinType.PinCategory == UEdGraphSchema_K2::PC_Object ||
+				(PinType.PinCategory == UEdGraphSchema_K2::PC_Byte && PinType.PinSubCategoryObject != nullptr))
+			{
+				CreateNewValuePin(PinType.PinCategory, PinType.PinSubCategoryObject.Get(), PinType.ContainerType, PinType.PinValueType);
+				CreateResultPin(PinType.PinCategory, PinType.PinSubCategoryObject.Get(), PinType.ContainerType, PinType.PinValueType);
+			}
+			else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Real && PinType.PinSubCategory == "double")
+			{
+				CreateNewValuePin(PinType.PinCategory, PinType.PinSubCategory, PinType.ContainerType, PinType.PinValueType);
+				CreateResultPin(PinType.PinCategory, PinType.PinSubCategory, PinType.ContainerType, PinType.PinValueType);
+			}
+			else
+			{
+				CreateNewValuePin(PinType.PinCategory, PinType.ContainerType, PinType.PinValueType);
+				CreateResultPin(PinType.PinCategory, PinType.ContainerType, PinType.PinValueType);
+			}
 		}
 	}
 
@@ -433,6 +578,11 @@ UFunction* UK2Node_SetVariableByNameNode::FindSetterFunction(UEdGraphPin* Pin)
 {
 	FEdGraphPinType PinType = Pin->PinType;
 	UClass* FunctionLibrary = UVariableSetterFunctionLibarary::StaticClass();
+
+	if (bIsNestedVarName)
+	{
+		return FunctionLibrary->FindFunctionByName(FName("SetNestedVariableByName"));
+	}
 
 	switch (PinType.ContainerType)
 	{

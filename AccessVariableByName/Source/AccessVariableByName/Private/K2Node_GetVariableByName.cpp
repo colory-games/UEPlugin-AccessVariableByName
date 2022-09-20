@@ -19,6 +19,8 @@
 
 #define LOCTEXT_NAMESPACE "K2Node"
 
+namespace {
+
 FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass);
 
 FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property)
@@ -127,6 +129,8 @@ FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 Va
 
 	return GetTerminalPropertyInternal(VarDescs, VarDepth, Property);
 }
+
+} // namespace
 
 UK2Node_GetVariableByNameNode::UK2Node_GetVariableByNameNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -388,7 +392,10 @@ void UK2Node_GetVariableByNameNode::CreateResultPin(FName PinCategory, UObject* 
 
 void UK2Node_GetVariableByNameNode::RecreateResultPinInternal(UClass* TargetClass, const FString& VarName)
 {
-	check(TargetClass);
+	if (TargetClass == nullptr)
+	{
+		return;
+	}
 
 	TArray<FString> Vars;
 	SplitVarName(VarName, &Vars);

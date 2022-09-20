@@ -69,17 +69,17 @@ public:
 
 		FProperty* ResultProperty = Stack.MostRecentProperty;
 		int32 PropertySize = ResultProperty->ElementSize * ResultProperty->ArrayDim;
-		void* NewValue = FMemory_Alloca(PropertySize);
-		ResultProperty->InitializeValue(NewValue);
+		void* NewValueAddr = FMemory_Alloca(PropertySize);
+		ResultProperty->InitializeValue(NewValueAddr);
 		Stack.MostRecentPropertyAddress = NULL;
-		Stack.StepCompiledIn<FProperty>(NewValue);
+		Stack.StepCompiledIn<FProperty>(NewValueAddr);
 		P_FINISH;
 		P_NATIVE_BEGIN;
 
-		GenericSetStructVariableByName(Target, VarName, Success, Result, NewValue);
+		GenericSetStructVariableByName(Target, VarName, Success, Result, NewValueAddr);
 
 		P_NATIVE_END;
-		ResultProperty->DestroyValue(NewValue);
+		ResultProperty->DestroyValue(NewValueAddr);
 	}
 
 	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
@@ -138,6 +138,7 @@ public:
 		GenericSetArrayVariableByName(Target, VarName, Success, Result, NewValue);
 
 		P_NATIVE_END;
+		ResultProperty->DestroyValue(NewValue);
 	}
 
 	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
@@ -166,6 +167,7 @@ public:
 		GenericSetSetVariableByName(Target, VarName, Success, Result, NewValue);
 
 		P_NATIVE_END;
+		ResultProperty->DestroyValue(NewValue);
 	}
 
 	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
@@ -194,5 +196,39 @@ public:
 		GenericSetMapVariableByName(Target, VarName, Success, Result, NewValue);
 
 		P_NATIVE_END;
+		ResultProperty->DestroyValue(NewValue);
+	}
+
+	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
+		static void SetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue);
+
+	static void GenericSetNestedVariableByName(
+		UObject* Target, FName VarName, bool& Success, UProperty* ResultProperty, void* ResultAddr, UProperty* NewValueProperty, void* NewValueAddr);
+
+	DECLARE_FUNCTION(execSetNestedVariableByName)
+	{
+		P_GET_OBJECT(UObject, Target);
+		P_GET_PROPERTY(FNameProperty, VarName);
+		P_GET_PROPERTY_REF(FBoolProperty, Success);
+
+		Stack.StepCompiledIn<FProperty>(NULL);
+		void* ResultAddr = Stack.MostRecentPropertyAddress;
+		FProperty* ResultProperty = Stack.MostRecentProperty;
+
+		int32 PropertySize = ResultProperty->ElementSize * ResultProperty->ArrayDim;
+		void* NewValueAddr = FMemory_Alloca(PropertySize);
+		ResultProperty->InitializeValue(NewValueAddr);
+		Stack.MostRecentPropertyAddress = NULL;
+		Stack.StepCompiledIn<FProperty>(NewValueAddr);
+		FProperty* NewValueProperty = Stack.MostRecentProperty;
+
+		P_FINISH;
+
+		P_NATIVE_BEGIN;
+
+		GenericSetNestedVariableByName(Target, VarName, Success, ResultProperty, ResultAddr, NewValueProperty, NewValueAddr);
+
+		P_NATIVE_END;
+		ResultProperty->DestroyValue(NewValueAddr);
 	}
 };
