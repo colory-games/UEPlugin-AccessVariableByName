@@ -17,6 +17,7 @@
 #include "NodeFactory.h"
 #include "SPinTypeSelector.h"
 #include "DetailLayoutBuilder.h"
+#include "Common.h"
 
 void SGraphNodeDynamicGetVariableByNameNode::Construct(const FArguments& InArgs, UK2Node_DynamicGetVariableByNameNode* InNode)
 {
@@ -41,15 +42,41 @@ void SGraphNodeDynamicGetVariableByNameNode::CreatePinWidgets()
 		}
 	}
 
-	LeftNodeBox->AddSlot().AutoHeight()[
-		SNew(SPinTypeSelector, FGetPinTypeTree::CreateUObject(K2Schema, &UEdGraphSchema_K2::GetVariableTypeTree))
-			.Schema(K2Schema)
-			.TargetPinType(this, &SGraphNodeDynamicGetVariableByNameNode::OnGetPinInfo)
-			.OnPinTypePreChanged(this, &SGraphNodeDynamicGetVariableByNameNode::OnPrePinInfoChanged)
-			.OnPinTypeChanged(this, &SGraphNodeDynamicGetVariableByNameNode::OnPinInfoChanged)
-			.TypeTreeFilter(ETypeTreeFilter::None)
-			.Font(IDetailLayoutBuilder::GetDetailFont())
-	];
+	LeftNodeBox->AddSlot()
+		.AutoHeight()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Center)
+		.Padding(5.0f, 8.0f, 8.0f, 5.0f)[SNew(SImage).Image(FEditorStyle::GetBrush("Graph.Pin.DefaultPinSeparator"))];
+
+	LeftNodeBox->AddSlot()
+		.AutoHeight()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Center)
+		.Padding(10.0f, 8.0f, 8.0f, 10.0f)[
+			SNew(SVerticalBox)
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				.VAlign(VAlign_Center)
+				.Padding(0.0f, 2.0f)
+				[
+					SNew(STextBlock).Text(FText::FromString("Variable Type"))
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				.VAlign(VAlign_Center)
+					.Padding(0.0f, 2.0f)
+				[
+					SNew(SPinTypeSelector, FGetPinTypeTree::CreateUObject(K2Schema, &UEdGraphSchema_K2::GetVariableTypeTree))
+						.Schema(K2Schema)
+						.TargetPinType(this, &SGraphNodeDynamicGetVariableByNameNode::OnGetPinInfo)
+						.OnPinTypePreChanged(this, &SGraphNodeDynamicGetVariableByNameNode::OnPrePinInfoChanged)
+						.OnPinTypeChanged(this, &SGraphNodeDynamicGetVariableByNameNode::OnPinInfoChanged)
+						.TypeTreeFilter(ETypeTreeFilter::None)
+						.Font(IDetailLayoutBuilder::GetDetailFont())
+				]
+			];
 }
 
 FEdGraphPinType SGraphNodeDynamicGetVariableByNameNode::OnGetPinInfo() const
@@ -57,7 +84,7 @@ FEdGraphPinType SGraphNodeDynamicGetVariableByNameNode::OnGetPinInfo() const
 	UK2Node_DynamicGetVariableByNameNode* Node = Cast<UK2Node_DynamicGetVariableByNameNode>(GraphNode);
 	if (Node == nullptr)
 	{
-		return FEdGraphPinType();
+		return CreateDefaultPinType();
 	}
 
 	return Node->GetResultPinType();

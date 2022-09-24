@@ -158,8 +158,11 @@ void UK2Node_DynamicSetVariableByNameNode::AllocateDefaultPins()
 	CreateTargetPin();
 	CreateVarNamePin();
 	CreateSuccessPin();
-	CreateNewValuePin(FEdGraphPinType(), 0);
-	CreateResultPin(FEdGraphPinType(), 0);
+	
+	FEdGraphPinType InitialPinType;
+	InitialPinType.PinCategory = UEdGraphSchema_K2::PC_Boolean;
+	CreateNewValuePin(InitialPinType, 0);
+	CreateResultPin(InitialPinType, 0);
 
 	Super::AllocateDefaultPins();
 }
@@ -282,24 +285,24 @@ void UK2Node_DynamicSetVariableByNameNode::CreateSuccessPin()
 
 void UK2Node_DynamicSetVariableByNameNode::CreateNewValuePin(const FEdGraphPinType& PinType, int32 Index)
 {
-	FName NewValuePinName = FName(FString::Format(TEXT("{0}{1}"), {*NewValuePinNamePrefix.ToString(), Index}));
-	FString NewValuePinFriendlyName = FString::Format(TEXT("New Value {0}"), {Index});
+	FName NewValuePinName = FName(FString::Format(TEXT("{0}"), {*NewValuePinNamePrefix.ToString()}));
+	FString NewValuePinFriendlyName = "New Value";
 
 	FCreatePinParams Params;
 	Params.Index = 6 + Index * 2;
-	UEdGraphPin* Pin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Wildcard, NewValuePinName, Params);
+	UEdGraphPin* Pin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Boolean, NewValuePinName, Params);
 	Pin->PinFriendlyName = FText::AsCultureInvariant(NewValuePinFriendlyName);
 	Pin->PinType = PinType;
 }
 
 void UK2Node_DynamicSetVariableByNameNode::CreateResultPin(const FEdGraphPinType& PinType, int32 Index)
 {
-	FName ResultPinName = FName(FString::Format(TEXT("{0}{1}"), {*ResultPinNamePrefix.ToString(), Index}));
-	FString ResultPinFriendlyName = FString::Format(TEXT("Result {0}"), {Index});
+	FName ResultPinName = FName(FString::Format(TEXT("{0}"), {*ResultPinNamePrefix.ToString()}));
+	FString ResultPinFriendlyName = "Result";
 
 	FCreatePinParams Params;
 	Params.Index = 6 + Index * 2 + 1;
-	UEdGraphPin* Pin = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Wildcard, ResultPinName, Params);
+	UEdGraphPin* Pin = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Boolean, ResultPinName, Params);
 	Pin->PinFriendlyName = FText::AsCultureInvariant(ResultPinFriendlyName);
 	Pin->PinType = PinType;
 }
@@ -308,7 +311,7 @@ bool UK2Node_DynamicSetVariableByNameNode::IsNewValuePin(const UEdGraphPin* Pin)
 {
 	FString PinName = Pin->GetFName().ToString();
 
-	FRegexPattern Pattern = FRegexPattern(FString::Format(TEXT("^{0}[0-9]+$"), {*NewValuePinNamePrefix.ToString()}));
+	FRegexPattern Pattern = FRegexPattern(FString::Format(TEXT("^{0}[0-9]*$"), {*NewValuePinNamePrefix.ToString()}));
 	FRegexMatcher Matcher(Pattern, PinName);
 	if (Matcher.FindNext())
 	{
@@ -322,7 +325,7 @@ bool UK2Node_DynamicSetVariableByNameNode::IsResultPin(const UEdGraphPin* Pin) c
 {
 	FString PinName = Pin->GetFName().ToString();
 
-	FRegexPattern Pattern = FRegexPattern(FString::Format(TEXT("^{0}[0-9]+$"), {*ResultPinNamePrefix.ToString()}));
+	FRegexPattern Pattern = FRegexPattern(FString::Format(TEXT("^{0}[0-9]*$"), {*ResultPinNamePrefix.ToString()}));
 	FRegexMatcher Matcher(Pattern, PinName);
 	if (Matcher.FindNext())
 	{
@@ -422,7 +425,7 @@ FEdGraphPinType UK2Node_DynamicSetVariableByNameNode::GetVariantPinType() const
 	TArray<UEdGraphPin*> ResultPins = GetAllResultPins();
 	if (ResultPins.Num() == 0)
 	{
-		return FEdGraphPinType();
+		return CreateDefaultPinType();
 	}
 
 	return ResultPins[0]->PinType;

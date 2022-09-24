@@ -40,3 +40,5 @@ struct FVarDescription
 FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass);
 void SplitVarName(const FString& In, TArray<FString>* Out);
 void AnalyzeVarNames(const TArray<FString>& VarNames, TArray<FVarDescription>* VarDescs);
+
+FEdGraphPinType CreateDefaultPinType();

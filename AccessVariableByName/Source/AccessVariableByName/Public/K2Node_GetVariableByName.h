@@ -41,12 +41,7 @@ protected:
 	void CreateTargetPin();
 	void CreateVarNamePin();
 	void CreateSuccessPin();
-	void CreateResultPin(FName PinCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType,
-		FString PropertyName, int32 Index);
-	void CreateResultPin(FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType,
-		const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
-	void CreateResultPin(FName PinCategory, UObject* PinSubCategoryObject, EPinContainerType PinContainerType,
-		const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
+	void CreateResultPin(const FEdGraphPinType& PinType, FString PropertyName, int32 Index);
 	void RecreateResultPin();
 	void RecreateResultPinInternal(UClass* TargetClass, const FString& VarName);
 	UClass* GetTargetClass(UEdGraphPin* Pin = nullptr);

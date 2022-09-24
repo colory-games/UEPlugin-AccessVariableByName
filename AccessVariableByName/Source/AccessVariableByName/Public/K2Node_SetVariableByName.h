@@ -40,17 +40,9 @@ protected:
 	void CreateExecThenPin();
 	void CreateTargetPin();
 	void CreateVarNamePin();
-	void CreateNewValuePin(FName PinCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
-	void CreateNewValuePin(
-		FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
-	void CreateNewValuePin(FName PinCategory, UObject* PinSubCategoryObject, EPinContainerType PinContainerType,
-		const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
+	void CreateNewValuePin(const FEdGraphPinType& PinType, FString PropertyName, int32 Index);
 	void CreateSuccessPin();
-	void CreateResultPin(FName PinCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
-	void CreateResultPin(
-		FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
-	void CreateResultPin(FName PinCategory, UObject* PinSubCategoryObject, EPinContainerType PinContainerType,
-		const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
+	void CreateResultPin(const FEdGraphPinType& PinType, FString PropertyName, int32 Index);
 	void RecreateVariantPinInternal(UClass* TargetClass, const FString& VarName);
 	void RecreateVariantPin();
 	UClass* GetTargetClass(UEdGraphPin* Pin = nullptr);

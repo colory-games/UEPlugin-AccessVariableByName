@@ -42,7 +42,7 @@ protected:
 	void CreateSuccessPin();
 	void CreateResultPin(const FEdGraphPinType& PinType, int32 Index);
 	bool IsResultPin(const UEdGraphPin* Pin) const;
-	void RecreateResultPin(const FEdGraphPinType& PinType);
+	void RecreateVariantPins(const FEdGraphPinType& PinType);
 
 protected:
 

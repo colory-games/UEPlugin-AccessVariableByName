@@ -223,3 +223,11 @@ void AnalyzeVarNames(const TArray<FString>& VarNames, TArray<FVarDescription>* V
 		VarDescs->Add(Desc);
 	}
 }
+
+FEdGraphPinType CreateDefaultPinType()
+{
+	FEdGraphPinType PinType;
+	PinType.PinCategory = UEdGraphSchema_K2::PC_Boolean;
+
+	return PinType;
+}

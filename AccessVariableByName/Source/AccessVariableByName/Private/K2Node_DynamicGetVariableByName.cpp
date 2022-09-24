@@ -151,7 +151,7 @@ void UK2Node_DynamicGetVariableByNameNode::AllocateDefaultPins()
 	CreateTargetPin();
 	CreateVarNamePin();
 	CreateSuccessPin();
-	CreateResultPin(FEdGraphPinType(), 0);
+	CreateResultPin(CreateDefaultPinType(), 0);
 
 	Super::AllocateDefaultPins();
 }
@@ -268,12 +268,12 @@ void UK2Node_DynamicGetVariableByNameNode::CreateSuccessPin()
 
 void UK2Node_DynamicGetVariableByNameNode::CreateResultPin(const FEdGraphPinType& PinType, int32 Index)
 {
-	FName ResultPinName = FName(FString::Format(TEXT("{0}{1}"), {*ResultPinNamePrefix.ToString(), Index}));
-	FString ResultPinFriendlyName = FString::Format(TEXT("Result {0}"), {Index});
+	FName ResultPinName = FName(FString::Format(TEXT("{0}"), {*ResultPinNamePrefix.ToString()}));
+	FString ResultPinFriendlyName = "Result";
 
 	FCreatePinParams Params;
 	Params.Index = 6 + Index;
-	UEdGraphPin* Pin = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Int, ResultPinName, Params);
+	UEdGraphPin* Pin = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Boolean, ResultPinName, Params);
 	Pin->PinFriendlyName = FText::AsCultureInvariant(ResultPinFriendlyName);
 	Pin->PinType = PinType;
 }
@@ -282,7 +282,7 @@ bool UK2Node_DynamicGetVariableByNameNode::IsResultPin(const UEdGraphPin* Pin) c
 {
 	FString PinName = Pin->GetFName().ToString();
 
-	FRegexPattern Pattern = FRegexPattern(FString::Format(TEXT("^{0}[0-9]+$"), {*ResultPinNamePrefix.ToString()}));
+	FRegexPattern Pattern = FRegexPattern(FString::Format(TEXT("^{0}[0-9]*$"), {*ResultPinNamePrefix.ToString()}));
 	FRegexMatcher Matcher(Pattern, PinName);
 	if (Matcher.FindNext())
 	{
@@ -292,7 +292,7 @@ bool UK2Node_DynamicGetVariableByNameNode::IsResultPin(const UEdGraphPin* Pin) c
 	return false;
 }
 
-void UK2Node_DynamicGetVariableByNameNode::RecreateResultPin(const FEdGraphPinType& PinType)
+void UK2Node_DynamicGetVariableByNameNode::RecreateVariantPins(const FEdGraphPinType& PinType)
 {
 	Modify();
 
@@ -358,12 +358,7 @@ TArray<UEdGraphPin*> UK2Node_DynamicGetVariableByNameNode::GetAllResultPins() co
 
 void UK2Node_DynamicGetVariableByNameNode::ChangeResultPinType(const FEdGraphPinType& PinType)
 {
-	TArray<UEdGraphPin*> ResultPins = GetAllResultPins();
-	for (auto& Pin : ResultPins)
-	{
-		Pin->PinType = PinType;
-		Pin->BreakAllPinLinks();
-	}
+	RecreateVariantPins(PinType);
 }
 
 FEdGraphPinType UK2Node_DynamicGetVariableByNameNode::GetResultPinType() const
@@ -371,7 +366,7 @@ FEdGraphPinType UK2Node_DynamicGetVariableByNameNode::GetResultPinType() const
 	TArray<UEdGraphPin*> ResultPins = GetAllResultPins();
 	if (ResultPins.Num() == 0)
 	{
-		return FEdGraphPinType();
+		return CreateDefaultPinType();
 	}
 
 	return ResultPins[0]->PinType;
