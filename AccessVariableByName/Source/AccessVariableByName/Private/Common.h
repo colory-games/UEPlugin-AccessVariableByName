@@ -13,14 +13,15 @@ extern const FName ExecThenPinName;
 extern const FName TargetPinName;
 extern const FName VarNamePinName;
 extern const FName SuccessPinName;
-extern const FName NewValuePinName;
+extern const FName DeprecatedNewValuePinName;
 extern const FName ResultPinNamePrefix;
+extern const FName NewValuePinNamePrefix;
 
 extern const FString ExecThenPinFriendlyName;
 extern const FString TargetPinFriendlyName;
 extern const FString VarNamePinFriendlyName;
 extern const FString SuccessPinFriendlyName;
-extern const FString NewValuePinFriendlyName;
+extern const FString DeprecatedNewValuePinFriendlyName;
 
 enum EContainerType
 {
@@ -38,5 +39,6 @@ struct FVarDescription
 	FString MapKey;
 };
 
+FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass);
 void SplitVarName(const FString& In, TArray<FString>* Out);
 void AnalyzeVarNames(const TArray<FString>& VarNames, TArray<FVarDescription>* VarDescs);

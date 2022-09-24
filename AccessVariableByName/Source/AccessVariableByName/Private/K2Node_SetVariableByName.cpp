@@ -22,118 +22,6 @@
 const FName SetResultPinName(TEXT("Result"));
 const FString SetResultPinFriendlyName(TEXT("Result"));
 
-namespace {
-
-FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass);
-
-FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property)
-{
-	const FVarDescription& Desc = VarDescs[VarDepth];
-
-	if (Desc.VarType == EContainerType::None)
-	{
-		if (VarDescs.Num() == VarDepth + 1)
-		{
-			return Property;
-		}
-
-		if (!Property->IsA<FStructProperty>())
-		{
-			return nullptr;
-		}
-
-		FStructProperty* StructProperty = CastChecked<FStructProperty>(Property);
-		UScriptStruct* ScriptStruct = StructProperty->Struct;
-
-		return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
-	}
-	else if (Desc.VarType == EContainerType::Array)
-	{
-		if (!Property->IsA<FArrayProperty>())
-		{
-			return nullptr;
-		}
-		FArrayProperty* ArrayProperty = CastChecked<FArrayProperty>(Property);
-
-		if (VarDescs.Num() == VarDepth + 1)
-		{
-			return ArrayProperty->Inner;
-		}
-
-		FProperty* InnerProperty = ArrayProperty->Inner;
-		if (!InnerProperty->IsA<FStructProperty>())
-		{
-			return nullptr;
-		}
-		FStructProperty* StructProperty = CastChecked<FStructProperty>(InnerProperty);
-		UScriptStruct* ScriptStruct = StructProperty->Struct;
-
-		return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
-	}
-	else if (Desc.VarType == EContainerType::Map)
-	{
-		if (!Property->IsA<FMapProperty>())
-		{
-			return nullptr;
-		}
-		FMapProperty* MapProperty = CastChecked<FMapProperty>(Property);
-
-		if (VarDescs.Num() == VarDepth + 1)
-		{
-			return MapProperty->ValueProp;
-		}
-
-		FProperty* ValueProperty = MapProperty->ValueProp;
-		if (!ValueProperty->IsA<FStructProperty>())
-		{
-			return nullptr;
-		}
-		FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
-		UScriptStruct* ScriptStruct = StructProperty->Struct;
-
-		return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
-	}
-
-	return nullptr;
-}
-
-FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass)
-{
-	const FVarDescription& Desc = VarDescs[VarDepth];
-
-	if (!Desc.bIsValid)
-	{
-		return nullptr;
-	}
-
-	FProperty* Property = FindFProperty<FProperty>(OuterClass, *Desc.VarName);
-	if (Property == nullptr)
-	{
-		return nullptr;
-	}
-
-	return GetTerminalPropertyInternal(VarDescs, VarDepth, Property);
-}
-
-FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass)
-{
-	const FVarDescription& Desc = VarDescs[VarDepth];
-
-	if (!Desc.bIsValid)
-	{
-		return nullptr;
-	}
-
-	FProperty* Property = FindFProperty<FProperty>(OuterClass, *Desc.VarName);
-	if (Property == nullptr)
-	{
-		return nullptr;
-	}
-
-	return GetTerminalPropertyInternal(VarDescs, VarDepth, Property);
-}
-
-} // namespace
 
 UK2Node_SetVariableByNameNode::UK2Node_SetVariableByNameNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -399,8 +287,8 @@ void UK2Node_SetVariableByNameNode::CreateNewValuePin(
 	Params.Index = 4;
 	Params.ContainerType = PinContainerType;
 	Params.ValueTerminalType = PinValueType;
-	UEdGraphPin* Pin = CreatePin(EGPD_Input, PinCategory, NewValuePinName, Params);
-	Pin->PinFriendlyName = FText::AsCultureInvariant(NewValuePinFriendlyName);
+	UEdGraphPin* Pin = CreatePin(EGPD_Input, PinCategory, DeprecatedNewValuePinName, Params);
+	Pin->PinFriendlyName = FText::AsCultureInvariant(DeprecatedNewValuePinFriendlyName);
 }
 
 void UK2Node_SetVariableByNameNode::CreateNewValuePin(
@@ -410,8 +298,8 @@ void UK2Node_SetVariableByNameNode::CreateNewValuePin(
 	Params.Index = 4;
 	Params.ContainerType = PinContainerType;
 	Params.ValueTerminalType = PinValueType;
-	UEdGraphPin* Pin = CreatePin(EGPD_Input, PinCategory, PinSubCategory, NewValuePinName, Params);
-	Pin->PinFriendlyName = FText::AsCultureInvariant(NewValuePinFriendlyName);
+	UEdGraphPin* Pin = CreatePin(EGPD_Input, PinCategory, PinSubCategory, DeprecatedNewValuePinName, Params);
+	Pin->PinFriendlyName = FText::AsCultureInvariant(DeprecatedNewValuePinFriendlyName);
 }
 
 void UK2Node_SetVariableByNameNode::CreateNewValuePin(
@@ -421,8 +309,8 @@ void UK2Node_SetVariableByNameNode::CreateNewValuePin(
 	Params.Index = 4;
 	Params.ContainerType = PinContainerType;
 	Params.ValueTerminalType = PinValueType;
-	UEdGraphPin* Pin = CreatePin(EGPD_Input, PinCategory, PinSubCategoryObject, NewValuePinName, Params);
-	Pin->PinFriendlyName = FText::AsCultureInvariant(NewValuePinFriendlyName);
+	UEdGraphPin* Pin = CreatePin(EGPD_Input, PinCategory, PinSubCategoryObject, DeprecatedNewValuePinName, Params);
+	Pin->PinFriendlyName = FText::AsCultureInvariant(DeprecatedNewValuePinFriendlyName);
 }
 
 void UK2Node_SetVariableByNameNode::CreateSuccessPin()
@@ -474,7 +362,7 @@ void UK2Node_SetVariableByNameNode::RecreateResultPin()
 	for (int32 Index = 0; Index < UnusedPins.Num(); ++Index)
 	{
 		UEdGraphPin* OldPin = UnusedPins[Index];
-		if (OldPin->GetFName() != NewValuePinName && OldPin->GetFName() != SetResultPinName)
+		if (OldPin->GetFName() != DeprecatedNewValuePinName && OldPin->GetFName() != SetResultPinName)
 		{
 			UnusedPins.RemoveAt(Index--, 1, false);
 			Pins.Add(OldPin);
@@ -677,7 +565,7 @@ UEdGraphPin* UK2Node_SetVariableByNameNode::GetVarNamePin()
 
 UEdGraphPin* UK2Node_SetVariableByNameNode::GetNewValuePin()
 {
-	return FindPin(NewValuePinName);
+	return FindPin(DeprecatedNewValuePinName);
 }
 
 UEdGraphPin* UK2Node_SetVariableByNameNode::GetSuccessPin()

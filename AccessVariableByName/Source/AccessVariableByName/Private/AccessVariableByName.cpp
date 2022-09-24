@@ -8,7 +8,12 @@
  */
 
 #include "AccessVariableByNameModule.h"
+
 #include "EdGraphUtilities.h"
+#include "K2Node_DynamicGetVariableByName.h"
+#include "K2Node_DynamicSetVariableByName.h"
+#include "SGraphNodeDynamicGetVariableByNameNode.h"
+#include "SGraphNodeDynamicSetVariableByNameNode.h"
 
 #define LOCTEXT_NAMESPACE "FAccessVariableByNameModule"
 
@@ -16,6 +21,15 @@ class FGraphPanelNodeFactory_AccessVariableByName : public FGraphPanelNodeFactor
 {
 	virtual TSharedPtr<SGraphNode> CreateNode(UEdGraphNode* Node) const override
 	{
+		if (UK2Node_DynamicGetVariableByNameNode* DynamicGetVariableByNameNode = Cast<UK2Node_DynamicGetVariableByNameNode>(Node))
+		{
+			return SNew(SGraphNodeDynamicGetVariableByNameNode, DynamicGetVariableByNameNode);
+		}
+		else if (UK2Node_DynamicSetVariableByNameNode* DynamicSetVariableByNameNode = Cast<UK2Node_DynamicSetVariableByNameNode>(Node))
+		{
+			return SNew(SGraphNodeDynamicSetVariableByNameNode, DynamicSetVariableByNameNode);
+		}
+
 		return nullptr;
 	}
 };

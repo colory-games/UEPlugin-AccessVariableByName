@@ -26,6 +26,7 @@ public class AccessVariableByName : ModuleRules
 			"EditorStyle",
 			"GraphEditor",
 			"KismetCompiler",
+			"KismetWidgets",
 			"Slate",
 			"SlateCore",
 			"ToolMenus",
