@@ -16,6 +16,7 @@
 #include "K2Node_CallFunction.h"
 #include "KismetCompiler.h"
 #include "VariableGetterFunctionLibrary.h"
+#include "Internationalization/Regex.h"
 
 #define LOCTEXT_NAMESPACE "K2Node"
 
@@ -130,9 +131,12 @@ void UK2Node_GetVariableByNameNode::ReallocatePinsDuringReconstruction(TArray<UE
 		}
 	}
 
-	// TODO: check
-
 	AllocateDefaultPins();
+
+	if (OldTargetPin == nullptr || OldVarNamePin == nullptr)
+	{
+		return;
+	}
 
 	UClass* TargetClass = GetTargetClass(OldTargetPin);
 	FString VarName = OldVarNamePin->DefaultValue;
@@ -485,8 +489,9 @@ bool UK2Node_GetVariableByNameNode::IsResultPin(const UEdGraphPin* Pin) const
 {
 	FString PinName = Pin->GetFName().ToString();
 
-	// TODO: Use FRegexPattern
-	if (PinName.Contains(ResultPinNamePrefix.ToString()))
+	FRegexPattern Pattern = FRegexPattern(FString::Format(TEXT("^{0}.*$"), {*ResultPinNamePrefix.ToString()}));
+	FRegexMatcher Matcher(Pattern, PinName);
+	if (Matcher.FindNext())
 	{
 		return true;
 	}

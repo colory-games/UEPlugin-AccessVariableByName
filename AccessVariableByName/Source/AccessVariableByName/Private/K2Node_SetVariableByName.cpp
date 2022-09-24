@@ -16,12 +16,9 @@
 #include "K2Node_CallFunction.h"
 #include "KismetCompiler.h"
 #include "VariableSetterFunctionLibrary.h"
+#include "Internationalization/Regex.h"
 
 #define LOCTEXT_NAMESPACE "K2Node"
-
-const FName SetResultPinName(TEXT("Result"));
-const FString SetResultPinFriendlyName(TEXT("Result"));
-
 
 UK2Node_SetVariableByNameNode::UK2Node_SetVariableByNameNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -52,14 +49,17 @@ void UK2Node_SetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 	UEdGraphPin* ExecThenPin = GetExecThenPin();
 	UEdGraphPin* TargetPin = GetTargetPin();
 	UEdGraphPin* VarNamePin = GetVarNamePin();
-	UEdGraphPin* NewValuePin = GetNewValuePin();
 	UEdGraphPin* SuccessPin = GetSuccessPin();
-	UEdGraphPin* ResultPin = GetResultPin();
+	TArray<UEdGraphPin*> NewValuePins = GetAllNewValuePins();
+	TArray<UEdGraphPin*> ResultPins = GetAllResultPins();
 
-	if (ResultPin == nullptr || NewValuePin == nullptr)
+	if (NewValuePins.Num() == 0 || ResultPins.Num() == 0)
 	{
 		return;
 	}
+
+	UEdGraphPin* NewValuePin = NewValuePins[0];
+	UEdGraphPin* ResultPin = ResultPins[0];
 
 	UFunction* SetterFunction = FindSetterFunction(ResultPin);
 	if (SetterFunction == nullptr)
@@ -109,9 +109,9 @@ void UK2Node_SetVariableByNameNode::AllocateDefaultPins()
 	// 1: Execution Then (Out, Exec)
 	// 2: Target (In, Object Reference)
 	// 3: Var Name (In, FName)
-	// 4: New Value (In, *)
-	// 5: Success (Out, Boolean)
-	// 6: Result (Out, *)
+	// 4: Success (Out, Boolean)
+	// 5+(N*2): New Value (In, *)
+	// 5+(N*2)+1: Result (Out, *)
 
 	CreateExecTriggeringPin();
 	CreateExecThenPin();
@@ -139,56 +139,16 @@ void UK2Node_SetVariableByNameNode::ReallocatePinsDuringReconstruction(TArray<UE
 		}
 	}
 
-	// TODO: check
-
 	AllocateDefaultPins();
 
-	UClass* TargetClass = GetTargetClass(OldTargetPin);
-	if (TargetClass != nullptr)
+	if (OldTargetPin == nullptr || OldVarNamePin == nullptr)
 	{
-		FString VarName = GetVarNamePin()->DefaultValue;
-
-		TArray<FString> Vars;
-		SplitVarName(VarName, &Vars);
-		TArray<FVarDescription> VarDescs;
-		AnalyzeVarNames(Vars, &VarDescs);
-
-		if (VarDescs.Num() == 0)
-		{
-			bIsNestedVarName = false;
-		}
-		else
-		{
-			bIsNestedVarName = !(VarDescs.Num() == 1 && VarDescs[0].VarType == EContainerType::None);
-
-			FProperty* Property = GetTerminalProperty(VarDescs, 0, TargetClass);
-			if (Property != nullptr)
-			{
-				const UEdGraphSchema_K2* Schema = GetDefault<UEdGraphSchema_K2>();
-
-				FEdGraphPinType PinType;
-				Schema->ConvertPropertyToPinType(Property, PinType);
-				if (PinType.PinCategory == UEdGraphSchema_K2::PC_Struct || PinType.PinCategory == UEdGraphSchema_K2::PC_Object ||
-					(PinType.PinCategory == UEdGraphSchema_K2::PC_Byte && PinType.PinSubCategoryObject != nullptr))
-				{
-					CreateNewValuePin(
-						PinType.PinCategory, PinType.PinSubCategoryObject.Get(), PinType.ContainerType, PinType.PinValueType);
-					CreateResultPin(
-						PinType.PinCategory, PinType.PinSubCategoryObject.Get(), PinType.ContainerType, PinType.PinValueType);
-				}
-				else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Real && PinType.PinSubCategory == "double")
-				{
-					CreateNewValuePin(PinType.PinCategory, PinType.PinSubCategory, PinType.ContainerType, PinType.PinValueType);
-					CreateResultPin(PinType.PinCategory, PinType.PinSubCategory, PinType.ContainerType, PinType.PinValueType);
-				}
-				else
-				{
-					CreateNewValuePin(PinType.PinCategory, PinType.ContainerType, PinType.PinValueType);
-					CreateResultPin(PinType.PinCategory, PinType.ContainerType, PinType.PinValueType);
-				}
-			}
-		}
+		return;
 	}
+
+	UClass* TargetClass = GetTargetClass(OldTargetPin);
+	FString VarName = OldVarNamePin->DefaultValue;
+	RecreateVariantPinInternal(TargetClass, VarName);
 
 	RestoreSplitPins(OldPins);
 }
@@ -223,16 +183,21 @@ void UK2Node_SetVariableByNameNode::PinDefaultValueChanged(UEdGraphPin* Pin)
 
 	if (Pin->PinName == TargetPinName)
 	{
-		RecreateResultPin();
+		RecreateVariantPin();
 	}
 	else if (Pin->PinName == VarNamePinName)
 	{
-		UEdGraphPin* ResultPin = GetResultPin();
-		if (ResultPin != nullptr)
+		TArray<UEdGraphPin*> ResultPins = GetAllResultPins();
+		for (auto& ResultPin : ResultPins)
 		{
 			ResultPin->BreakAllPinLinks();
 		}
-		RecreateResultPin();
+		TArray<UEdGraphPin*> NewValuePins = GetAllNewValuePins();
+		for (auto& NewValuePin : NewValuePins)
+		{
+			NewValuePin->BreakAllPinLinks();
+		}
+		RecreateVariantPin();
 	}
 }
 
@@ -245,7 +210,7 @@ void UK2Node_SetVariableByNameNode::PinConnectionListChanged(UEdGraphPin* Pin)
 
 	if (Pin->PinName == TargetPinName)
 	{
-		RecreateResultPin();
+		RecreateVariantPin();
 	}
 }
 
@@ -280,98 +245,104 @@ void UK2Node_SetVariableByNameNode::CreateVarNamePin()
 	Pin->PinFriendlyName = FText::AsCultureInvariant(VarNamePinFriendlyName);
 }
 
-void UK2Node_SetVariableByNameNode::CreateNewValuePin(
-	FName PinCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType)
-{
-	FCreatePinParams Params;
-	Params.Index = 4;
-	Params.ContainerType = PinContainerType;
-	Params.ValueTerminalType = PinValueType;
-	UEdGraphPin* Pin = CreatePin(EGPD_Input, PinCategory, DeprecatedNewValuePinName, Params);
-	Pin->PinFriendlyName = FText::AsCultureInvariant(DeprecatedNewValuePinFriendlyName);
-}
-
-void UK2Node_SetVariableByNameNode::CreateNewValuePin(
-	FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType)
-{
-	FCreatePinParams Params;
-	Params.Index = 4;
-	Params.ContainerType = PinContainerType;
-	Params.ValueTerminalType = PinValueType;
-	UEdGraphPin* Pin = CreatePin(EGPD_Input, PinCategory, PinSubCategory, DeprecatedNewValuePinName, Params);
-	Pin->PinFriendlyName = FText::AsCultureInvariant(DeprecatedNewValuePinFriendlyName);
-}
-
-void UK2Node_SetVariableByNameNode::CreateNewValuePin(
-	FName PinCategory, UObject* PinSubCategoryObject, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType)
-{
-	FCreatePinParams Params;
-	Params.Index = 4;
-	Params.ContainerType = PinContainerType;
-	Params.ValueTerminalType = PinValueType;
-	UEdGraphPin* Pin = CreatePin(EGPD_Input, PinCategory, PinSubCategoryObject, DeprecatedNewValuePinName, Params);
-	Pin->PinFriendlyName = FText::AsCultureInvariant(DeprecatedNewValuePinFriendlyName);
-}
-
 void UK2Node_SetVariableByNameNode::CreateSuccessPin()
 {
 	FCreatePinParams Params;
-	Params.Index = 5;
+	Params.Index = 4;
 	UEdGraphPin* Pin = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Boolean, SuccessPinName, Params);
 	Pin->PinFriendlyName = FText::AsCultureInvariant(SuccessPinFriendlyName);
 }
 
-void UK2Node_SetVariableByNameNode::CreateResultPin(
-	FName PinCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType)
+void UK2Node_SetVariableByNameNode::CreateNewValuePin(
+	FName PinCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index)
 {
+	FName NewValuePinName = FName(FString::Format(TEXT("{0}{1}"), { *ResultPinNamePrefix.ToString(), *PropertyName }));
+	FString NewValuePinFriendlyName = PropertyName;
+
 	FCreatePinParams Params;
-	Params.Index = 6;
+	Params.Index = 5 + Index * 2;
 	Params.ContainerType = PinContainerType;
 	Params.ValueTerminalType = PinValueType;
-	UEdGraphPin* Pin = CreatePin(EGPD_Output, PinCategory, SetResultPinName, Params);
-	Pin->PinFriendlyName = FText::AsCultureInvariant(SetResultPinFriendlyName);
+	UEdGraphPin* Pin = CreatePin(EGPD_Input, PinCategory, NewValuePinName, Params);
+	Pin->PinFriendlyName = FText::AsCultureInvariant(NewValuePinFriendlyName);
+}
+
+void UK2Node_SetVariableByNameNode::CreateNewValuePin(
+	FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index)
+{
+	FName NewValuePinName = FName(FString::Format(TEXT("{0}{1}"), { *ResultPinNamePrefix.ToString(), *PropertyName }));
+	FString NewValuePinFriendlyName = PropertyName;
+
+	FCreatePinParams Params;
+	Params.Index = 5 + Index * 2;
+	Params.ContainerType = PinContainerType;
+	Params.ValueTerminalType = PinValueType;
+	UEdGraphPin* Pin = CreatePin(EGPD_Input, PinCategory, PinSubCategory, NewValuePinName, Params);
+	Pin->PinFriendlyName = FText::AsCultureInvariant(NewValuePinFriendlyName);
+}
+
+void UK2Node_SetVariableByNameNode::CreateNewValuePin(
+	FName PinCategory, UObject* PinSubCategoryObject, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index)
+{
+	FName NewValuePinName = FName(FString::Format(TEXT("{0}{1}"), { *ResultPinNamePrefix.ToString(), *PropertyName }));
+	FString NewValuePinFriendlyName = PropertyName;
+
+	FCreatePinParams Params;
+	Params.Index = 5 + Index * 2;
+	Params.ContainerType = PinContainerType;
+	Params.ValueTerminalType = PinValueType;
+	UEdGraphPin* Pin = CreatePin(EGPD_Input, PinCategory, PinSubCategoryObject, NewValuePinName, Params);
+	Pin->PinFriendlyName = FText::AsCultureInvariant(NewValuePinFriendlyName);
 }
 
 void UK2Node_SetVariableByNameNode::CreateResultPin(
-	FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType)
+	FName PinCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index)
 {
+	FName ResultPinName = FName(FString::Format(TEXT("{0}{1}"), {*ResultPinNamePrefix.ToString(), *PropertyName}));
+	FString ResultPinFriendlyName = PropertyName;
+
 	FCreatePinParams Params;
-	Params.Index = 6;
+	Params.Index = 5 + Index * 2 + 1;
 	Params.ContainerType = PinContainerType;
 	Params.ValueTerminalType = PinValueType;
-	UEdGraphPin* Pin = CreatePin(EGPD_Output, PinCategory, PinSubCategory, SetResultPinName, Params);
-	Pin->PinFriendlyName = FText::AsCultureInvariant(SetResultPinFriendlyName);
+	UEdGraphPin* Pin = CreatePin(EGPD_Output, PinCategory, ResultPinName, Params);
+	Pin->PinFriendlyName = FText::AsCultureInvariant(ResultPinFriendlyName);
 }
 
 void UK2Node_SetVariableByNameNode::CreateResultPin(
-	FName PinCategory, UObject* PinSubCategoryObject, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType)
+	FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index)
 {
+	FName ResultPinName = FName(FString::Format(TEXT("{0}{1}"), { *ResultPinNamePrefix.ToString(), *PropertyName }));
+	FString ResultPinFriendlyName = PropertyName;
+
 	FCreatePinParams Params;
-	Params.Index = 6;
+	Params.Index = 5 + Index * 2 + 1;
 	Params.ContainerType = PinContainerType;
 	Params.ValueTerminalType = PinValueType;
-	UEdGraphPin* Pin = CreatePin(EGPD_Output, PinCategory, PinSubCategoryObject, SetResultPinName, Params);
-	Pin->PinFriendlyName = FText::AsCultureInvariant(SetResultPinFriendlyName);
+	UEdGraphPin* Pin = CreatePin(EGPD_Output, PinCategory, PinSubCategory, ResultPinName, Params);
+	Pin->PinFriendlyName = FText::AsCultureInvariant(ResultPinFriendlyName);
 }
 
-void UK2Node_SetVariableByNameNode::RecreateResultPin()
+void UK2Node_SetVariableByNameNode::CreateResultPin(
+	FName PinCategory, UObject* PinSubCategoryObject, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index)
 {
-	Modify();
+	FName ResultPinName = FName(FString::Format(TEXT("{0}{1}"), { *ResultPinNamePrefix.ToString(), *PropertyName }));
+	FString ResultPinFriendlyName = PropertyName;
 
-	TArray<UEdGraphPin*> UnusedPins = MoveTemp(Pins);
-	for (int32 Index = 0; Index < UnusedPins.Num(); ++Index)
+	FCreatePinParams Params;
+	Params.Index = 5 + Index * 2 + 1;
+	Params.ContainerType = PinContainerType;
+	Params.ValueTerminalType = PinValueType;
+	UEdGraphPin* Pin = CreatePin(EGPD_Output, PinCategory, PinSubCategoryObject, ResultPinName, Params);
+	Pin->PinFriendlyName = FText::AsCultureInvariant(ResultPinFriendlyName);
+}
+
+void UK2Node_SetVariableByNameNode::RecreateVariantPinInternal(UClass* TargetClass, const FString& VarName)
+{
+	if (TargetClass == nullptr)
 	{
-		UEdGraphPin* OldPin = UnusedPins[Index];
-		if (OldPin->GetFName() != DeprecatedNewValuePinName && OldPin->GetFName() != SetResultPinName)
-		{
-			UnusedPins.RemoveAt(Index--, 1, false);
-			Pins.Add(OldPin);
-		}
+		return;
 	}
-
-	// Create new result pin.
-	UClass* TargetClass = GetTargetClass();
-	FString VarName = GetVarNamePin()->DefaultValue;
 
 	TArray<FString> Vars;
 	SplitVarName(VarName, &Vars);
@@ -397,21 +368,43 @@ void UK2Node_SetVariableByNameNode::RecreateResultPin()
 			if (PinType.PinCategory == UEdGraphSchema_K2::PC_Struct || PinType.PinCategory == UEdGraphSchema_K2::PC_Object ||
 				(PinType.PinCategory == UEdGraphSchema_K2::PC_Byte && PinType.PinSubCategoryObject != nullptr))
 			{
-				CreateNewValuePin(PinType.PinCategory, PinType.PinSubCategoryObject.Get(), PinType.ContainerType, PinType.PinValueType);
-				CreateResultPin(PinType.PinCategory, PinType.PinSubCategoryObject.Get(), PinType.ContainerType, PinType.PinValueType);
+				CreateNewValuePin(PinType.PinCategory, PinType.PinSubCategoryObject.Get(), PinType.ContainerType, PinType.PinValueType, Property->GetName(), 0);
+				CreateResultPin(PinType.PinCategory, PinType.PinSubCategoryObject.Get(), PinType.ContainerType, PinType.PinValueType, Property->GetName(), 0);
 			}
 			else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Real && PinType.PinSubCategory == "double")
 			{
-				CreateNewValuePin(PinType.PinCategory, PinType.PinSubCategory, PinType.ContainerType, PinType.PinValueType);
-				CreateResultPin(PinType.PinCategory, PinType.PinSubCategory, PinType.ContainerType, PinType.PinValueType);
+				CreateNewValuePin(PinType.PinCategory, PinType.PinSubCategory, PinType.ContainerType, PinType.PinValueType, Property->GetName(), 0);
+				CreateResultPin(PinType.PinCategory, PinType.PinSubCategory, PinType.ContainerType, PinType.PinValueType, Property->GetName(), 0);
 			}
 			else
 			{
-				CreateNewValuePin(PinType.PinCategory, PinType.ContainerType, PinType.PinValueType);
-				CreateResultPin(PinType.PinCategory, PinType.ContainerType, PinType.PinValueType);
+				CreateNewValuePin(PinType.PinCategory, PinType.ContainerType, PinType.PinValueType, Property->GetName(), 0);
+				CreateResultPin(PinType.PinCategory, PinType.ContainerType, PinType.PinValueType, Property->GetName(), 0);
 			}
 		}
 	}
+}
+
+
+void UK2Node_SetVariableByNameNode::RecreateVariantPin()
+{
+	Modify();
+
+	TArray<UEdGraphPin*> UnusedPins = MoveTemp(Pins);
+	for (int32 Index = 0; Index < UnusedPins.Num(); ++Index)
+	{
+		UEdGraphPin* OldPin = UnusedPins[Index];
+		if (!IsNewValuePin(OldPin) && !IsResultPin(OldPin))
+		{
+			UnusedPins.RemoveAt(Index--, 1, false);
+			Pins.Add(OldPin);
+		}
+	}
+
+	// Create new result pin.
+	UClass* TargetClass = GetTargetClass();
+	FString VarName = GetVarNamePin()->DefaultValue;
+	RecreateVariantPinInternal(TargetClass, VarName);
 
 	// Restore connection.
 	RestoreSplitPins(UnusedPins);
@@ -548,34 +541,82 @@ UFunction* UK2Node_SetVariableByNameNode::FindSetterFunction(UEdGraphPin* Pin)
 	return nullptr;
 }
 
-UEdGraphPin* UK2Node_SetVariableByNameNode::GetExecThenPin()
+bool UK2Node_SetVariableByNameNode::IsNewValuePin(const UEdGraphPin* Pin) const
+{
+	FString PinName = Pin->GetFName().ToString();
+
+	FRegexPattern Pattern = FRegexPattern(FString::Format(TEXT("^{0}.*$"), {*NewValuePinNamePrefix.ToString()}));
+	FRegexMatcher Matcher(Pattern, PinName);
+	if (Matcher.FindNext())
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool UK2Node_SetVariableByNameNode::IsResultPin(const UEdGraphPin* Pin) const
+{
+	FString PinName = Pin->GetFName().ToString();
+
+	FRegexPattern Pattern = FRegexPattern(FString::Format(TEXT("^{0}.*$"), {*ResultPinNamePrefix.ToString()}));
+	FRegexMatcher Matcher(Pattern, PinName);
+	if (Matcher.FindNext())
+	{
+		return true;
+	}
+
+	return false;
+}
+
+UEdGraphPin* UK2Node_SetVariableByNameNode::GetExecThenPin() const
 {
 	return FindPinChecked(ExecThenPinName);
 }
 
-UEdGraphPin* UK2Node_SetVariableByNameNode::GetTargetPin()
+UEdGraphPin* UK2Node_SetVariableByNameNode::GetTargetPin() const
 {
 	return FindPin(TargetPinName);
 }
 
-UEdGraphPin* UK2Node_SetVariableByNameNode::GetVarNamePin()
+UEdGraphPin* UK2Node_SetVariableByNameNode::GetVarNamePin() const
 {
 	return FindPinChecked(VarNamePinName);
 }
 
-UEdGraphPin* UK2Node_SetVariableByNameNode::GetNewValuePin()
-{
-	return FindPin(DeprecatedNewValuePinName);
-}
-
-UEdGraphPin* UK2Node_SetVariableByNameNode::GetSuccessPin()
+UEdGraphPin* UK2Node_SetVariableByNameNode::GetSuccessPin() const
 {
 	return FindPinChecked(SuccessPinName);
 }
 
-UEdGraphPin* UK2Node_SetVariableByNameNode::GetResultPin()
+TArray<UEdGraphPin*> UK2Node_SetVariableByNameNode::GetAllNewValuePins() const
 {
-	return FindPin(SetResultPinName);
+	TArray<UEdGraphPin*> NewValuePins;
+
+	for (auto& Pin : Pins)
+	{
+		if (IsNewValuePin(Pin))
+		{
+			NewValuePins.Add(Pin);
+		}
+	}
+
+	return NewValuePins;
+}
+
+TArray<UEdGraphPin*> UK2Node_SetVariableByNameNode::GetAllResultPins() const
+{
+	TArray<UEdGraphPin*> ResultPins;
+
+	for (auto& Pin : Pins)
+	{
+		if (IsResultPin(Pin))
+		{
+			ResultPins.Add(Pin);
+		}
+	}
+
+	return ResultPins;
 }
 
 #undef LOCTEXT_NAMESPACE

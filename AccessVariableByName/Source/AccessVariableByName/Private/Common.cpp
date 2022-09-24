@@ -15,7 +15,6 @@ const FName ExecThenPinName(TEXT("ExecThen"));
 const FName TargetPinName(TEXT("Target"));
 const FName VarNamePinName(TEXT("VarName"));
 const FName SuccessPinName(TEXT("Success"));
-const FName DeprecatedNewValuePinName(TEXT("NewValue"));
 const FName ResultPinNamePrefix(TEXT("Result_"));
 const FName NewValuePinNamePrefix(TEXT("NewValue_"));
 
@@ -23,7 +22,6 @@ const FString ExecThenPinFriendlyName(TEXT(" "));
 const FString TargetPinFriendlyName(TEXT("Target"));
 const FString VarNamePinFriendlyName(TEXT("Var Name"));
 const FString SuccessPinFriendlyName(TEXT("Success"));
-const FString DeprecatedNewValuePinFriendlyName(TEXT("New Value"));
 
 FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass);
 

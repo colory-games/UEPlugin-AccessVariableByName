@@ -40,30 +40,33 @@ protected:
 	void CreateExecThenPin();
 	void CreateTargetPin();
 	void CreateVarNamePin();
-	void CreateNewValuePin(FName PinCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType);
+	void CreateNewValuePin(FName PinCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
 	void CreateNewValuePin(
-		FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType);
+		FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
 	void CreateNewValuePin(FName PinCategory, UObject* PinSubCategoryObject, EPinContainerType PinContainerType,
-		const FEdGraphTerminalType& PinValueType);
+		const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
 	void CreateSuccessPin();
-	void CreateResultPin(FName PinCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType);
+	void CreateResultPin(FName PinCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
 	void CreateResultPin(
-		FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType);
+		FName PinCategory, FName PinSubCategory, EPinContainerType PinContainerType, const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
 	void CreateResultPin(FName PinCategory, UObject* PinSubCategoryObject, EPinContainerType PinContainerType,
-		const FEdGraphTerminalType& PinValueType);
-	void RecreateResultPin();
+		const FEdGraphTerminalType& PinValueType, FString PropertyName, int32 Index);
+	void RecreateVariantPinInternal(UClass* TargetClass, const FString& VarName);
+	void RecreateVariantPin();
 	UClass* GetTargetClass(UEdGraphPin* Pin = nullptr);
 	UFunction* FindSetterFunction(UEdGraphPin* Pin);
+	bool IsNewValuePin(const UEdGraphPin* Pin) const;
+	bool IsResultPin(const UEdGraphPin* Pin) const;
 
 public:
 	UK2Node_SetVariableByNameNode(const FObjectInitializer& ObjectInitializer);
 
-	UEdGraphPin* GetExecThenPin();
-	UEdGraphPin* GetTargetPin();
-	UEdGraphPin* GetVarNamePin();
-	UEdGraphPin* GetNewValuePin();
-	UEdGraphPin* GetSuccessPin();
-	UEdGraphPin* GetResultPin();
+	UEdGraphPin* GetExecThenPin() const;
+	UEdGraphPin* GetTargetPin() const;
+	UEdGraphPin* GetVarNamePin() const;
+	UEdGraphPin* GetSuccessPin() const;
+	TArray<UEdGraphPin*> GetAllNewValuePins() const;
+	TArray<UEdGraphPin*> GetAllResultPins() const;
 
 	UPROPERTY()
 	bool bIsNestedVarName = false;
