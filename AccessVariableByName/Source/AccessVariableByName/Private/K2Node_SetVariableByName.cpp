@@ -14,6 +14,7 @@
 #include "EditorCategoryUtils.h"
 #include "GraphEditorSettings.h"
 #include "K2Node_CallFunction.h"
+#include "K2Node_Self.h"
 #include "KismetCompiler.h"
 #include "VariableSetterFunctionLibrary.h"
 #include "Internationalization/Regex.h"
@@ -53,18 +54,23 @@ void UK2Node_SetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 	TArray<UEdGraphPin*> NewValuePins = GetAllNewValuePins();
 	TArray<UEdGraphPin*> ResultPins = GetAllResultPins();
 
+	if (VarNamePin->LinkedTo.Num() != 0)
+	{
+		CompilerContext.MessageLog.Error(*LOCTEXT("InvalidVarNameInput", "Var Name pin only supports literal value. Consider to use 'Set Variable by Name (Dynamic)' node instead").ToString());
+		return;
+	}
+
 	if (NewValuePins.Num() == 0 || ResultPins.Num() == 0)
 	{
 		return;
 	}
-
 	UEdGraphPin* NewValuePin = NewValuePins[0];
 	UEdGraphPin* ResultPin = ResultPins[0];
 
 	UFunction* SetterFunction = FindSetterFunction(ResultPin);
 	if (SetterFunction == nullptr)
 	{
-		CompilerContext.MessageLog.Error(*LOCTEXT("FunctionNotFound", "The function is not found.").ToString());
+		CompilerContext.MessageLog.Error(*LOCTEXT("FunctionNotFound", "The setter function is not found.").ToString());
 		return;
 	}
 
@@ -103,7 +109,7 @@ void UK2Node_SetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 void UK2Node_SetVariableByNameNode::AllocateDefaultPins()
 {
 	// Pin structure
-	//   N: Number of case pin pair
+	//   N: Number of result pin
 	// -----
 	// 0: Execution Triggering (In, Exec)
 	// 1: Execution Then (Out, Exec)
@@ -143,6 +149,7 @@ void UK2Node_SetVariableByNameNode::ReallocatePinsDuringReconstruction(TArray<UE
 
 	if (OldTargetPin == nullptr || OldVarNamePin == nullptr)
 	{
+		RestoreSplitPins(OldPins);
 		return;
 	}
 
@@ -160,7 +167,7 @@ FText UK2Node_SetVariableByNameNode::GetTooltipText() const
 
 FLinearColor UK2Node_SetVariableByNameNode::GetNodeTitleColor() const
 {
-	return GetDefault<UGraphEditorSettings>()->DefaultPinTypeColor;
+	return GetDefault<UGraphEditorSettings>()->ObjectPinTypeColor;
 }
 
 FText UK2Node_SetVariableByNameNode::GetNodeTitle(ENodeTitleType::Type TitleType) const
@@ -170,7 +177,7 @@ FText UK2Node_SetVariableByNameNode::GetNodeTitle(ENodeTitleType::Type TitleType
 
 FSlateIcon UK2Node_SetVariableByNameNode::GetIconAndTint(FLinearColor& OutColor) const
 {
-	static FSlateIcon Icon("EditorStyle", "GraphEditor.Switch_16x");
+	static FSlateIcon Icon("EditorStyle", "GraphEditor.Function_16x");
 	return Icon;
 }
 
@@ -300,7 +307,6 @@ void UK2Node_SetVariableByNameNode::RecreateVariantPinInternal(UClass* TargetCla
 		FProperty* Property = GetTerminalProperty(VarDescs, 0, TargetClass);
 		if (Property != nullptr)
 		{
-			// TODO: support input from independent variable
 			const UEdGraphSchema_K2* Schema = GetDefault<UEdGraphSchema_K2>();
 
 			FEdGraphPinType PinType;
@@ -364,8 +370,23 @@ UClass* UK2Node_SetVariableByNameNode::GetTargetClass(UEdGraphPin* Pin)
 		UEdGraphPin* LinkedPin = TargetPin->LinkedTo[0];
 		if (LinkedPin != nullptr)
 		{
-			// TODO: Handle self node
-			TargetClass = Cast<UClass>(LinkedPin->PinType.PinSubCategoryObject.Get());
+			if (LinkedPin->PinType.PinCategory == UEdGraphSchema_K2::PC_Object &&
+				LinkedPin->PinType.PinSubCategory == "self")
+			{
+				UEdGraphNode* OwningNode = LinkedPin->GetOwningNode();
+				UK2Node_Self* SelfNode = CastChecked<UK2Node_Self>(OwningNode);
+				UEdGraph* Graph = SelfNode->GetGraph();
+				UObject* GraphOwner = Graph->GetOutermostObject();
+				UBlueprint* Blueprint = Cast<UBlueprint>(GraphOwner);
+				if (Blueprint != nullptr)
+				{
+					TargetClass = Blueprint->GeneratedClass;
+				}
+			}
+			else
+			{
+				TargetClass = Cast<UClass>(LinkedPin->PinType.PinSubCategoryObject.Get());
+			}
 		}
 	}
 

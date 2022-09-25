@@ -28,10 +28,11 @@ public:
 	{
 	}
 
-	virtual void RegisterNets(FKismetFunctionContext& Context, UEdGraphNode* InNode) override
+	virtual void RegisterNets(FKismetFunctionContext& Context, UEdGraphNode* Node) override
 	{
-		UK2Node_DynamicSetVariableByNameNode* DynamicSetVariableByNameNode = CastChecked<UK2Node_DynamicSetVariableByNameNode>(InNode);
-		check(DynamicSetVariableByNameNode);
+		UK2Node_DynamicSetVariableByNameNode* DynamicSetVariableByNameNode = CastChecked<UK2Node_DynamicSetVariableByNameNode>(Node);
+
+		FNodeHandlingFunctor::RegisterNets(Context, Node);
 
 		for (auto Pin : DynamicSetVariableByNameNode->Pins)
 		{
@@ -62,10 +63,6 @@ public:
 	virtual void Compile(FKismetFunctionContext& Context, UEdGraphNode* Node) override
 	{
 		UK2Node_DynamicSetVariableByNameNode* DynamicSetVariableByNameNode = CastChecked<UK2Node_DynamicSetVariableByNameNode>(Node);
-
-		// TODO: Error handling
-
-		//UEdGraphPin* ExecTriggeringPin = DynamicSetVariableByNameNode->GetExecTriggeringPin();
 
 		UEdGraphPin* FunctionPin = DynamicSetVariableByNameNode->GetFunctionPin();
 		FBPTerminal* FunctionContext = Context.NetMap.FindRef(FunctionPin);
@@ -141,7 +138,7 @@ FNodeHandlingFunctor* UK2Node_DynamicSetVariableByNameNode::CreateNodeHandler(FK
 void UK2Node_DynamicSetVariableByNameNode::AllocateDefaultPins()
 {
 	// Pin structure
-	//   N: Number of case pin pair
+	//   N: Number of result pin
 	// -----
 	// 0: Internal function (Hidden, Object)
 	// 1: Execution Triggering (In, Exec)
@@ -198,7 +195,7 @@ void UK2Node_DynamicSetVariableByNameNode::ReallocatePinsDuringReconstruction(TA
 
 FText UK2Node_DynamicSetVariableByNameNode::GetTooltipText() const
 {
-	return LOCTEXT("DynamicSetVariableByNameNode_Tooltip", "Dynamic Set Variable by Name");
+	return LOCTEXT("DynamicSetVariableByNameNode_Tooltip", "Set Variable by Name (Dynamic)");
 }
 
 FLinearColor UK2Node_DynamicSetVariableByNameNode::GetNodeTitleColor() const
@@ -208,12 +205,12 @@ FLinearColor UK2Node_DynamicSetVariableByNameNode::GetNodeTitleColor() const
 
 FText UK2Node_DynamicSetVariableByNameNode::GetNodeTitle(ENodeTitleType::Type TitleType) const
 {
-	return LOCTEXT("Dynamic Set Variable by Name", "Dynamic Set Variable by Name");
+	return LOCTEXT("Set Variable by Name (Dynamic)", "Set Variable by Name (Dynamic)");
 }
 
 FSlateIcon UK2Node_DynamicSetVariableByNameNode::GetIconAndTint(FLinearColor& OutColor) const
 {
-	static FSlateIcon Icon("EditorStyle", "GraphEditor.Switch_16x");
+	static FSlateIcon Icon("EditorStyle", "GraphEditor.Function_16x");
 	return Icon;
 }
 
@@ -224,6 +221,7 @@ void UK2Node_DynamicSetVariableByNameNode::CreateFunctionPin()
 
 	UClass* FunctionClass = UVariableSetterFunctionLibarary::StaticClass();
 	UFunction* FunctionPtr = FunctionClass->FindFunctionByName(InternalCallFuncName);
+	check(FunctionPtr);
 
 	UEdGraphPin* FunctionPin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, InternalCallFuncClass, InternalCallFuncName, Params);
 	FunctionPin->bDefaultValueIsReadOnly = true;
