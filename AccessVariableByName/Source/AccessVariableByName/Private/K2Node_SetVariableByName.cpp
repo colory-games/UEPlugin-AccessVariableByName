@@ -167,7 +167,7 @@ FText UK2Node_SetVariableByNameNode::GetTooltipText() const
 
 FLinearColor UK2Node_SetVariableByNameNode::GetNodeTitleColor() const
 {
-	return GetDefault<UGraphEditorSettings>()->ObjectPinTypeColor;
+	return GetDefault<UGraphEditorSettings>()->FunctionCallNodeTitleColor;
 }
 
 FText UK2Node_SetVariableByNameNode::GetNodeTitle(ENodeTitleType::Type TitleType) const
