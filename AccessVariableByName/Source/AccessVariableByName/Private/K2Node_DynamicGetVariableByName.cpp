@@ -194,6 +194,9 @@ FText UK2Node_DynamicGetVariableByNameNode::GetNodeTitle(ENodeTitleType::Type Ti
 FSlateIcon UK2Node_DynamicGetVariableByNameNode::GetIconAndTint(FLinearColor& OutColor) const
 {
 	static FSlateIcon Icon("EditorStyle", "GraphEditor.Function_16x");
+
+	OutColor = GetDefault<UGraphEditorSettings>()->FunctionCallNodeTitleColor;
+
 	return Icon;
 }
 
