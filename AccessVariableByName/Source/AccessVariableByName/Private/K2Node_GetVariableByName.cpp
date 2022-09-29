@@ -286,7 +286,7 @@ void UK2Node_GetVariableByNameNode::RecreateResultPinInternal(UClass* TargetClas
 
 			FEdGraphPinType PinType;
 			Schema->ConvertPropertyToPinType(Property, PinType);
-			CreateResultPin(PinType, Property->GetName(), 0);
+			CreateResultPin(PinType, Property->GetAuthoredName(), 0);
 		}
 	}
 }
