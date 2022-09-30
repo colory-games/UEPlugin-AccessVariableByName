@@ -21,20 +21,25 @@ extern const FString TargetPinFriendlyName;
 extern const FString VarNamePinFriendlyName;
 extern const FString SuccessPinFriendlyName;
 
-enum EContainerType
+enum EArrayAccessType
 {
 	None,
-	Array,
-	Map,
+	Integer,
+	String,
+};
+
+struct FArrayAccessValue
+{
+	int32 Integer;
+	FString String;
 };
 
 struct FVarDescription
 {
 	bool bIsValid;
 	FString VarName;
-	EContainerType VarType;
-	int32 ArrayIndex;
-	FString MapKey;
+	EArrayAccessType ArrayAccessType;
+	FArrayAccessValue ArrayAccessValue;
 };
 
 FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass);
