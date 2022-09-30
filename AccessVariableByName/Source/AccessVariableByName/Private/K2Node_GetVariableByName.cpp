@@ -369,7 +369,7 @@ UClass* UK2Node_GetVariableByNameNode::GetTargetClass(UEdGraphPin* Pin)
 	if (TargetClass)
 	{
 		UBlueprint* Blueprint = Cast<UBlueprint>(TargetClass->ClassGeneratedBy);
-		if (Blueprint->SkeletonGeneratedClass)
+		if (Blueprint != nullptr && Blueprint->SkeletonGeneratedClass)
 		{
 			TargetClass = Blueprint->SkeletonGeneratedClass;
 		}
