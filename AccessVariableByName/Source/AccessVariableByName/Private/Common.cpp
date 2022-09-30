@@ -72,6 +72,11 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 	{
 		if (VarDescs.Num() == VarDepth + 1)
 		{
+			if (!Property->SameType(Dest))
+			{
+				return false;
+			}
+
 			void* SrcAddr = Property->ContainerPtrToValuePtr<void>(OuterAddr);
 			if (NewValue != nullptr)
 			{
@@ -119,6 +124,11 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				int32 Stride = Dest->ArrayDim * Dest->ElementSize;
 				int8* InnerAddr = static_cast<int8*>(ArrayPtr->GetData());
 				void* InnerItemAddr = InnerAddr + Index * Stride;
+
+				if (!Property->SameType(Dest))
+				{
+					return false;
+				}
 
 				if (NewValue != nullptr)
 				{
@@ -185,6 +195,11 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 					&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
 					[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
 				if (ValueAddr == nullptr)
+				{
+					return false;
+				}
+
+				if (!Property->SameType(Dest))
 				{
 					return false;
 				}
@@ -262,6 +277,11 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
 				[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
 			if (ValueAddr == nullptr)
+			{
+				return false;
+			}
+
+			if (!Property->SameType(Dest))
 			{
 				return false;
 			}
