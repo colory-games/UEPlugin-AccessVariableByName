@@ -26,6 +26,8 @@ const FString SuccessPinFriendlyName(TEXT("Success"));
 FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass);
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty, void* OuterAddr,
 	FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr);
+bool HandleTerminalProperty(
+	const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr);
 
 FProperty* GetScriptStructProperty(UScriptStruct* ScriptStruct, FString VarName)
 {
@@ -79,14 +81,24 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 			return true;
 		}
 
-		if (!Property->IsA<FStructProperty>())
+		if (Property->IsA<FStructProperty>())
 		{
-			return false;
-		}
-		FStructProperty* StructProperty = CastChecked<FStructProperty>(Property);
-		void* StructAddr = Property->ContainerPtrToValuePtr<void>(OuterAddr);
+			FStructProperty* StructProperty = CastChecked<FStructProperty>(Property);
+			void* StructAddr = Property->ContainerPtrToValuePtr<void>(OuterAddr);
 
-		return HandleTerminalProperty(VarDescs, VarDepth + 1, StructProperty, StructAddr, Dest, DestAddr, NewValue, NewValueAddr);
+			return HandleTerminalProperty(VarDescs, VarDepth + 1, StructProperty, StructAddr, Dest, DestAddr, NewValue, NewValueAddr);
+		}
+		else if (Property->IsA<FObjectProperty>())
+		{
+			FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(Property);
+			UObject* Object = ObjectProperty->GetPropertyValue_InContainer(OuterAddr);
+			void* ObjectAddr = ObjectProperty->ContainerPtrToValuePtr<void>(OuterAddr);
+
+			return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr);
+		}
+
+		return false;
+
 	}
 	else if (Desc.VarType == EContainerType::Array)
 	{
@@ -248,15 +260,22 @@ FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, 
 			return Property;
 		}
 
-		if (!Property->IsA<FStructProperty>())
+		if (Property->IsA<FStructProperty>())
 		{
-			return nullptr;
+			FStructProperty* StructProperty = CastChecked<FStructProperty>(Property);
+			UScriptStruct* ScriptStruct = StructProperty->Struct;
+
+			return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
+		}
+		else if (Property->IsA<FObjectProperty>())
+		{
+			FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(Property);
+			UClass* Class = ObjectProperty->PropertyClass;
+
+			return GetTerminalProperty(VarDescs, VarDepth + 1, Class);
 		}
 
-		FStructProperty* StructProperty = CastChecked<FStructProperty>(Property);
-		UScriptStruct* ScriptStruct = StructProperty->Struct;
-
-		return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
+		return nullptr;
 	}
 	else if (Desc.VarType == EContainerType::Array)
 	{
@@ -272,14 +291,22 @@ FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, 
 		}
 
 		FProperty* InnerProperty = ArrayProperty->Inner;
-		if (!InnerProperty->IsA<FStructProperty>())
+		if (InnerProperty->IsA<FStructProperty>())
 		{
-			return nullptr;
-		}
-		FStructProperty* StructProperty = CastChecked<FStructProperty>(InnerProperty);
-		UScriptStruct* ScriptStruct = StructProperty->Struct;
+			FStructProperty* StructProperty = CastChecked<FStructProperty>(InnerProperty);
+			UScriptStruct* ScriptStruct = StructProperty->Struct;
 
-		return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
+			return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
+		}
+		else if (InnerProperty->IsA<FObjectProperty>())
+		{
+			FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(InnerProperty);
+			UClass* Class = ObjectProperty->PropertyClass;
+
+			return GetTerminalProperty(VarDescs, VarDepth + 1, Class);
+		}
+
+		return nullptr;
 	}
 	else if (Desc.VarType == EContainerType::Map)
 	{
@@ -295,14 +322,22 @@ FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, 
 		}
 
 		FProperty* ValueProperty = MapProperty->ValueProp;
-		if (!ValueProperty->IsA<FStructProperty>())
+		if (ValueProperty->IsA<FStructProperty>())
 		{
-			return nullptr;
-		}
-		FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
-		UScriptStruct* ScriptStruct = StructProperty->Struct;
+			FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
+			UScriptStruct* ScriptStruct = StructProperty->Struct;
 
-		return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
+			return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
+		}
+		else if (ValueProperty->IsA<FObjectProperty>())
+		{
+			FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(ValueProperty);
+			UClass* Class = ObjectProperty->PropertyClass;
+
+			return GetTerminalProperty(VarDescs, VarDepth + 1, Class);
+		}
+
+		return nullptr;
 	}
 
 	return nullptr;
