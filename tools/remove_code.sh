@@ -45,7 +45,7 @@ for file in $(find "${SOURCE_DIR}" -name "*.cpp" -or -name "*.h"); do
     mkdir -p "${tmp_dir_path}"
 
     tmp_file_path="${TMP_DIR}/${file}"
-    while IFS= read -r line; do
+    while IFS= read -r line || [ -n "${line}" ]; do
         if [[ "$line" =~ $remove_start_regex ]]; then
             versions=${BASH_REMATCH[1]}
 	    versions=(${versions//,/ })
