@@ -12,7 +12,6 @@
 #include "Internationalization/Regex.h"
 
 const FName ExecThenPinName(TEXT("ExecThen"));
-const FName TargetPinName(TEXT("Target"));
 const FName VarNamePinName(TEXT("VarName"));
 const FName SuccessPinName(TEXT("Success"));
 const FName ResultPinNamePrefix(TEXT("Result_"));
@@ -629,4 +628,19 @@ FEdGraphPinType CreateDefaultPinType()
 	PinType.PinCategory = UEdGraphSchema_K2::PC_Boolean;
 
 	return PinType;
+}
+
+UClass* GetClassFromNode(const UEdGraphNode* Node)
+{
+	UClass* Class = nullptr;
+
+	UEdGraph* Graph = Node->GetGraph();
+	UObject* GraphOwner = Graph->GetOutermostObject();
+	UBlueprint* Blueprint = Cast<UBlueprint>(GraphOwner);
+	if (Blueprint != nullptr)
+	{
+		Class = Blueprint->GeneratedClass;
+	}
+
+	return Class;
 }

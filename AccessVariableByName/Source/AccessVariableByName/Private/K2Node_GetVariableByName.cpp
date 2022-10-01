@@ -127,7 +127,7 @@ void UK2Node_GetVariableByNameNode::ReallocatePinsDuringReconstruction(TArray<UE
 
 	for (auto& Pin : OldPins)
 	{
-		if (Pin->GetFName() == TargetPinName)
+		if (Pin->GetFName() == UEdGraphSchema_K2::PN_Self)
 		{
 			OldTargetPin = Pin;
 		}
@@ -183,7 +183,7 @@ void UK2Node_GetVariableByNameNode::PinDefaultValueChanged(UEdGraphPin* Pin)
 		return;
 	}
 
-	if (Pin->PinName == TargetPinName)
+	if (Pin->PinName == UEdGraphSchema_K2::PN_Self)
 	{
 		RecreateResultPin();
 	}
@@ -205,7 +205,7 @@ void UK2Node_GetVariableByNameNode::PinConnectionListChanged(UEdGraphPin* Pin)
 		return;
 	}
 
-	if (Pin->PinName == TargetPinName)
+	if (Pin->PinName == UEdGraphSchema_K2::PN_Self)
 	{
 		RecreateResultPin();
 	}
@@ -230,7 +230,8 @@ void UK2Node_GetVariableByNameNode::CreateTargetPin()
 {
 	FCreatePinParams Params;
 	Params.Index = 2;
-	UEdGraphPin* Pin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, UObject::StaticClass(), TargetPinName, Params);
+	UEdGraphSchema_K2::PN_Self;
+	UEdGraphPin* Pin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, UObject::StaticClass(), UEdGraphSchema_K2::PN_Self, Params);
 	Pin->PinFriendlyName = FText::AsCultureInvariant(TargetPinFriendlyName);
 }
 
@@ -337,9 +338,14 @@ UClass* UK2Node_GetVariableByNameNode::GetTargetClass(UEdGraphPin* Pin)
 		return nullptr;
 	}
 
-	if (TargetPin->DefaultObject != nullptr && TargetPin->LinkedTo.Num() == 0)
+	if (TargetPin->PinName == UEdGraphSchema_K2::PN_Self && TargetPin->LinkedTo.Num() == 0)
 	{
-		TargetClass = CastChecked<UClass>(TargetPin->DefaultObject);
+		UEdGraphNode* OwningNode = TargetPin->GetOwningNode();
+		UClass* Class = GetClassFromNode(OwningNode);
+		if (Class != nullptr)
+		{
+			TargetClass = Class;
+		}
 	}
 	else if (TargetPin->LinkedTo.Num() > 0)
 	{
@@ -351,12 +357,10 @@ UClass* UK2Node_GetVariableByNameNode::GetTargetClass(UEdGraphPin* Pin)
 			{
 				UEdGraphNode* OwningNode = LinkedPin->GetOwningNode();
 				UK2Node_Self* SelfNode = CastChecked<UK2Node_Self>(OwningNode);
-				UEdGraph* Graph = SelfNode->GetGraph();
-				UObject* GraphOwner = Graph->GetOutermostObject();
-				UBlueprint* Blueprint = Cast<UBlueprint>(GraphOwner);
-				if (Blueprint != nullptr)
+				UClass* Class = GetClassFromNode(SelfNode);
+				if (Class != nullptr)
 				{
-					TargetClass = Blueprint->GeneratedClass;
+					TargetClass = Class;
 				}
 			}
 			else
@@ -485,7 +489,7 @@ UEdGraphPin* UK2Node_GetVariableByNameNode::GetExecThenPin()
 
 UEdGraphPin* UK2Node_GetVariableByNameNode::GetTargetPin()
 {
-	return FindPin(TargetPinName);
+	return FindPin(UEdGraphSchema_K2::PN_Self);
 }
 
 UEdGraphPin* UK2Node_GetVariableByNameNode::GetVarNamePin()

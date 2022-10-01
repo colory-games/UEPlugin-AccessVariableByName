@@ -264,7 +264,7 @@ void UK2Node_DynamicSetVariableByNameNode::CreateTargetPin()
 {
 	FCreatePinParams Params;
 	Params.Index = 3;
-	UEdGraphPin* Pin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, UObject::StaticClass(), TargetPinName, Params);
+	UEdGraphPin* Pin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, UObject::StaticClass(), UEdGraphSchema_K2::PN_Self, Params);
 	Pin->PinFriendlyName = FText::AsCultureInvariant(TargetPinFriendlyName);
 }
 
@@ -373,7 +373,7 @@ UEdGraphPin* UK2Node_DynamicSetVariableByNameNode::GetExecThenPin() const
 
 UEdGraphPin* UK2Node_DynamicSetVariableByNameNode::GetTargetPin() const
 {
-	return FindPin(TargetPinName);
+	return FindPin(UEdGraphSchema_K2::PN_Self);
 }
 
 UEdGraphPin* UK2Node_DynamicSetVariableByNameNode::GetVarNamePin() const

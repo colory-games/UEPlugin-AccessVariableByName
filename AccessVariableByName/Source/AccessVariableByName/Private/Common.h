@@ -10,7 +10,6 @@
 #pragma once
 
 extern const FName ExecThenPinName;
-extern const FName TargetPinName;
 extern const FName VarNamePinName;
 extern const FName SuccessPinName;
 extern const FName ResultPinNamePrefix;
@@ -48,3 +47,5 @@ void SplitVarName(const FString& In, TArray<FString>* Out);
 void AnalyzeVarNames(const TArray<FString>& VarNames, TArray<FVarDescription>* VarDescs);
 
 FEdGraphPinType CreateDefaultPinType();
+UClass* GetClassFromNode(const UEdGraphNode* Node);
+
