@@ -125,6 +125,7 @@ void UVariableGetterFunctionLibarary::GetFloatVariableByName(UObject* Target, FN
 	Success = true;
 }
 
+// @remove-start UE_VERSION=4.26,4.27
 void UVariableGetterFunctionLibarary::GetFloat64VariableByName(UObject* Target, FName VarName, bool& Success, double& Result)
 {
 	Success = false;
@@ -143,6 +144,7 @@ void UVariableGetterFunctionLibarary::GetFloat64VariableByName(UObject* Target, 
 	Result = Property->GetPropertyValue_InContainer(Target);
 	Success = true;
 }
+// @remove-end
 
 void UVariableGetterFunctionLibarary::GetNameVariableByName(UObject* Target, FName VarName, bool& Success, FName& Result)
 {
