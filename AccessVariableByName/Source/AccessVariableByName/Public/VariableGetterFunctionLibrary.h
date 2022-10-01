@@ -37,7 +37,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly)
 	static void GetFloatVariableByName(UObject* Target, FName VarName, bool& Success, float& Result);
 
-	// @remove-start UE_VERSION=4.26,4.27
+	// @remove-start UE_VERSION=4.26.0,4.27.0
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly)
 	static void GetFloat64VariableByName(UObject* Target, FName VarName, bool& Success, double& Result);
 	// @remove-end
