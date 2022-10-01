@@ -230,7 +230,6 @@ void UK2Node_GetVariableByNameNode::CreateTargetPin()
 {
 	FCreatePinParams Params;
 	Params.Index = 2;
-	UEdGraphSchema_K2::PN_Self;
 	UEdGraphPin* Pin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, UObject::StaticClass(), UEdGraphSchema_K2::PN_Self, Params);
 	Pin->PinFriendlyName = FText::AsCultureInvariant(TargetPinFriendlyName);
 }
@@ -281,7 +280,7 @@ void UK2Node_GetVariableByNameNode::RecreateResultPinInternal(UClass* TargetClas
 	}
 	else
 	{
-		bIsNestedVarName = !(VarDescs.Num() == 1 && VarDescs[0].ArrayAccessType == EArrayAccessType::None);
+		bIsNestedVarName = !(VarDescs.Num() == 1 && VarDescs[0].ArrayAccessType == EArrayAccessType::ArrayAccessType_None);
 
 		FProperty* Property = GetTerminalProperty(VarDescs, 0, TargetClass);
 		if (Property != nullptr)

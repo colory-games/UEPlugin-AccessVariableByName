@@ -305,7 +305,7 @@ void UK2Node_SetVariableByNameNode::RecreateVariantPinInternal(UClass* TargetCla
 	}
 	else
 	{
-		bIsNestedVarName = !(VarDescs.Num() == 1 && VarDescs[0].ArrayAccessType == EArrayAccessType::None);
+		bIsNestedVarName = !(VarDescs.Num() == 1 && VarDescs[0].ArrayAccessType == EArrayAccessType::ArrayAccessType_None);
 
 		FProperty* Property = GetTerminalProperty(VarDescs, 0, TargetClass);
 		if (Property != nullptr)

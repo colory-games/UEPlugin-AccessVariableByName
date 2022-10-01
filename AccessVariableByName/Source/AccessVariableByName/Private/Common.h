@@ -22,9 +22,9 @@ extern const FString SuccessPinFriendlyName;
 
 enum EArrayAccessType
 {
-	None,
-	Integer,
-	String,
+	ArrayAccessType_None,
+	ArrayAccessType_Integer,
+	ArrayAccessType_String,
 };
 
 struct FArrayAccessValue

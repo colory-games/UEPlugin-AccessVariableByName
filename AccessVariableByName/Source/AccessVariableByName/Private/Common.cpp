@@ -67,7 +67,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 {
 	const FVarDescription& Desc = VarDescs[VarDepth];
 
-	if (Desc.ArrayAccessType == EArrayAccessType::None)
+	if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_None)
 	{
 		if (VarDescs.Num() == VarDepth + 1)
 		{
@@ -104,7 +104,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 		return false;
 
 	}
-	else if (Desc.ArrayAccessType == EArrayAccessType::Integer)
+	else if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_Integer)
 	{
 		if (Property->IsA<FArrayProperty>())
 		{
@@ -253,7 +253,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 		return false;
 
 	}
-	else if (Desc.ArrayAccessType == EArrayAccessType::String)
+	else if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_String)
 	{
 		if (!Property->IsA<FMapProperty>())
 		{
@@ -378,7 +378,7 @@ FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, 
 {
 	const FVarDescription& Desc = VarDescs[VarDepth];
 
-	if (Desc.ArrayAccessType == EArrayAccessType::None)
+	if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_None)
 	{
 		if (VarDescs.Num() == VarDepth + 1)
 		{
@@ -402,7 +402,7 @@ FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, 
 
 		return nullptr;
 	}
-	else if (Desc.ArrayAccessType == EArrayAccessType::Integer)
+	else if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_Integer)
 	{
 		if (Property->IsA<FArrayProperty>())
 		{
@@ -459,7 +459,7 @@ FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, 
 
 		return nullptr;
 	}
-	else if (Desc.ArrayAccessType == EArrayAccessType::String)
+	else if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_String)
 	{
 		if (!Property->IsA<FMapProperty>())
 		{
@@ -574,7 +574,7 @@ void AnalyzeVarNames(const TArray<FString>& VarNames, TArray<FVarDescription>* V
 				FVarDescription Desc;
 				Desc.bIsValid = true;
 				Desc.VarName = Matcher.GetCaptureGroup(1);
-				Desc.ArrayAccessType = EArrayAccessType::String;
+				Desc.ArrayAccessType = EArrayAccessType::ArrayAccessType_String;
 				Desc.ArrayAccessValue.Integer = -1;
 				Desc.ArrayAccessValue.String = Matcher.GetCaptureGroup(2);
 				VarDescs->Add(Desc);
@@ -591,7 +591,7 @@ void AnalyzeVarNames(const TArray<FString>& VarNames, TArray<FVarDescription>* V
 				FVarDescription Desc;
 				Desc.bIsValid = true;
 				Desc.VarName = Matcher.GetCaptureGroup(1);
-				Desc.ArrayAccessType = EArrayAccessType::Integer;
+				Desc.ArrayAccessType = EArrayAccessType::ArrayAccessType_Integer;
 				Desc.ArrayAccessValue.Integer = FCString::Atoi(*Matcher.GetCaptureGroup(2));
 				Desc.ArrayAccessValue.String = "";
 				VarDescs->Add(Desc);
@@ -608,7 +608,7 @@ void AnalyzeVarNames(const TArray<FString>& VarNames, TArray<FVarDescription>* V
 				FVarDescription Desc;
 				Desc.bIsValid = true;
 				Desc.VarName = Matcher.GetCaptureGroup(1);
-				Desc.ArrayAccessType = EArrayAccessType::None;
+				Desc.ArrayAccessType = EArrayAccessType::ArrayAccessType_None;
 				Desc.ArrayAccessValue.Integer = -1;
 				Desc.ArrayAccessValue.String = "";
 				VarDescs->Add(Desc);
