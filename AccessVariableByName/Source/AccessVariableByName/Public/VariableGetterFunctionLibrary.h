@@ -19,7 +19,7 @@ class ACCESSVARIABLEBYNAME_API UVariableGetterFunctionLibarary : public UBluepri
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly)
 	static void GetBooleanVariableByName(UObject* Target, FName VarName, bool& Success, bool& Result);
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly)
@@ -52,7 +52,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly)
 	static void GetTextVariableByName(UObject* Target, FName VarName, bool& Success, FText& Result);
 
-	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result"))
+	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result"))
 	static void GetStructVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result);
 
 	static void GenericGetStructVariableByName(UObject* Target, FName VarName, bool& Success, void* Result);
@@ -73,7 +73,7 @@ public:
 		P_NATIVE_END;
 	}
 
-	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result"))
+	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result"))
 	static void GetEnumVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result);
 
 	static void GenericGetEnumVariableByName(UObject* Target, FName VarName, bool& Success, void* Result);
@@ -94,7 +94,7 @@ public:
 		P_NATIVE_END;
 	}
 
-	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result"))
+	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result"))
 	static void GetArrayVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result);
 
 	static void GenericGetArrayVariableByName(UObject* Target, FName VarName, bool& Success, void* Result);
@@ -115,7 +115,7 @@ public:
 		P_NATIVE_END;
 	}
 
-	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result"))
+	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result"))
 	static void GetSetVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result);
 
 	static void GenericGetSetVariableByName(UObject* Target, FName VarName, bool& Success, void* Result);
@@ -136,7 +136,7 @@ public:
 		P_NATIVE_END;
 	}
 
-	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result"))
+	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result"))
 	static void GetMapVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result);
 
 	static void GenericGetMapVariableByName(UObject* Target, FName VarName, bool& Success, void* Result);
@@ -157,7 +157,7 @@ public:
 		P_NATIVE_END;
 	}
 
-	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result"))
+	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result"))
 	static void GetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result);
 
 	static void GenericGetNestedVariableByName(

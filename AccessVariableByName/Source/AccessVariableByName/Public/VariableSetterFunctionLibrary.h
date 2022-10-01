@@ -52,7 +52,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly)
 	static void SetTextVariableByName(UObject* Target, FName VarName, FText NewValue, bool& Success, FText& Result);
 
-	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
+	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
 	static void SetStructVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue);
 
 	static void GenericSetStructVariableByName(UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue);
@@ -82,7 +82,7 @@ public:
 		ResultProperty->DestroyValue(NewValueAddr);
 	}
 
-	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
+	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
 	static void SetEnumVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue);
 
 	static void GenericSetEnumVariableByName(UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue);
@@ -112,7 +112,7 @@ public:
 		ResultProperty->DestroyValue(NewValue);
 	}
 
-	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
+	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
 	static void SetArrayVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue);
 
 	static void GenericSetArrayVariableByName(UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue);
@@ -141,7 +141,7 @@ public:
 		ResultProperty->DestroyValue(NewValue);
 	}
 
-	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
+	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
 	static void SetSetVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue);
 
 	static void GenericSetSetVariableByName(UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue);
@@ -170,7 +170,7 @@ public:
 		ResultProperty->DestroyValue(NewValue);
 	}
 
-	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
+	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
 	static void SetMapVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue);
 
 	static void GenericSetMapVariableByName(UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue);
@@ -199,7 +199,7 @@ public:
 		ResultProperty->DestroyValue(NewValue);
 	}
 
-	UFUNCTION(BlueprintCallable, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
+	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
 		static void SetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue);
 
 	static void GenericSetNestedVariableByName(
