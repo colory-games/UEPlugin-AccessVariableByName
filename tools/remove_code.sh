@@ -10,44 +10,48 @@ SUPPORTED_VERSIONS=(
 )
 
 function usage() {
-    echo "Usage: bash replace_engine_version.sh <source-directory> <engine-version> <output-directory>"
+    echo "Usage: bash replace_ENGINE_VERSION.sh <source-directory> <engine-version> <output-directory>"
 }
 
-if [ $# -ne 2 ]; then
+if [ $# -ne 3 ]; then
     exit 1
 fi
 
-source_dir=${1}
-engine_version=${2}
-output_dir=${3}
+SOURCE_DIR=${1}
+ENGINE_VERSION=${2}
+OUTPUT_DIR=${3}
+TMP_DIR=$(mktemp -d)
 
 supported=0
 for v in "${SUPPORTED_VERSIONS[@]}"; do
-    if [ "${v}" = "${engine_version}" ]; then
+    if [ "${v}" = "${ENGINE_VERSION}" ]; then
         supported=1
     fi
 done
 if [ ${supported} -eq 0 ]; then
-    echo "${engine_version} is not supported."
+    echo "${ENGINE_VERSION} is not supported."
     echo "Supported version is ${SUPPORTED_VERSIONS[*]}"
     exit 1
 fi
 
-mkdir -p "${output_dir}"
+mkdir -p "${OUTPUT_DIR}"
 
 remove_start_regex="[^\S]*//[^\S]*@remove-start[^\S]+UE_VERSION=([0-9.,]+)"
 remove_end_regex="[^\S]*//[^\S]*@remove-end"
 enable_delete=0
-for file in $(find "${source_dir}" -name "*.cpp" -or -name "*.h"); do
-    out_file_path="${output_directory}/${file}"
+for file in $(find "${SOURCE_DIR}" -name "*.cpp" -or -name "*.h"); do
+    in_dir_path=$(dirname ${file})
+    tmp_dir_path="${TMP_DIR}/${in_dir_path}"
+    mkdir -p "${tmp_dir_path}"
 
+    tmp_file_path="${TMP_DIR}/${file}"
     while IFS= read -r line; do
         if [[ "$line" =~ $remove_start_regex ]]; then
             versions=${BASH_REMATCH[1]}
 	    versions=(${versions//,/ })
 
             for version in ${versions[@]}; do
-                if [[ ${version} = ${engine_version} ]]; then
+                if [[ ${version} = ${ENGINE_VERSION} ]]; then
                     enable_delete=1
 		    break
                 fi
@@ -55,7 +59,7 @@ for file in $(find "${source_dir}" -name "*.cpp" -or -name "*.h"); do
         fi
 
 	if [[ $enable_delete -eq 0 ]]; then
-            echo "${line}" >> ${out_file_path}
+            echo "${line}" >> ${tmp_file_path}
         fi
 
         if [[ "$line" =~ $remove_end_regex ]]; then
@@ -64,5 +68,13 @@ for file in $(find "${source_dir}" -name "*.cpp" -or -name "*.h"); do
 
     done < "${file}"
 
-    echo "Remove code in ${file}"
+    echo "Remove code in ${file} >> ${tmp_file_path}"
 done
+
+
+for file in $(find "${TMP_DIR}" -name "*.cpp" -or -name "*.h"); do
+    out_file_path=${file/${TMP_DIR}/${OUTPUT_DIR}}
+    cp "${file}" "${out_file_path}"
+    echo "Copy file ${file} -> ${out_file_path}"
+done
+
