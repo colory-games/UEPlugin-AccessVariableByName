@@ -61,7 +61,7 @@ for file in $(find "${SOURCE_DIR}" -name "*.cpp" -or -name "*.h" -or -name "*.cs
                     break
                 fi
             done
-        elif [ "${FULL}" -eq 1 ] && [[ "$line" =~ $remove_start_full_regex ]]; then
+        elif [ ${FULL} -eq 1 ] && [[ "$line" =~ $remove_start_full_regex ]]; then
             enable_delete=1
         fi
 
