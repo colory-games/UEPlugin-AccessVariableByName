@@ -79,7 +79,7 @@ for file in $(find "${SOURCE_DIR}" -name "*.cpp" -or -name "*.h" -or -name "*.cs
 done
 
 
-for file in $(find "${TMP_DIR}" -name "*.cpp" -or -name "*.h"); do
+for file in $(find "${TMP_DIR}" -name "*.cpp" -or -name "*.h -or -name *.cs"); do
     out_file_path=${file/${TMP_DIR}/${OUTPUT_DIR}}
     cp "${file}" "${out_file_path}"
     echo "Copy file ${file} -> ${out_file_path}"
