@@ -21,6 +21,10 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
+      - name: Run scripts for the code removing
+        run: |
+          bash tools/remove_code.sh AccessVariableByName ${{ matrix.unreal_engine_version }} .
+
       - name: Run scripts for the release
         run: |
           bash tools/replace_engine_version.sh AccessVariableByName ${{ matrix.unreal_engine_version }}

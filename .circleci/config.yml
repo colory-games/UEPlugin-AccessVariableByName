@@ -29,6 +29,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Run scripts for the code removing
+          command: bash tools/remove_code.sh AccessVariableByName << parameters.unreal-engine-version >> .
+      - run:
           name: "Run scripts for the release"
           command: bash tools/replace_engine_version.sh AccessVariableByName << parameters.unreal-engine-version >>
       - run:
@@ -50,6 +53,9 @@ jobs:
           password: $GHCR_PASSWORD
     steps:
       - checkout
+      - run:
+          name: Run scripts for the code removing
+          command: bash tools/remove_code.sh AccessVariableByName << parameters.unreal-engine-version >> .
       - run:
           name: "Run scripts for the release"
           command: bash tools/replace_engine_version.sh AccessVariableByName << parameters.unreal-engine-version >>

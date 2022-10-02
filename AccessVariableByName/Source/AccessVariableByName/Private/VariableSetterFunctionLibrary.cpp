@@ -137,6 +137,7 @@ void UVariableSetterFunctionLibarary::SetFloatVariableByName(
 	Success = true;
 }
 
+// @remove-start UE_VERSION=4.26,4.27
 void UVariableSetterFunctionLibarary::SetFloat64VariableByName(
 	UObject* Target, FName VarName, double NewValue, bool& Success, double& Result)
 {
@@ -157,6 +158,7 @@ void UVariableSetterFunctionLibarary::SetFloat64VariableByName(
 	Result = Property->GetPropertyValue_InContainer(Target);
 	Success = true;
 }
+// @remove-end
 
 void UVariableSetterFunctionLibarary::SetNameVariableByName(
 	UObject* Target, FName VarName, FName NewValue, bool& Success, FName& Result)
