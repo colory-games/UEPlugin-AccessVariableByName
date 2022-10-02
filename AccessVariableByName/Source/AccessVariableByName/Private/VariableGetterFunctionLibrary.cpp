@@ -125,7 +125,7 @@ void UVariableGetterFunctionLibarary::GetFloatVariableByName(UObject* Target, FN
 	Success = true;
 }
 
-// @remove-start UE_VERSION=4.26,4.27
+// @remove-start UE_VERSION=4.26.0,4.27.0
 void UVariableGetterFunctionLibarary::GetFloat64VariableByName(UObject* Target, FName VarName, bool& Success, double& Result)
 {
 	Success = false;

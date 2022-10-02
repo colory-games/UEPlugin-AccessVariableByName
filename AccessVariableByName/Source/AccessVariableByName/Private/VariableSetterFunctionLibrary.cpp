@@ -137,7 +137,7 @@ void UVariableSetterFunctionLibarary::SetFloatVariableByName(
 	Success = true;
 }
 
-// @remove-start UE_VERSION=4.26,4.27
+// @remove-start UE_VERSION=4.26.0,4.27.0
 void UVariableSetterFunctionLibarary::SetFloat64VariableByName(
 	UObject* Target, FName VarName, double NewValue, bool& Success, double& Result)
 {

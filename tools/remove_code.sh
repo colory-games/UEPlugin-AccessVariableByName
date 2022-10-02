@@ -60,8 +60,6 @@ for file in $(find "${SOURCE_DIR}" -name "*.cpp" -or -name "*.h"); do
 
         if [[ $enable_delete -eq 0 ]]; then
             echo "${line}" >> ${tmp_file_path}
-        else
-            echo "${line}"
         fi
 
         if [[ "$line" =~ $remove_end_regex ]]; then
