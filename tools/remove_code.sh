@@ -48,12 +48,12 @@ for file in $(find "${SOURCE_DIR}" -name "*.cpp" -or -name "*.h"); do
     while IFS= read -r line || [ -n "${line}" ]; do
         if [[ "$line" =~ $remove_start_regex ]]; then
             versions=${BASH_REMATCH[1]}
-            versions=(${versions//,/ })
+            versions=${versions//,/ }
 
             for version in ${versions[@]}; do
                 if [[ ${version} = ${ENGINE_VERSION} ]]; then
                     enable_delete=1
-            break
+                    break
                 fi
             done
         fi
