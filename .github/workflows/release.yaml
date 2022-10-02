@@ -34,8 +34,8 @@ jobs:
       - name: Compress plugin's sources
         run: |
           mkdir release-plugin
-          zip -r AccessVariableByName_UE${{ matrix.unreal_engine_version }}.zip AccessVariableByName
-          mv AccessVariableByName_UE${{ matrix.unreal_engine_version }}.zip release-plugin
+          zip -r AccessVariableByName_UE${{ matrix.unreal_engine_version }}_${{ matrix.version }}.zip AccessVariableByName
+          mv AccessVariableByName_UE${{ matrix.unreal_engine_version }}_${{ matrix.version }}.zip release-plugin
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
