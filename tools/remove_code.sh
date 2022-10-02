@@ -50,9 +50,8 @@ for file in $(find "${SOURCE_DIR}" -name "*.cpp" -or -name "*.h"); do
             versions=${BASH_REMATCH[1]}
             versions=${versions//,/ }
 
-            echo ${versions}
-
             for version in ${versions[@]}; do
+                echo ${version}
                 if [[ ${version} = ${ENGINE_VERSION} ]]; then
                     enable_delete=1
                     break
