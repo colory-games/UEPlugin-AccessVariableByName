@@ -14,10 +14,10 @@
 #include "EdGraphUtilities.h"
 #include "EditorCategoryUtils.h"
 #include "GraphEditorSettings.h"
+#include "Internationalization/Regex.h"
 #include "K2Node_CallFunction.h"
 #include "KismetCompiler.h"
 #include "VariableSetterFunctionLibrary.h"
-#include "Internationalization/Regex.h"
 
 #define LOCTEXT_NAMESPACE "K2Node"
 
@@ -34,8 +34,7 @@ public:
 
 		FEdGraphPinType PinType = Pin->PinType;
 
-		if (PinType.ContainerType == EPinContainerType::Array ||
-			PinType.ContainerType == EPinContainerType::Set ||
+		if (PinType.ContainerType == EPinContainerType::Array || PinType.ContainerType == EPinContainerType::Set ||
 			PinType.ContainerType == EPinContainerType::Map)
 		{
 			return false;
@@ -53,14 +52,15 @@ public:
 			return false;
 		}
 
-#endif // AVBN_FREE_VERSION
+#endif	// AVBN_FREE_VERSION
 
 		return true;
 	}
 
 	virtual void RegisterNets(FKismetFunctionContext& Context, UEdGraphNode* Node) override
 	{
-		UK2Node_DynamicSetVariableByNameNode* DynamicSetVariableByNameNode = CastChecked<UK2Node_DynamicSetVariableByNameNode>(Node);
+		UK2Node_DynamicSetVariableByNameNode* DynamicSetVariableByNameNode =
+			CastChecked<UK2Node_DynamicSetVariableByNameNode>(Node);
 
 		FNodeHandlingFunctor::RegisterNets(Context, Node);
 
@@ -92,7 +92,8 @@ public:
 
 	virtual void Compile(FKismetFunctionContext& Context, UEdGraphNode* Node) override
 	{
-		UK2Node_DynamicSetVariableByNameNode* DynamicSetVariableByNameNode = CastChecked<UK2Node_DynamicSetVariableByNameNode>(Node);
+		UK2Node_DynamicSetVariableByNameNode* DynamicSetVariableByNameNode =
+			CastChecked<UK2Node_DynamicSetVariableByNameNode>(Node);
 
 		UEdGraphPin* FunctionPin = DynamicSetVariableByNameNode->GetFunctionPin();
 		FBPTerminal* FunctionContext = Context.NetMap.FindRef(FunctionPin);
@@ -123,7 +124,9 @@ public:
 		FBPTerminal* ResultTerm = Context.NetMap.FindRef(ResultNet);
 		if (!IsSupport(ResultPin))
 		{
-			CompilerContext.MessageLog.Error(*LOCTEXT("NotSupported", "Property types 'Struct', 'Enum', 'Array', 'Set', 'Map' are not supported on the free version. Please consider to buy full version at Marketplace.").ToString());
+			CompilerContext.MessageLog.Error(*LOCTEXT("NotSupported",
+				"Property types 'Struct', 'Enum', 'Array', 'Set', 'Map' are not supported on the free version. "
+				"Please consider to buy full version at Marketplace.").ToString());
 			return;
 		}
 
@@ -136,13 +139,14 @@ public:
 		CallFuncStatement.RHS.Add(VarNameTerm);
 		CallFuncStatement.RHS.Add(SuccessTerm);
 		CallFuncStatement.RHS.Add(ResultTerm);
-		CallFuncStatement.RHS.Add(NewValueTerm);		// Argument order is different from pin index.
+		CallFuncStatement.RHS.Add(NewValueTerm);	// Argument order is different from pin index.
 
 		GenerateSimpleThenGoto(Context, *DynamicSetVariableByNameNode, ExecThenPin);
 	}
 };
 
-UK2Node_DynamicSetVariableByNameNode::UK2Node_DynamicSetVariableByNameNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UK2Node_DynamicSetVariableByNameNode::UK2Node_DynamicSetVariableByNameNode(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	InternalCallFuncClass = UVariableSetterFunctionLibarary::StaticClass();
 	InternalCallFuncName = FName("SetNestedVariableByName");
@@ -190,7 +194,7 @@ void UK2Node_DynamicSetVariableByNameNode::AllocateDefaultPins()
 	CreateTargetPin();
 	CreateVarNamePin();
 	CreateSuccessPin();
-	
+
 	FEdGraphPinType InitialPinType;
 	InitialPinType.PinCategory = UEdGraphSchema_K2::PC_Boolean;
 	CreateNewValuePin(InitialPinType, 0);
@@ -261,7 +265,8 @@ void UK2Node_DynamicSetVariableByNameNode::CreateFunctionPin()
 	UFunction* FunctionPtr = FunctionClass->FindFunctionByName(InternalCallFuncName);
 	check(FunctionPtr);
 
-	UEdGraphPin* FunctionPin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, InternalCallFuncClass, InternalCallFuncName, Params);
+	UEdGraphPin* FunctionPin =
+		CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, InternalCallFuncClass, InternalCallFuncName, Params);
 	FunctionPin->bDefaultValueIsReadOnly = true;
 	FunctionPin->bNotConnectable = true;
 	FunctionPin->bHidden = true;
@@ -299,7 +304,8 @@ void UK2Node_DynamicSetVariableByNameNode::CreateTargetPin()
 {
 	FCreatePinParams Params;
 	Params.Index = 3;
-	UEdGraphPin* Pin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, UObject::StaticClass(), UEdGraphSchema_K2::PN_Self, Params);
+	UEdGraphPin* Pin =
+		CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, UObject::StaticClass(), UEdGraphSchema_K2::PN_Self, Params);
 	Pin->PinFriendlyName = FText::AsCultureInvariant(TargetPinFriendlyName);
 }
 

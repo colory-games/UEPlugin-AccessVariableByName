@@ -8,7 +8,6 @@
  */
 
 #include "AccessVariableByNameModule.h"
-
 #include "EdGraphUtilities.h"
 #include "K2Node_DynamicGetVariableByName.h"
 #include "K2Node_DynamicSetVariableByName.h"
@@ -25,7 +24,8 @@ class FGraphPanelNodeFactory_AccessVariableByName : public FGraphPanelNodeFactor
 		{
 			return SNew(SGraphNodeDynamicGetVariableByNameNode, DynamicGetVariableByNameNode);
 		}
-		else if (UK2Node_DynamicSetVariableByNameNode* DynamicSetVariableByNameNode = Cast<UK2Node_DynamicSetVariableByNameNode>(Node))
+		else if (UK2Node_DynamicSetVariableByNameNode* DynamicSetVariableByNameNode =
+				 Cast<UK2Node_DynamicSetVariableByNameNode>(Node))
 		{
 			return SNew(SGraphNodeDynamicSetVariableByNameNode, DynamicSetVariableByNameNode);
 		}

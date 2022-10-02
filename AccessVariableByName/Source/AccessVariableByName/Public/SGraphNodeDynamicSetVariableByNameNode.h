@@ -25,7 +25,6 @@ class SGraphNodeDynamicSetVariableByNameNode : public SGraphNodeK2Base
 	virtual void CreatePinWidgets() override;
 
 protected:
-
 	FEdGraphPinType OnGetPinInfo() const;
 	void OnPrePinInfoChanged(const FEdGraphPinType& PinType);
 	void OnPinInfoChanged(const FEdGraphPinType& PinType);

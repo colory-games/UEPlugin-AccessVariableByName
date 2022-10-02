@@ -23,10 +23,10 @@ const FString VarNamePinFriendlyName(TEXT("Var Name"));
 const FString SuccessPinFriendlyName(TEXT("Success"));
 
 FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass);
-bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty, void* OuterAddr,
-	FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr);
-bool HandleTerminalProperty(
-	const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr);
+bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty,
+	void* OuterAddr, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr);
+bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest,
+	void* DestAddr, FProperty* NewValue, void* NewValueAddr);
 
 FProperty* GetScriptStructProperty(UScriptStruct* ScriptStruct, FString VarName)
 {
@@ -90,7 +90,8 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 			FStructProperty* StructProperty = CastChecked<FStructProperty>(Property);
 			void* StructAddr = Property->ContainerPtrToValuePtr<void>(OuterAddr);
 
-			return HandleTerminalProperty(VarDescs, VarDepth + 1, StructProperty, StructAddr, Dest, DestAddr, NewValue, NewValueAddr);
+			return HandleTerminalProperty(
+				VarDescs, VarDepth + 1, StructProperty, StructAddr, Dest, DestAddr, NewValue, NewValueAddr);
 		}
 		else if (Property->IsA<FObjectProperty>())
 		{
@@ -102,7 +103,6 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 		}
 
 		return false;
-
 	}
 	else if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_Integer)
 	{
@@ -153,7 +153,8 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				int8* InnerAddr = static_cast<int8*>(ArrayPtr->GetData());
 				void* InnerItemAddr = InnerAddr + Index * Stride;
 
-				return HandleTerminalProperty(VarDescs, VarDepth + 1, StructProperty, InnerItemAddr, Dest, DestAddr, NewValue, NewValueAddr);
+				return HandleTerminalProperty(
+					VarDescs, VarDepth + 1, StructProperty, InnerItemAddr, Dest, DestAddr, NewValue, NewValueAddr);
 			}
 			else if (InnerProperty->IsA<FObjectProperty>())
 			{
@@ -227,7 +228,8 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 					return false;
 				}
 
-				return HandleTerminalProperty(VarDescs, VarDepth + 1, StructProperty, ValueAddr, Dest, DestAddr, NewValue, NewValueAddr);
+				return HandleTerminalProperty(
+					VarDescs, VarDepth + 1, StructProperty, ValueAddr, Dest, DestAddr, NewValue, NewValueAddr);
 			}
 			else if (ValueProperty->IsA<FObjectProperty>())
 			{
@@ -251,7 +253,6 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 		}
 
 		return false;
-
 	}
 	else if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_String)
 	{
@@ -309,7 +310,8 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				return false;
 			}
 
-			return HandleTerminalProperty(VarDescs, VarDepth + 1, StructProperty, ValueAddr, Dest, DestAddr, NewValue, NewValueAddr);
+			return HandleTerminalProperty(
+				VarDescs, VarDepth + 1, StructProperty, ValueAddr, Dest, DestAddr, NewValue, NewValueAddr);
 		}
 		else if (ValueProperty->IsA<FObjectProperty>())
 		{
@@ -335,8 +337,9 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 	return false;
 }
 
-bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty, void* OuterAddr,
-	FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr)
+bool HandleTerminalProperty(
+	const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty, void* OuterAddr, FProperty* Dest,
+	void* DestAddr, FProperty* NewValue, void* NewValueAddr)
 {
 	const FVarDescription& Desc = VarDescs[VarDepth];
 

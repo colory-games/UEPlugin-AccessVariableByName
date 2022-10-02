@@ -388,10 +388,11 @@ void UVariableGetterFunctionLibarary::GenericGetNestedVariableByName(
 #ifdef AVBN_FREE_VERSION
 	if (VarDescs.Num() >= 2)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Nested property is not supported on the free version. Please consider to buy full version at Marketplace."));
+		UE_LOG(LogTemp, Error,
+			TEXT("Nested property is not supported on the free version. Please consider to buy full version at Marketplace."));
 		return;
 	}
-#endif // AVBN_FREE_VERSION
+#endif	// AVBN_FREE_VERSION
 
 	Success = HandleTerminalProperty(VarDescs, 0, Target, ResultProperty, ResultAddr, nullptr, nullptr);
 }

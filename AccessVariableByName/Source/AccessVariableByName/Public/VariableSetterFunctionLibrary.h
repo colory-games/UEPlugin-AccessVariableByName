@@ -202,10 +202,10 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
-		static void SetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue);
+	static void SetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue);
 
-	static void GenericSetNestedVariableByName(
-		UObject* Target, FName VarName, bool& Success, UProperty* ResultProperty, void* ResultAddr, UProperty* NewValueProperty, void* NewValueAddr);
+	static void GenericSetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty* ResultProperty,
+		void* ResultAddr, UProperty* NewValueProperty, void* NewValueAddr);
 
 	DECLARE_FUNCTION(execSetNestedVariableByName)
 	{

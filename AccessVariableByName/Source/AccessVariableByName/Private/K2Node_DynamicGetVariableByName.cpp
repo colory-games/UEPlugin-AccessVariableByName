@@ -14,10 +14,10 @@
 #include "EdGraphUtilities.h"
 #include "EditorCategoryUtils.h"
 #include "GraphEditorSettings.h"
+#include "Internationalization/Regex.h"
 #include "K2Node_CallFunction.h"
 #include "KismetCompiler.h"
 #include "VariableGetterFunctionLibrary.h"
-#include "Internationalization/Regex.h"
 
 #define LOCTEXT_NAMESPACE "K2Node"
 
@@ -34,8 +34,7 @@ public:
 
 		FEdGraphPinType PinType = Pin->PinType;
 
-		if (PinType.ContainerType == EPinContainerType::Array ||
-			PinType.ContainerType == EPinContainerType::Set ||
+		if (PinType.ContainerType == EPinContainerType::Array || PinType.ContainerType == EPinContainerType::Set ||
 			PinType.ContainerType == EPinContainerType::Map)
 		{
 			return false;
@@ -53,14 +52,15 @@ public:
 			return false;
 		}
 
-#endif // AVBN_FREE_VERSION
+#endif	// AVBN_FREE_VERSION
 
 		return true;
 	}
 
 	virtual void RegisterNets(FKismetFunctionContext& Context, UEdGraphNode* Node) override
 	{
-		UK2Node_DynamicGetVariableByNameNode* DynamicGetVariableByNameNode = CastChecked<UK2Node_DynamicGetVariableByNameNode>(Node);
+		UK2Node_DynamicGetVariableByNameNode* DynamicGetVariableByNameNode =
+			CastChecked<UK2Node_DynamicGetVariableByNameNode>(Node);
 
 		FNodeHandlingFunctor::RegisterNets(Context, Node);
 
@@ -91,7 +91,8 @@ public:
 
 	virtual void Compile(FKismetFunctionContext& Context, UEdGraphNode* Node) override
 	{
-		UK2Node_DynamicGetVariableByNameNode* DynamicGetVariableByNameNode = CastChecked<UK2Node_DynamicGetVariableByNameNode>(Node);
+		UK2Node_DynamicGetVariableByNameNode* DynamicGetVariableByNameNode =
+			CastChecked<UK2Node_DynamicGetVariableByNameNode>(Node);
 
 		UEdGraphPin* FunctionPin = DynamicGetVariableByNameNode->GetFunctionPin();
 		FBPTerminal* FunctionContext = Context.NetMap.FindRef(FunctionPin);
@@ -118,7 +119,9 @@ public:
 		FBPTerminal* ResultTerm = Context.NetMap.FindRef(ResultNet);
 		if (!IsSupport(ResultPin))
 		{
-			CompilerContext.MessageLog.Error(*LOCTEXT("NotSupported", "Property types 'Struct', 'Enum', 'Array', 'Set', 'Map' are not supported on the free version. Please consider to buy full version at Marketplace.").ToString());
+			CompilerContext.MessageLog.Error(*LOCTEXT("NotSupported",
+				"Property types 'Struct', 'Enum', 'Array', 'Set', 'Map' are not supported on the free version. "
+				"Please consider to buy full version at Marketplace.").ToString());
 			return;
 		}
 
@@ -136,7 +139,8 @@ public:
 	}
 };
 
-UK2Node_DynamicGetVariableByNameNode::UK2Node_DynamicGetVariableByNameNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UK2Node_DynamicGetVariableByNameNode::UK2Node_DynamicGetVariableByNameNode(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	InternalCallFuncClass = UVariableGetterFunctionLibarary::StaticClass();
 	InternalCallFuncName = FName("GetNestedVariableByName");
@@ -244,7 +248,8 @@ void UK2Node_DynamicGetVariableByNameNode::CreateFunctionPin()
 	UFunction* FunctionPtr = FunctionClass->FindFunctionByName(InternalCallFuncName);
 	check(FunctionPtr);
 
-	UEdGraphPin* FunctionPin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, InternalCallFuncClass, InternalCallFuncName, Params);
+	UEdGraphPin* FunctionPin =
+		CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, InternalCallFuncClass, InternalCallFuncName, Params);
 	FunctionPin->bDefaultValueIsReadOnly = true;
 	FunctionPin->bNotConnectable = true;
 	FunctionPin->bHidden = true;
@@ -282,7 +287,8 @@ void UK2Node_DynamicGetVariableByNameNode::CreateTargetPin()
 {
 	FCreatePinParams Params;
 	Params.Index = 3;
-	UEdGraphPin* Pin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, UObject::StaticClass(), UEdGraphSchema_K2::PN_Self, Params);
+	UEdGraphPin* Pin =
+		CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, UObject::StaticClass(), UEdGraphSchema_K2::PN_Self, Params);
 	Pin->PinFriendlyName = FText::AsCultureInvariant(TargetPinFriendlyName);
 }
 

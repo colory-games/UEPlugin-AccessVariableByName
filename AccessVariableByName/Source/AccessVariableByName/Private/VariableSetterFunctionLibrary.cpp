@@ -409,13 +409,14 @@ void UVariableSetterFunctionLibarary::GenericSetMapVariableByName(
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
+void UVariableSetterFunctionLibarary::SetNestedVariableByName(
+	UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
 {
 	check(0);
 }
 
-void UVariableSetterFunctionLibarary::GenericSetNestedVariableByName(
-	UObject* Target, FName VarName, bool& Success, UProperty* ResultProperty, void* ResultAddr, UProperty* NewValue, void* NewValueAddr)
+void UVariableSetterFunctionLibarary::GenericSetNestedVariableByName(UObject* Target, FName VarName, bool& Success,
+	UProperty* ResultProperty, void* ResultAddr, UProperty* NewValue, void* NewValueAddr)
 {
 	TArray<FString> Vars;
 	TArray<FVarDescription> VarDescs;
@@ -425,7 +426,8 @@ void UVariableSetterFunctionLibarary::GenericSetNestedVariableByName(
 #ifdef AVBN_FREE_VERSION
 	if (VarDescs.Num() >= 2)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Nested property is not supported on the free version. Please consider to buy full version at Marketplace."));
+		UE_LOG(LogTemp, Error,
+			TEXT("Nested property is not supported on the free version. Please consider to buy full version at Marketplace."));
 		return;
 	}
 #endif // AVBN_FREE_VERSION

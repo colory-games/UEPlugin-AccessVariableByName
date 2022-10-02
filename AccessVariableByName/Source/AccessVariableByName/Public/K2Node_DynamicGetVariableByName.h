@@ -45,7 +45,6 @@ protected:
 	void RecreateVariantPins(const FEdGraphPinType& PinType);
 
 protected:
-
 	TSubclassOf<class UObject> InternalCallFuncClass;
 	FName InternalCallFuncName;
 

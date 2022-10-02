@@ -13,15 +13,14 @@
 #include "Common.h"
 #include "EditorCategoryUtils.h"
 #include "GraphEditorSettings.h"
+#include "Internationalization/Regex.h"
 #include "K2Node_CallFunction.h"
 #include "K2Node_Self.h"
 #include "KismetCompiler.h"
-#include "VariableGetterFunctionLibrary.h"
-#include "Internationalization/Regex.h"
 #include "Misc/EngineVersionComparison.h"
+#include "VariableGetterFunctionLibrary.h"
 
 #define LOCTEXT_NAMESPACE "K2Node"
-
 
 UK2Node_GetVariableByNameNode::UK2Node_GetVariableByNameNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -57,7 +56,8 @@ void UK2Node_GetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 
 	if (VarNamePin->LinkedTo.Num() != 0)
 	{
-		CompilerContext.MessageLog.Error(*LOCTEXT("InvalidVarNameInput", "Var Name pin only supports literal value. Consider to use 'Get Variable by Name (Dynamic)' node instead").ToString());
+		CompilerContext.MessageLog.Error(*LOCTEXT("InvalidVarNameInput",
+			"Var Name pin only supports literal value. Consider to use 'Get Variable by Name (Dynamic)' node instead").ToString());
 		return;
 	}
 
@@ -69,7 +69,9 @@ void UK2Node_GetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 
 	if (!IsSupport(ResultPin))
 	{
-		CompilerContext.MessageLog.Error(*LOCTEXT("NotSupported", "Property types 'Struct', 'Enum', 'Array', 'Set', 'Map' are not supported on the free version. Please consider to buy full version at Marketplace.").ToString());
+		CompilerContext.MessageLog.Error(*LOCTEXT("NotSupported",
+			"Property types 'Struct', 'Enum', 'Array', 'Set', 'Map' are not supported on the free version. "
+			"Please consider to buy full version at Marketplace.").ToString());
 		return;
 	}
 
@@ -237,7 +239,8 @@ void UK2Node_GetVariableByNameNode::CreateTargetPin()
 {
 	FCreatePinParams Params;
 	Params.Index = 2;
-	UEdGraphPin* Pin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, UObject::StaticClass(), UEdGraphSchema_K2::PN_Self, Params);
+	UEdGraphPin* Pin =
+		CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Object, UObject::StaticClass(), UEdGraphSchema_K2::PN_Self, Params);
 	Pin->PinFriendlyName = FText::AsCultureInvariant(TargetPinFriendlyName);
 }
 
@@ -358,8 +361,7 @@ UClass* UK2Node_GetVariableByNameNode::GetTargetClass(UEdGraphPin* Pin)
 		UEdGraphPin* LinkedPin = TargetPin->LinkedTo[0];
 		if (LinkedPin != nullptr)
 		{
-			if (LinkedPin->PinType.PinCategory == UEdGraphSchema_K2::PC_Object &&
-				LinkedPin->PinType.PinSubCategory == "self")
+			if (LinkedPin->PinType.PinCategory == UEdGraphSchema_K2::PC_Object && LinkedPin->PinType.PinSubCategory == "self")
 			{
 				UEdGraphNode* OwningNode = LinkedPin->GetOwningNode();
 				UK2Node_Self* SelfNode = CastChecked<UK2Node_Self>(OwningNode);
@@ -491,13 +493,12 @@ bool UK2Node_GetVariableByNameNode::IsResultPin(const UEdGraphPin* Pin) const
 }
 
 bool UK2Node_GetVariableByNameNode::IsSupport(const UEdGraphPin* Pin) const
-{	
+{
 #ifdef AVBN_FREE_VERSION
 
 	FEdGraphPinType PinType = Pin->PinType;
 
-	if (PinType.ContainerType == EPinContainerType::Array ||
-		PinType.ContainerType == EPinContainerType::Set ||
+	if (PinType.ContainerType == EPinContainerType::Array || PinType.ContainerType == EPinContainerType::Set ||
 		PinType.ContainerType == EPinContainerType::Map)
 	{
 		return false;
@@ -515,7 +516,7 @@ bool UK2Node_GetVariableByNameNode::IsSupport(const UEdGraphPin* Pin) const
 		return false;
 	}
 
-#endif // AVBN_FREE_VERSION
+#endif	// AVBN_FREE_VERSION
 
 	return true;
 }

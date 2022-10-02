@@ -52,31 +52,25 @@ void SGraphNodeDynamicGetVariableByNameNode::CreatePinWidgets()
 		.AutoHeight()
 		.HAlign(HAlign_Left)
 		.VAlign(VAlign_Center)
-		.Padding(10.0f, 8.0f, 8.0f, 10.0f)[
-			SNew(SVerticalBox)
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.HAlign(HAlign_Left)
-				.VAlign(VAlign_Center)
-				.Padding(0.0f, 2.0f)
-				[
-					SNew(STextBlock).Text(FText::FromString("Variable Type"))
-				]
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.HAlign(HAlign_Left)
-				.VAlign(VAlign_Center)
-					.Padding(0.0f, 2.0f)
-				[
-					SNew(SPinTypeSelector, FGetPinTypeTree::CreateUObject(K2Schema, &UEdGraphSchema_K2::GetVariableTypeTree))
-						.Schema(K2Schema)
-						.TargetPinType(this, &SGraphNodeDynamicGetVariableByNameNode::OnGetPinInfo)
-						.OnPinTypePreChanged(this, &SGraphNodeDynamicGetVariableByNameNode::OnPrePinInfoChanged)
-						.OnPinTypeChanged(this, &SGraphNodeDynamicGetVariableByNameNode::OnPinInfoChanged)
-						.TypeTreeFilter(ETypeTreeFilter::None)
-						.Font(IDetailLayoutBuilder::GetDetailFont())
-				]
-			];
+		.Padding(10.0f, 8.0f, 8.0f, 10.0f)[SNew(SVerticalBox) +
+					SVerticalBox::Slot()
+						.AutoHeight()
+						.HAlign(HAlign_Left)
+						.VAlign(VAlign_Center)
+						.Padding(0.0f, 2.0f)[SNew(STextBlock).Text(FText::FromString("Variable Type"))] +
+					SVerticalBox::Slot()
+						.AutoHeight()
+						.HAlign(HAlign_Left)
+						.VAlign(VAlign_Center)
+						.Padding(0.0f, 2.0f)[SNew(SPinTypeSelector, FGetPinTypeTree::CreateUObject(K2Schema, &UEdGraphSchema_K2::GetVariableTypeTree))
+								.Schema(K2Schema)
+								.TargetPinType(this, &SGraphNodeDynamicGetVariableByNameNode::OnGetPinInfo)
+								.OnPinTypePreChanged(this, &SGraphNodeDynamicGetVariableByNameNode::OnPrePinInfoChanged)
+								.OnPinTypeChanged(this, &SGraphNodeDynamicGetVariableByNameNode::OnPinInfoChanged)
+								.TypeTreeFilter(ETypeTreeFilter::None)
+								.Font(IDetailLayoutBuilder::GetDetailFont())
+						]
+					];
 }
 
 FEdGraphPinType SGraphNodeDynamicGetVariableByNameNode::OnGetPinInfo() const
