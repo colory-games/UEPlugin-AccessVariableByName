@@ -17,13 +17,15 @@ jobs:
       matrix:
         unreal_engine_version:
           ["4.26.0", "4.27.0", "5.0.0"]
+        version:
+          ["free", "full"]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
 
       - name: Run scripts for the code removing
         run: |
-          bash tools/remove_code.sh AccessVariableByName ${{ matrix.unreal_engine_version }} free .
+          bash tools/remove_code.sh AccessVariableByName ${{ matrix.unreal_engine_version }} ${{ matrix.version }} .
 
       - name: Run scripts for the release
         run: |

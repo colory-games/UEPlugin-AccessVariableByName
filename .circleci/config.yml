@@ -8,12 +8,14 @@ workflows:
           matrix:
             parameters:
               unreal-engine-version: ["4.27.0", "5.0.0"]
+              version: ["free", "full"]
       - build-sample:
           context:
             - unreal-engine-ci
           matrix:
             parameters:
               unreal-engine-version: ["5.0.0"]
+              version: ["free", "full"]
 
 version: 2.1
 jobs:
@@ -30,7 +32,7 @@ jobs:
       - checkout
       - run:
           name: Run scripts for the code removing
-          command: bash tools/remove_code.sh AccessVariableByName << parameters.unreal-engine-version >> full .
+          command: bash tools/remove_code.sh AccessVariableByName << parameters.unreal-engine-version >> << parameters.version >> .
       - run:
           name: "Run scripts for the release"
           command: bash tools/replace_engine_version.sh AccessVariableByName << parameters.unreal-engine-version >>
@@ -55,7 +57,7 @@ jobs:
       - checkout
       - run:
           name: Run scripts for the code removing
-          command: bash tools/remove_code.sh AccessVariableByName << parameters.unreal-engine-version >> full .
+          command: bash tools/remove_code.sh AccessVariableByName << parameters.unreal-engine-version >> << parameters.version >> .
       - run:
           name: "Run scripts for the release"
           command: bash tools/replace_engine_version.sh AccessVariableByName << parameters.unreal-engine-version >>
