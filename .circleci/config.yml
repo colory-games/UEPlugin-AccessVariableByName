@@ -23,6 +23,8 @@ jobs:
     parameters:
       unreal-engine-version:
         type: string
+      version:
+        type: string
     docker:
       - image: ghcr.io/epicgames/unreal-engine:dev-slim-<< parameters.unreal-engine-version >>
         auth:
@@ -47,6 +49,8 @@ jobs:
   build-sample:
     parameters:
       unreal-engine-version:
+        type: string
+      version:
         type: string
     docker:
       - image: ghcr.io/epicgames/unreal-engine:dev-slim-<< parameters.unreal-engine-version >>
