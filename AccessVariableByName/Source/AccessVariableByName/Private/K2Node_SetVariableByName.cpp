@@ -18,6 +18,7 @@
 #include "KismetCompiler.h"
 #include "VariableSetterFunctionLibrary.h"
 #include "Internationalization/Regex.h"
+#include "Misc/EngineVersionComparison.h"
 
 #define LOCTEXT_NAMESPACE "K2Node"
 
@@ -459,6 +460,7 @@ UFunction* UK2Node_SetVariableByNameNode::FindSetterFunction(UEdGraphPin* Pin)
 	{
 		return FunctionLibrary->FindFunctionByName(FName("SetFloatVariableByName"));
 	}
+#if !UE_VERSION_OLDER_THAN(5, 0, 0)
 	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Double)
 	{
 		return FunctionLibrary->FindFunctionByName(FName("SetFloat64VariableByName"));
@@ -470,6 +472,7 @@ UFunction* UK2Node_SetVariableByNameNode::FindSetterFunction(UEdGraphPin* Pin)
 			return FunctionLibrary->FindFunctionByName(FName("SetFloat64VariableByName"));
 		}
 	}
+#endif
 	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Name)
 	{
 		return FunctionLibrary->FindFunctionByName(FName("SetNameVariableByName"));
