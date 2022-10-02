@@ -32,5 +32,9 @@ public class AccessVariableByName : ModuleRules
 			"ToolMenus",
 			"UnrealEd",
 		});
+
+		// @remove-start FULL_VERSION=true
+		PublicDefinitions.Add("AVBN_FREE_VERSION");
+		// @remove-end
 	}
 }

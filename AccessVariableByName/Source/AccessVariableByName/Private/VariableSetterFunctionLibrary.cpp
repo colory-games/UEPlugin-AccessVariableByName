@@ -422,5 +422,13 @@ void UVariableSetterFunctionLibarary::GenericSetNestedVariableByName(
 	SplitVarName(VarName.ToString(), &Vars);
 	AnalyzeVarNames(Vars, &VarDescs);
 
+#ifdef AVBN_FREE_VERSION
+	if (VarDescs.Num() >= 2)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Nested property is not supported on the free version. Please consider to buy full version at Marketplace."));
+		return;
+	}
+#endif // AVBN_FREE_VERSION
+
 	Success = HandleTerminalProperty(VarDescs, 0, Target, ResultProperty, ResultAddr, NewValue, NewValueAddr);
 }

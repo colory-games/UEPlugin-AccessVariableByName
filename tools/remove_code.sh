@@ -36,17 +36,18 @@ fi
 
 mkdir -p "${OUTPUT_DIR}"
 
-remove_start_regex="[^\S]*//[^\S]*@remove-start[^\S]+UE_VERSION=([0-9.,]+)"
+remove_start_version_regex="[^\S]*//[^\S]*@remove-start[^\S]+UE_VERSION=([0-9.,]+)"
+remove_start_full_regex="[^\S]*//[^\S]*@remove-start[^\S]+FULL_VERSION=true"
 remove_end_regex="[^\S]*//[^\S]*@remove-end"
 enable_delete=0
-for file in $(find "${SOURCE_DIR}" -name "*.cpp" -or -name "*.h"); do
+for file in $(find "${SOURCE_DIR}" -name "*.cpp" -or -name "*.h" -or -name "*.cs"); do
     in_dir_path=$(dirname ${file})
     tmp_dir_path="${TMP_DIR}/${in_dir_path}"
     mkdir -p "${tmp_dir_path}"
 
     tmp_file_path="${TMP_DIR}/${file}"
     while IFS= read -r line || [ -n "${line}" ]; do
-        if [[ "$line" =~ $remove_start_regex ]]; then
+        if [[ "$line" =~ $remove_start_version_regex ]]; then
             versions=${BASH_REMATCH[1]}
             versions=${versions//,/ }
 
@@ -56,6 +57,8 @@ for file in $(find "${SOURCE_DIR}" -name "*.cpp" -or -name "*.h"); do
                     break
                 fi
             done
+        elif [[ "$line" =~ $remove_start_full_regex ]]; then
+            enable_delete=1
         fi
 
         if [[ $enable_delete -eq 0 ]]; then

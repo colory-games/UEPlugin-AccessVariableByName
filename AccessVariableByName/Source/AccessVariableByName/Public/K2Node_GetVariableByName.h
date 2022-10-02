@@ -47,6 +47,7 @@ protected:
 	UClass* GetTargetClass(UEdGraphPin* Pin = nullptr);
 	UFunction* FindGetterFunction(UEdGraphPin* Pin);
 	bool IsResultPin(const UEdGraphPin* Pin) const;
+	bool IsSupport(const UEdGraphPin* Pin) const;
 
 public:
 	UK2Node_GetVariableByNameNode(const FObjectInitializer& ObjectInitializer);

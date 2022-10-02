@@ -68,6 +68,12 @@ void UK2Node_SetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 	UEdGraphPin* NewValuePin = NewValuePins[0];
 	UEdGraphPin* ResultPin = ResultPins[0];
 
+	if (!IsSupport(ResultPin))
+	{
+		CompilerContext.MessageLog.Error(*LOCTEXT("NotSupported", "Property types 'Struct', 'Enum', 'Array', 'Set', 'Map' are not supported on the free version. Please consider to buy full version at Marketplace.").ToString());
+		return;
+	}
+
 	UFunction* SetterFunction = FindSetterFunction(ResultPin);
 	if (SetterFunction == nullptr)
 	{
@@ -523,6 +529,36 @@ bool UK2Node_SetVariableByNameNode::IsResultPin(const UEdGraphPin* Pin) const
 	}
 
 	return false;
+}
+
+bool UK2Node_SetVariableByNameNode::IsSupport(const UEdGraphPin* Pin) const
+{
+#ifdef AVBN_FREE_VERSION
+
+	FEdGraphPinType PinType = Pin->PinType;
+
+	if (PinType.ContainerType == EPinContainerType::Array ||
+		PinType.ContainerType == EPinContainerType::Set ||
+		PinType.ContainerType == EPinContainerType::Map)
+	{
+		return false;
+	}
+
+	if (PinType.PinCategory == UEdGraphSchema_K2::PC_Byte)
+	{
+		if (PinType.PinSubCategoryObject != nullptr)
+		{
+			return false;
+		}
+	}
+	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Struct)
+	{
+		return false;
+	}
+
+#endif // AVBN_FREE_VERSION
+
+	return true;
 }
 
 UEdGraphPin* UK2Node_SetVariableByNameNode::GetExecThenPin() const

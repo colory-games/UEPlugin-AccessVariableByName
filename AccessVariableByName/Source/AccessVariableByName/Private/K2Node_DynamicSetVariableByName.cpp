@@ -28,6 +28,36 @@ public:
 	{
 	}
 
+	bool IsSupport(const UEdGraphPin* Pin) const
+	{
+#ifdef AVBN_FREE_VERSION
+
+		FEdGraphPinType PinType = Pin->PinType;
+
+		if (PinType.ContainerType == EPinContainerType::Array ||
+			PinType.ContainerType == EPinContainerType::Set ||
+			PinType.ContainerType == EPinContainerType::Map)
+		{
+			return false;
+		}
+
+		if (PinType.PinCategory == UEdGraphSchema_K2::PC_Byte)
+		{
+			if (PinType.PinSubCategoryObject != nullptr)
+			{
+				return false;
+			}
+		}
+		else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Struct)
+		{
+			return false;
+		}
+
+#endif // AVBN_FREE_VERSION
+
+		return true;
+	}
+
 	virtual void RegisterNets(FKismetFunctionContext& Context, UEdGraphNode* Node) override
 	{
 		UK2Node_DynamicSetVariableByNameNode* DynamicSetVariableByNameNode = CastChecked<UK2Node_DynamicSetVariableByNameNode>(Node);
@@ -91,6 +121,11 @@ public:
 		UEdGraphPin* ResultPin = DynamicSetVariableByNameNode->GetAllResultPins()[0];
 		UEdGraphPin* ResultNet = FEdGraphUtilities::GetNetFromPin(ResultPin);
 		FBPTerminal* ResultTerm = Context.NetMap.FindRef(ResultNet);
+		if (!IsSupport(ResultPin))
+		{
+			CompilerContext.MessageLog.Error(*LOCTEXT("NotSupported", "Property types 'Struct', 'Enum', 'Array', 'Set', 'Map' are not supported on the free version. Please consider to buy full version at Marketplace.").ToString());
+			return;
+		}
 
 		FBlueprintCompiledStatement& CallFuncStatement = Context.AppendStatementForNode(DynamicSetVariableByNameNode);
 		CallFuncStatement.Type = KCST_CallFunction;

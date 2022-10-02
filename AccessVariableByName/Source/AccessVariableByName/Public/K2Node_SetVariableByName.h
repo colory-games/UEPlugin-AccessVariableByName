@@ -49,6 +49,7 @@ protected:
 	UFunction* FindSetterFunction(UEdGraphPin* Pin);
 	bool IsNewValuePin(const UEdGraphPin* Pin) const;
 	bool IsResultPin(const UEdGraphPin* Pin) const;
+	bool IsSupport(const UEdGraphPin* Pin) const;
 
 public:
 	UK2Node_SetVariableByNameNode(const FObjectInitializer& ObjectInitializer);
