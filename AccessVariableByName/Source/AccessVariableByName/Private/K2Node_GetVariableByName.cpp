@@ -57,7 +57,8 @@ void UK2Node_GetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 	if (VarNamePin->LinkedTo.Num() != 0)
 	{
 		CompilerContext.MessageLog.Error(*LOCTEXT("InvalidVarNameInput",
-			"Var Name pin only supports literal value. Consider to use 'Get Variable by Name (Dynamic)' node instead").ToString());
+			"Var Name pin only supports literal value. Consider to use 'Get Variable by Name (Dynamic)' node instead")
+			.ToString());
 		return;
 	}
 
@@ -71,7 +72,8 @@ void UK2Node_GetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 	{
 		CompilerContext.MessageLog.Error(*LOCTEXT("NotSupported",
 			"Property types 'Struct', 'Enum', 'Array', 'Set', 'Map' are not supported on the free version. "
-			"Please consider to buy full version at Marketplace.").ToString());
+			"Please consider to buy full version at Marketplace.")
+			.ToString());
 		return;
 	}
 
@@ -516,7 +518,7 @@ bool UK2Node_GetVariableByNameNode::IsSupport(const UEdGraphPin* Pin) const
 		return false;
 	}
 
-#endif	// AVBN_FREE_VERSION
+#endif   // AVBN_FREE_VERSION
 
 	return true;
 }

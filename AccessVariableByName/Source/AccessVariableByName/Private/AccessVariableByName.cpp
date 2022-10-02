@@ -25,7 +25,7 @@ class FGraphPanelNodeFactory_AccessVariableByName : public FGraphPanelNodeFactor
 			return SNew(SGraphNodeDynamicGetVariableByNameNode, DynamicGetVariableByNameNode);
 		}
 		else if (UK2Node_DynamicSetVariableByNameNode* DynamicSetVariableByNameNode =
-				 Cast<UK2Node_DynamicSetVariableByNameNode>(Node))
+					Cast<UK2Node_DynamicSetVariableByNameNode>(Node))
 		{
 			return SNew(SGraphNodeDynamicSetVariableByNameNode, DynamicSetVariableByNameNode);
 		}

@@ -13,12 +13,12 @@
 #include "Common.h"
 #include "EditorCategoryUtils.h"
 #include "GraphEditorSettings.h"
+#include "Internationalization/Regex.h"
 #include "K2Node_CallFunction.h"
 #include "K2Node_Self.h"
 #include "KismetCompiler.h"
-#include "VariableSetterFunctionLibrary.h"
-#include "Internationalization/Regex.h"
 #include "Misc/EngineVersionComparison.h"
+#include "VariableSetterFunctionLibrary.h"
 
 #define LOCTEXT_NAMESPACE "K2Node"
 
@@ -58,7 +58,8 @@ void UK2Node_SetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 	if (VarNamePin->LinkedTo.Num() != 0)
 	{
 		CompilerContext.MessageLog.Error(*LOCTEXT("InvalidVarNameInput",
-			"Var Name pin only supports literal value. Consider to use 'Set Variable by Name (Dynamic)' node instead").ToString());
+			"Var Name pin only supports literal value. Consider to use 'Set Variable by Name (Dynamic)' node instead")
+			.ToString());
 		return;
 	}
 
@@ -73,7 +74,8 @@ void UK2Node_SetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 	{
 		CompilerContext.MessageLog.Error(*LOCTEXT("NotSupported",
 			"Property types 'Struct', 'Enum', 'Array', 'Set', 'Map' are not supported on the free version. "
-			"Please consider to buy full version at Marketplace.").ToString());
+			"Please consider to buy full version at Marketplace.")
+			.ToString());
 		return;
 	}
 
@@ -557,7 +559,7 @@ bool UK2Node_SetVariableByNameNode::IsSupport(const UEdGraphPin* Pin) const
 		return false;
 	}
 
-#endif	// AVBN_FREE_VERSION
+#endif   // AVBN_FREE_VERSION
 
 	return true;
 }

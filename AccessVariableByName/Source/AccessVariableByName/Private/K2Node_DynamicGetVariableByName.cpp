@@ -52,7 +52,7 @@ public:
 			return false;
 		}
 
-#endif	// AVBN_FREE_VERSION
+#endif   // AVBN_FREE_VERSION
 
 		return true;
 	}
@@ -121,7 +121,8 @@ public:
 		{
 			CompilerContext.MessageLog.Error(*LOCTEXT("NotSupported",
 				"Property types 'Struct', 'Enum', 'Array', 'Set', 'Map' are not supported on the free version. "
-				"Please consider to buy full version at Marketplace.").ToString());
+				"Please consider to buy full version at Marketplace.")
+				.ToString());
 			return;
 		}
 

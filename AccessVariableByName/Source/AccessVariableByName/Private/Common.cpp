@@ -337,9 +337,8 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 	return false;
 }
 
-bool HandleTerminalProperty(
-	const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty, void* OuterAddr, FProperty* Dest,
-	void* DestAddr, FProperty* NewValue, void* NewValueAddr)
+bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty,
+	void* OuterAddr, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr)
 {
 	const FVarDescription& Desc = VarDescs[VarDepth];
 
@@ -358,8 +357,8 @@ bool HandleTerminalProperty(
 	return HandleTerminalPropertyInternal(VarDescs, VarDepth, Property, OuterAddr, Dest, DestAddr, NewValue, NewValueAddr);
 }
 
-bool HandleTerminalProperty(
-	const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr)
+bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest,
+	void* DestAddr, FProperty* NewValue, void* NewValueAddr)
 {
 	const FVarDescription& Desc = VarDescs[VarDepth];
 
