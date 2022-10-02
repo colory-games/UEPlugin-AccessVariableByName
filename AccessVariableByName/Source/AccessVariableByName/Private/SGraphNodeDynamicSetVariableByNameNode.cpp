@@ -11,13 +11,13 @@
 
 #include "SGraphNodeDynamicSetVariableByNameNode.h"
 
+#include "Common.h"
+#include "DetailLayoutBuilder.h"
 #include "GraphEditorSettings.h"
 #include "K2Node_DynamicSetVariableByName.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "NodeFactory.h"
 #include "SPinTypeSelector.h"
-#include "DetailLayoutBuilder.h"
-#include "Common.h"
 
 void SGraphNodeDynamicSetVariableByNameNode::Construct(const FArguments& InArgs, UK2Node_DynamicSetVariableByNameNode* InNode)
 {
@@ -42,41 +42,47 @@ void SGraphNodeDynamicSetVariableByNameNode::CreatePinWidgets()
 		}
 	}
 
+	// clang-format off
 	LeftNodeBox->AddSlot()
 		.AutoHeight()
 		.HAlign(HAlign_Left)
 		.VAlign(VAlign_Center)
-		.Padding(5.0f, 8.0f, 8.0f, 5.0f)[SNew(SImage).Image(FEditorStyle::GetBrush("Graph.Pin.DefaultPinSeparator"))];
+		.Padding(5.0f, 8.0f, 8.0f, 5.0f)
+		[
+			SNew(SImage).Image(FEditorStyle::GetBrush("Graph.Pin.DefaultPinSeparator"))
+		];
 
 	LeftNodeBox->AddSlot()
 		.AutoHeight()
 		.HAlign(HAlign_Left)
 		.VAlign(VAlign_Center)
-		.Padding(10.0f, 8.0f, 8.0f, 10.0f)[
+		.Padding(10.0f, 8.0f, 8.0f, 10.0f)
+		[
 			SNew(SVerticalBox)
 				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.HAlign(HAlign_Left)
-				.VAlign(VAlign_Center)
-				.Padding(0.0f, 2.0f)
-				[
-					SNew(STextBlock).Text(FText::FromString("Variable Type"))
-				]
-			+ SVerticalBox::Slot()
-				.AutoHeight()
-				.HAlign(HAlign_Left)
-				.VAlign(VAlign_Center)
-				.Padding(0.0f, 2.0f)
-				[
-					SNew(SPinTypeSelector, FGetPinTypeTree::CreateUObject(K2Schema, &UEdGraphSchema_K2::GetVariableTypeTree))
-					.Schema(K2Schema)
-				.TargetPinType(this, &SGraphNodeDynamicSetVariableByNameNode::OnGetPinInfo)
-				.OnPinTypePreChanged(this, &SGraphNodeDynamicSetVariableByNameNode::OnPrePinInfoChanged)
-				.OnPinTypeChanged(this, &SGraphNodeDynamicSetVariableByNameNode::OnPinInfoChanged)
-				.TypeTreeFilter(ETypeTreeFilter::None)
-				.Font(IDetailLayoutBuilder::GetDetailFont())
-				]
+					.AutoHeight()
+					.HAlign(HAlign_Left)
+					.VAlign(VAlign_Center)
+					.Padding(0.0f, 2.0f)
+					[
+						SNew(STextBlock).Text(FText::FromString("Variable Type"))
+					]
+				+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Left)
+					.VAlign(VAlign_Center)
+					.Padding(0.0f, 2.0f)
+					[
+						SNew(SPinTypeSelector, FGetPinTypeTree::CreateUObject(K2Schema, &UEdGraphSchema_K2::GetVariableTypeTree))
+							.Schema(K2Schema)
+							.TargetPinType(this, &SGraphNodeDynamicSetVariableByNameNode::OnGetPinInfo)
+							.OnPinTypePreChanged(this, &SGraphNodeDynamicSetVariableByNameNode::OnPrePinInfoChanged)
+							.OnPinTypeChanged(this, &SGraphNodeDynamicSetVariableByNameNode::OnPinInfoChanged)
+							.TypeTreeFilter(ETypeTreeFilter::None)
+							.Font(IDetailLayoutBuilder::GetDetailFont())
+					]
 		];
+	// clang-format on
 }
 
 FEdGraphPinType SGraphNodeDynamicSetVariableByNameNode::OnGetPinInfo() const

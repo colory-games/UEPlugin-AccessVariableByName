@@ -52,7 +52,7 @@ public:
 			return false;
 		}
 
-#endif   // AVBN_FREE_VERSION
+#endif
 
 		return true;
 	}
@@ -119,10 +119,12 @@ public:
 		FBPTerminal* ResultTerm = Context.NetMap.FindRef(ResultNet);
 		if (!IsSupport(ResultPin))
 		{
+			// clang-format off
 			CompilerContext.MessageLog.Error(*LOCTEXT("NotSupported",
 				"Property types 'Struct', 'Enum', 'Array', 'Set', 'Map' are not supported on the free version. "
 				"Please consider to buy full version at Marketplace.")
 				.ToString());
+			// clang-format on
 			return;
 		}
 

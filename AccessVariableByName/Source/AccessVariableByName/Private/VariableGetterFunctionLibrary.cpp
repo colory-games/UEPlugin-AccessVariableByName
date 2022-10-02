@@ -392,7 +392,7 @@ void UVariableGetterFunctionLibarary::GenericGetNestedVariableByName(
 			TEXT("Nested property is not supported on the free version. Please consider to buy full version at Marketplace."));
 		return;
 	}
-#endif	// AVBN_FREE_VERSION
+#endif
 
 	Success = HandleTerminalProperty(VarDescs, 0, Target, ResultProperty, ResultAddr, nullptr, nullptr);
 }

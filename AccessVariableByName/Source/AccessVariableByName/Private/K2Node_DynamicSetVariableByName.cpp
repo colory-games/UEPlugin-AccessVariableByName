@@ -52,7 +52,7 @@ public:
 			return false;
 		}
 
-#endif   // AVBN_FREE_VERSION
+#endif
 
 		return true;
 	}
