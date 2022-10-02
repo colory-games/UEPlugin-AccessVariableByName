@@ -13,7 +13,7 @@ function usage() {
     echo "Usage: bash replace_ENGINE_VERSION.sh <source-directory> <engine-version> <full|free> <output-directory>"
 }
 
-if [ $# -ne 3 ]; then
+if [ $# -ne 4 ]; then
     exit 1
 fi
 
