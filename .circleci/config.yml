@@ -30,7 +30,7 @@ jobs:
       - checkout
       - run:
           name: Run scripts for the code removing
-          command: bash tools/remove_code.sh AccessVariableByName << parameters.unreal-engine-version >> .
+          command: bash tools/remove_code.sh AccessVariableByName << parameters.unreal-engine-version >> full .
       - run:
           name: "Run scripts for the release"
           command: bash tools/replace_engine_version.sh AccessVariableByName << parameters.unreal-engine-version >>
@@ -55,7 +55,7 @@ jobs:
       - checkout
       - run:
           name: Run scripts for the code removing
-          command: bash tools/remove_code.sh AccessVariableByName << parameters.unreal-engine-version >> .
+          command: bash tools/remove_code.sh AccessVariableByName << parameters.unreal-engine-version >> full .
       - run:
           name: "Run scripts for the release"
           command: bash tools/replace_engine_version.sh AccessVariableByName << parameters.unreal-engine-version >>

@@ -23,7 +23,7 @@ jobs:
 
       - name: Run scripts for the code removing
         run: |
-          bash tools/remove_code.sh AccessVariableByName ${{ matrix.unreal_engine_version }} .
+          bash tools/remove_code.sh AccessVariableByName ${{ matrix.unreal_engine_version }} free .
 
       - name: Run scripts for the release
         run: |

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # require: bash version >= 4
-# usage example: bash remove_code.sh src 4.27 output
+# usage example: bash remove_code.sh src 4.27 full output
 set -eEu
 
 
@@ -10,7 +10,7 @@ SUPPORTED_VERSIONS=(
 )
 
 function usage() {
-    echo "Usage: bash replace_ENGINE_VERSION.sh <source-directory> <engine-version> <output-directory>"
+    echo "Usage: bash replace_ENGINE_VERSION.sh <source-directory> <engine-version> <full|free> <output-directory>"
 }
 
 if [ $# -ne 3 ]; then
@@ -19,7 +19,11 @@ fi
 
 SOURCE_DIR=${1}
 ENGINE_VERSION=${2}
-OUTPUT_DIR=${3}
+FULL=0
+if [ "${3}" = "full" ]; then
+    FULL=1
+fi
+OUTPUT_DIR=${4}
 TMP_DIR=$(mktemp -d)
 
 supported=0
@@ -57,7 +61,7 @@ for file in $(find "${SOURCE_DIR}" -name "*.cpp" -or -name "*.h" -or -name "*.cs
                     break
                 fi
             done
-        elif [[ "$line" =~ $remove_start_full_regex ]]; then
+        elif [ "${FULL}" -eq 1 ] && [[ "$line" =~ $remove_start_full_regex ]]; then
             enable_delete=1
         fi
 
