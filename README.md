@@ -2,7 +2,7 @@
 
 **Access Variable by Name** is a Unreal Engine plugin which adds Blueprint nodes to get/set the variables by name.
 
-Genellary, you need to place a get/set node when you try to get/set the variables on the vanilla Unreal Engine.
+Genellary, you need to place a get/set node when you try to get/set the variables on the vanilla Unreal Engine.  
 This workflow works greatly in many cases, but there are problems in some cases.
 
 For example:
@@ -25,16 +25,18 @@ This plugin adds below Blueprint nodes.
 > TODO: Add image
 
 * Get/Set variables by specifing name and target object.
-* These nodes will analyze the name and target (static analysis), and change the node's pin type to the same variable type automatically. This ensures that the pin type is valid.
-* The name pin supports a simple syntax to access the deep nested variable.
+* These nodes will analyze the name and target (static analysis), and change the node's pin type to the same variable type automatically.
+  * This ensures that the pin type is valid.
+* The name pin supports [a custom syntax](docs/tutorial.md#custom-syntax) to access the deep nested variable.
 
 ### Get/Set Variables by Name (Dynamic)
 
 > TODO: Add image
 
 * Get/Set variables by specifing name and target object.
-* These nodes accepts the name which can be changed dynamically at runtime. This feature is useful when you get/set many variables at once.
-* The name pin supports a simple syntax to access the deep nested variable.
+* These nodes accepts the name which can be changed dynamically at runtime.
+  * This feature is useful when you get/set many variables at once.
+* The name pin supports [a custom syntax](docs/tutorial.md#custom-syntax) to access the deep nested variable.
 
 ## Supported Environment
 

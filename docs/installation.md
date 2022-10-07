@@ -1,6 +1,6 @@
 # Installation
 
-This page shows the installation process of the free trial version.
+This page shows the installation process of the free trial version.  
 Free trial version does not support below features.
 
 * A Variable whose type is Struct/Enum/Array/Set/Map.
