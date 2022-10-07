@@ -19,10 +19,10 @@ It is useful to check if the pin type is valid on the compilation time.
 
 |Pin Name|Input/Output|Description|
 |---|---|---|
-|Target|In|An object reference which may have a desired member variables.|
-|Var Name|In|The name of a desired variable.<br>This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.<br>Only literal string is allowed, and error if you connect pin to the other node. Use [Get Variables by Name (Dynamic)]() node instead.|
-|Success|Out|Output `True` if a desired member variable is successfully acquired.|
-|(Output variable name)|Out|Output the value of a desired member variable.<br>The pin name will be same as a name of a desired member variable.<br>This pin will be hidden if a desired member variable does not exist.|
+|Target|Input|An object reference which may have a desired member variables.|
+|Var Name|Input|The name of a desired variable.<br>This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.<br>Only literal string is allowed, and error if you connect pin to the other node. Use [Get Variables by Name (Dynamic)]() node instead.|
+|Success|Output|Output `True` if a desired member variable is successfully acquired.|
+|(Output variable name)|Output|Output the value of a desired member variable.<br>The pin name will be same as a name of a desired member variable.<br>This pin will be hidden if a desired member variable does not exist.|
 
 ## Set Variables by Name
 
@@ -35,18 +35,14 @@ This node analyzes the name and the target (static analysis), and changes the ty
 
 1. Search and place 'Set Variables by Name' node on the Blueprint editor.
 2. Connect node's pins to the other pins or input a literal string.
-   * Target: An object reference which may have a desired member variables.
-   * Var Name: The name of a desired variable.
-      * This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.
-      * Only literal string is allowed, and error if you connect pin to the other node.
-   * \<input variable-name\>: A new value to be set to a desired member variable.
-      * The pin name will be same as a name of a desired member variable.
-      * This pin will be hidden if a desired member variable does not exist.
-   * Success: Output `True` if a desired member variable is successfully acquired.
-      * An output will be an value after a new value set
-   * \<output variable-name\>: Output the value of a desired member variable.
-      * The pin name will be same as a name of a desired member variable.
-      * This pin will be hidden if a desired member variable does not exist.
+
+|Pin Name|Input/Output|Description|
+|---|---|---|
+|Target|Input|An object reference which may have a desired member variables.|
+|Var Name|Input|The name of a desired variable.<br>This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.<br>Only literal string is allowed, and error if you connect pin to the other node.|
+|(Input variable name)|Input|A new value to be set to a desired member variable.<br>The pin name will be same as a name of a desired member variable.<br>This pin will be hidden if a desired member variable does not exist.|
+|Success|Output|Output `True` if a desired member variable is successfully acquired.<br>An output will be an value after a new value set.|
+|(Output variable name)|Output|Output the value of a desired member variable.<br>The pin name will be same as a name of a desired member variable.<br>This pin will be hidden if a desired member variable does not exist.|
 
 ## Get Variables by Name (Dynamic)
 
@@ -61,12 +57,13 @@ But this node accepts the name which can be changed dynamically at runtime.
 1. Search and place 'Get Variables by Name (Dynamic)' node on the Blueprint editor.
 2. Select 'Variable Type' which is a desired type same as the type of a desired member variables.
 3. Connect node's pins to the other pins or input a literal string.
-   * Target: An object reference which may have a desired member variables.
-   * Var Name: The name of a desired variable.
-      * This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.
-   * Success: Output `True` if a desired member variable is successfully acquired.
-      * Output `False` if types are mismatched between 'Variable Type' and actual one.
-   * Result: Output the value of a desired member variable.
+
+|Pin Name|Input/Output|Description|
+|---|---|---|
+|Target|Input|An object reference which may have a desired member variables.|
+|Var Name|Input|The name of a desired variable.<br>This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.|
+|Success|Output|Output `True` if a desired member variable is successfully acquired.<br>Output `False` if types are mismatched between 'Variable Type' and actual one.|
+|Result|Output|Output the value of a desired member variable.|
 
 ## Set Variables by Name (Dynamic)
 
@@ -81,13 +78,14 @@ But this node accepts the name which can be changed dynamically at runtime.
 1. Search and place 'Set Variables by Name (Dynamic)' node on the Blueprint editor.
 2. Select 'Variable Type' which is a desired type same as the type of a desired member variables.
 3. Connect node's pins to the other pins or input a literal string.
-   * Target: An object reference which may have a desired member variables.
-   * Var Name: The name of a desired variable.
-      * This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.
-   * New Value: A new value to be set to a desired member variable.
-   * Success: Output `True` if a desired member variable is successfully acquired.
-      * Output `False` if types are mismatched between 'Variable Type' and actual one.
-   * Result: Output the value of a desired member variable.
+
+|Pin Name|Input/Output|Description|
+|---|---|---|
+|Target|Input|An object reference which may have a desired member variables.|
+|Var Name|Input|The name of a desired variable.<br>This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.|
+|New Value|Input|A new value to be set to a desired member variable.|
+|Success|Output|Output `True` if a desired member variable is successfully acquired.<br>Output `False` if types are mismatched between 'Variable Type' and actual one.|
+|Result|Output|Output the value of a desired member variable.|
 
 ## Custom Syntax
 
