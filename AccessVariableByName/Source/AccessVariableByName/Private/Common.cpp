@@ -111,6 +111,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 			FArrayProperty* ArrayProperty = CastChecked<FArrayProperty>(Property);
 			void* ArrayAddr = ArrayProperty->ContainerPtrToValuePtr<void>(OuterAddr);
 			auto ArrayPtr = ArrayProperty->GetPropertyValuePtr(ArrayAddr);
+			FProperty* InnerProperty = ArrayProperty->Inner;
 
 			if (VarDescs.Num() == VarDepth + 1)
 			{
@@ -124,7 +125,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				int8* InnerAddr = static_cast<int8*>(ArrayPtr->GetData());
 				void* InnerItemAddr = InnerAddr + Index * Stride;
 
-				if (!Property->SameType(Dest))
+				if (!InnerProperty->SameType(Dest))
 				{
 					return false;
 				}
@@ -138,7 +139,6 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				return true;
 			}
 
-			FProperty* InnerProperty = ArrayProperty->Inner;
 			if (InnerProperty->IsA<FStructProperty>())
 			{
 				FStructProperty* StructProperty = CastChecked<FStructProperty>(InnerProperty);
@@ -181,6 +181,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 			FMapProperty* MapProperty = CastChecked<FMapProperty>(Property);
 
 			FProperty* KeyProperty = MapProperty->KeyProp;
+			FProperty* ValueProperty = MapProperty->ValueProp;
 			if (!KeyProperty->IsA<FIntProperty>() && !KeyProperty->IsA<FInt64Property>())
 			{
 				return false;
@@ -199,7 +200,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 					return false;
 				}
 
-				if (!Property->SameType(Dest))
+				if (!ValueProperty->SameType(Dest))
 				{
 					return false;
 				}
@@ -213,7 +214,6 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				return true;
 			}
 
-			FProperty* ValueProperty = MapProperty->ValueProp;
 			if (ValueProperty->IsA<FStructProperty>())
 			{
 				FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
