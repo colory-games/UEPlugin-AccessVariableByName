@@ -70,8 +70,20 @@ public:
 			{
 				if (Pin->LinkedTo.Num() == 0)
 				{
-					if (Pin == DynamicSetVariableByNameNode->GetVarNamePin() ||
-						Pin == DynamicSetVariableByNameNode->GetAllNewValuePins()[0])
+					if (Pin == DynamicSetVariableByNameNode->GetTargetPin())
+					{
+						FBPTerminal* Term = new FBPTerminal();
+						Term->CopyFromPin(Pin, Pin->PinName);
+						Term->bIsLiteral = true;
+						Term->Type.PinCategory = UEdGraphSchema_K2::PC_Object;
+						Term->Type.PinSubCategory = UEdGraphSchema_K2::PSC_Self;
+						Term->Type.PinSubCategoryObject = nullptr;
+
+						Context.Literals.Add(Term);
+						Context.NetMap.Add(Pin, Term);
+					}
+					else if (Pin == DynamicSetVariableByNameNode->GetVarNamePin() ||
+							 Pin == DynamicSetVariableByNameNode->GetAllNewValuePins()[0])
 					{
 						RegisterLiteral(Context, Pin);
 					}
@@ -104,8 +116,16 @@ public:
 		UEdGraphPin* ExecThenPin = DynamicSetVariableByNameNode->GetExecThenPin();
 
 		UEdGraphPin* TargetPin = DynamicSetVariableByNameNode->GetTargetPin();
-		UEdGraphPin* TargetNet = FEdGraphUtilities::GetNetFromPin(TargetPin);
-		FBPTerminal* TargetTerm = Context.NetMap.FindRef(TargetNet);
+		FBPTerminal* TargetTerm = nullptr;
+		if (TargetPin->LinkedTo.Num() >= 1)
+		{
+			UEdGraphPin* TargetNet = FEdGraphUtilities::GetNetFromPin(TargetPin);
+			TargetTerm = Context.NetMap.FindRef(TargetNet);
+		}
+		else
+		{
+			TargetTerm = Context.NetMap.FindRef(TargetPin);
+		}
 
 		UEdGraphPin* VarNamePin = DynamicSetVariableByNameNode->GetVarNamePin();
 		UEdGraphPin* VarNameNet = FEdGraphUtilities::GetNetFromPin(VarNamePin);

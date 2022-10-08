@@ -106,7 +106,18 @@ void UK2Node_GetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 
 	CompilerContext.MovePinLinksToIntermediate(*ExecTriggeringPin, *FunctionExecTriggeringPin);
 	CompilerContext.MovePinLinksToIntermediate(*ExecThenPin, *FunctionExecThenPin);
-	CompilerContext.MovePinLinksToIntermediate(*TargetPin, *FunctionTargetPin);
+	if (TargetPin->LinkedTo.Num() >= 1)
+	{
+		CompilerContext.MovePinLinksToIntermediate(*TargetPin, *FunctionTargetPin);
+	}
+	else
+	{
+		UK2Node_Self* SelfNode = CompilerContext.SpawnIntermediateNode<UK2Node_Self>(this, SourceGraph);
+		SelfNode->AllocateDefaultPins();
+
+		UEdGraphPin* OutPin = SelfNode->Pins[0];
+		OutPin->MakeLinkTo(FunctionTargetPin);
+	}
 	CompilerContext.MovePinLinksToIntermediate(*VarNamePin, *FunctionVarNamePin);
 	CompilerContext.MovePinLinksToIntermediate(*SuccessPin, *FunctionSuccessPin);
 	CompilerContext.MovePinLinksToIntermediate(*ResultPin, *FunctionResultPin);
