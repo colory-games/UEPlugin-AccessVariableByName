@@ -15,7 +15,7 @@ workflows:
           matrix:
             parameters:
               unreal-engine-version: ["5.0.0"]
-              version: ["free", "full"]
+              version: ["full"]
 
 version: 2.1
 jobs:
