@@ -65,11 +65,11 @@ jobs:
       - run:
           name: "Run scripts for the release"
           command: bash tools/replace_engine_version.sh AccessVariableByName << parameters.unreal-engine-version >>
-      - run:
-          name: "Copy plugin sources"
-          command: |
-            mkdir ${PWD}/samples/SampleProject/Plugins
-            cp -r AccessVariableByName ${PWD}/samples/SampleProject/Plugins
+      # - run:
+      #     name: "Copy plugin sources"
+      #     command: |
+      #       mkdir ${PWD}/samples/SampleProject/Plugins
+      #       cp -r AccessVariableByName ${PWD}/samples/SampleProject/Plugins
       - run:
           name: "Build Sample"
           command: |
