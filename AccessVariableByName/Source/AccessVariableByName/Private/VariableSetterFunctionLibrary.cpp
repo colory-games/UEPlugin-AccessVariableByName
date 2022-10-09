@@ -433,7 +433,8 @@ void UVariableSetterFunctionLibarary::GenericSetNestedVariableByName(UObject* Ta
 	if (VarDescs.Num() == 1 && VarDescs[0].ArrayAccessType != ArrayAccessType_None)
 	{
 		UE_LOG(LogTemp, Error,
-			TEXT("The access of Array/Map's element is not supported on the free version. Please consider to buy full version at Marketplace."));
+			TEXT("The access of Array/Map's element is not supported on the free version. "
+				 "Please consider to buy full version at Marketplace."));
 		return;
 	}
 #endif
