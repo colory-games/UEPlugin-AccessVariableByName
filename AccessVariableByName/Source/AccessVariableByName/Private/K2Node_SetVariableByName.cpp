@@ -294,7 +294,7 @@ void UK2Node_SetVariableByNameNode::CreateSuccessPin()
 void UK2Node_SetVariableByNameNode::CreateNewValuePin(const FEdGraphPinType& PinType, FString PropertyName, int32 Index)
 {
 	FName NewValuePinName = FName(FString::Format(TEXT("{0}{1}"), {*NewValuePinNamePrefix.ToString(), *PropertyName}));
-	FString NewValuePinFriendlyName = FString::Format(TEXT("New Value {0}"), {Index});
+	FString NewValuePinFriendlyName = PropertyName;
 
 	FCreatePinParams Params;
 	Params.Index = 5 + Index * 2;

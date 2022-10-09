@@ -430,6 +430,12 @@ void UVariableSetterFunctionLibarary::GenericSetNestedVariableByName(UObject* Ta
 			TEXT("Nested property is not supported on the free version. Please consider to buy full version at Marketplace."));
 		return;
 	}
+	if (VarDescs.Num() == 1 && VarDescs[0].ArrayAccessType != ArrayAccessType_None)
+	{
+		UE_LOG(LogTemp, Error,
+			TEXT("The access of Array/Map's element is not supported on the free version. Please consider to buy full version at Marketplace."));
+		return;
+	}
 #endif
 
 	Success = HandleTerminalProperty(VarDescs, 0, Target, ResultProperty, ResultAddr, NewValue, NewValueAddr);
