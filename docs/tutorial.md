@@ -10,7 +10,7 @@
 This node analyzes the name and the target (static analysis), and changes the type of output pins to the same variable type automatically.  
 It is useful to check if the pin type is valid on the compilation time.
 
-> TODO: Add image which compares
+![Get Variables by Name](images/tutorial/get_variables_by_name.png)
 
 ### Usage
 
@@ -29,7 +29,7 @@ It is useful to check if the pin type is valid on the compilation time.
 'Set Variables by Name' node sets a new value to variables by specifing the name and the target object.  
 This node analyzes the name and the target (static analysis), and changes the type of new value pins and output pins to the same variable type automatically.  
 
-> TODO: Add image which compares
+![Set Variables by Name](images/tutorial/set_variables_by_name.png)
 
 ### Usage
 
@@ -48,9 +48,9 @@ This node analyzes the name and the target (static analysis), and changes the ty
 
 'Get Variables by Name (Dynamic)' node gets variables by specifing the name and the target object.  
 The concept of this node is same as [Get Variable by Name](#get-variables-by-name) node.  
-But this node accepts the name which can be changed dynamically at runtime.
+But this node accepts [the name which can be changed dynamically at runtime](#dynamically-changeable-name).
 
-> TODO: Add image which compares
+![Get Variables by Name (Dynamic)](images/tutorial/get_variables_by_name_dynamic.png)
 
 ### Usage
 
@@ -69,9 +69,9 @@ But this node accepts the name which can be changed dynamically at runtime.
 
 'Set Variables by Name (Dynamic)' node gets variables by specifing the name and the target object.  
 The concept of this node is same as [Set Variable by Name](#get-variables-by-name) node.  
-But this node accepts the name which can be changed dynamically at runtime.
+But this node accepts [the name which can be changed dynamically at runtime](#dynamically-changeable-name).
 
-> TODO: Add image which compares
+![Set Variables by Name (Dynamic)](images/tutorial/set_variables_by_name_dynamic.png)
 
 ### Usage
 
@@ -105,7 +105,7 @@ StructVar.X
 Compared to the Blueprint script on the vanila Unreal Engine, you can get the desired variable more directly.  
 If the variable is deeper, this syntax will be much more powerful.
 
-> TODO: Add image to explain
+![Access to a structure member variable](images/tutorial/access_structure_member_variable.png)
 
 ### Access to an array/map element
 
@@ -113,14 +113,14 @@ You can access to the element of array/map by specifing the index or key.
 In the case you want to access the 2nd element of the array member variable `ArrayVar`, specify the index `1` surrounded by `[]`.
 
 ```
-ArrayVar[1]
+ArrayVar[2]
 ```
+
+![Access to an array element](images/tutorial/access_array_element.png)
 
 Note: Array index is 0-based index. If the specified index is out of range, 'Success' pin will output `False` value.
 
 #### Compare to the Blueprint script
-
-> TODO: Add image to explain
 
 In the case you want to access the element of the set member variable `SetVar` whose key is `"Key"`, specify the key `"Key"` surrounded by `[]`.
 
@@ -128,16 +128,21 @@ In the case you want to access the element of the set member variable `SetVar` w
 SetVar["Key"]
 ```
 
+![Access to a map element](images/tutorial/access_map_element.png)
+
 Note: If the element is not found, 'Success' pin will output `False` value.
-
-Node: Support 
-
-#### Compare to the Blueprint script
-
-> TODO: Add image to explain
 
 ### Combined syntax
 
 Of course, you can combine these syntax as follows.
 
-> Add: Images to show example
+![Combined syntax](images/tutorial/combined_syntax.png)
+
+## Dynamically changeable name
+
+Dynamic version accepts the name which can be changed dynamically at runtime.  
+It is useful to feed the name generated on the runtime.
+
+In the case you want to set a new value to many variables at once, dynamic version is useful to realize this.
+
+![Dynamically changeable name](images/tutorial/dynamically_changeable_name.png)
