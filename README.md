@@ -14,7 +14,7 @@ For example:
 
 By using this plugin, these problems will be solved gracefully.
 
-> TODO: Add image
+![Thumbnail](docs/images/thumbnail/access_variable_by_name.png)
 
 ## Features
 
