@@ -367,6 +367,11 @@ bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDe
 		return false;
 	}
 
+	if (OuterObject == nullptr)
+	{
+		return false;
+	}
+
 	FProperty* Property = FindFProperty<FProperty>(OuterObject->GetClass(), *Desc.VarName);
 	if (Property == nullptr)
 	{
