@@ -279,7 +279,7 @@ void UK2Node_GetVariableByNameNode::CreateSuccessPin()
 
 void UK2Node_GetVariableByNameNode::CreateResultPin(const FEdGraphPinType& PinType, FString PropertyName, int32 Index)
 {
-	FName ResultPinName = FName(FString::Format(TEXT("{0}{1}"), {*ResultPinNamePrefix.ToString(), *PropertyName}));
+	FName ResultPinName = FName(FString::Format(TEXT("{0}_{1}"), {*ResultPinNamePrefix.ToString(), Index}));
 	FString ResultPinFriendlyName = PropertyName;
 
 	FCreatePinParams Params;
@@ -499,7 +499,7 @@ bool UK2Node_GetVariableByNameNode::IsResultPin(const UEdGraphPin* Pin) const
 {
 	FString PinName = Pin->GetFName().ToString();
 
-	FRegexPattern Pattern = FRegexPattern(FString::Format(TEXT("^{0}.*$"), {*ResultPinNamePrefix.ToString()}));
+	FRegexPattern Pattern = FRegexPattern(FString::Format(TEXT("^{0}_[0-9]+$"), {*ResultPinNamePrefix.ToString()}));
 	FRegexMatcher Matcher(Pattern, PinName);
 	if (Matcher.FindNext())
 	{

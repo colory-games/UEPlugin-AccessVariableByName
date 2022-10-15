@@ -293,7 +293,7 @@ void UK2Node_SetVariableByNameNode::CreateSuccessPin()
 
 void UK2Node_SetVariableByNameNode::CreateNewValuePin(const FEdGraphPinType& PinType, FString PropertyName, int32 Index)
 {
-	FName NewValuePinName = FName(FString::Format(TEXT("{0}{1}"), {*NewValuePinNamePrefix.ToString(), *PropertyName}));
+	FName NewValuePinName = FName(FString::Format(TEXT("{0}_{1}"), {*NewValuePinNamePrefix.ToString(), Index}));
 	FString NewValuePinFriendlyName = PropertyName;
 
 	FCreatePinParams Params;
@@ -305,7 +305,7 @@ void UK2Node_SetVariableByNameNode::CreateNewValuePin(const FEdGraphPinType& Pin
 
 void UK2Node_SetVariableByNameNode::CreateResultPin(const FEdGraphPinType& PinType, FString PropertyName, int32 Index)
 {
-	FName ResultPinName = FName(FString::Format(TEXT("{0}{1}"), {*ResultPinNamePrefix.ToString(), *PropertyName}));
+	FName ResultPinName = FName(FString::Format(TEXT("{0}_{1}"), {*ResultPinNamePrefix.ToString(), Index}));
 	FString ResultPinFriendlyName = PropertyName;
 
 	FCreatePinParams Params;
@@ -526,7 +526,7 @@ bool UK2Node_SetVariableByNameNode::IsNewValuePin(const UEdGraphPin* Pin) const
 {
 	FString PinName = Pin->GetFName().ToString();
 
-	FRegexPattern Pattern = FRegexPattern(FString::Format(TEXT("^{0}.*$"), {*NewValuePinNamePrefix.ToString()}));
+	FRegexPattern Pattern = FRegexPattern(FString::Format(TEXT("^{0}_[0-9]+$"), {*NewValuePinNamePrefix.ToString()}));
 	FRegexMatcher Matcher(Pattern, PinName);
 	if (Matcher.FindNext())
 	{
@@ -540,7 +540,7 @@ bool UK2Node_SetVariableByNameNode::IsResultPin(const UEdGraphPin* Pin) const
 {
 	FString PinName = Pin->GetFName().ToString();
 
-	FRegexPattern Pattern = FRegexPattern(FString::Format(TEXT("^{0}.*$"), {*ResultPinNamePrefix.ToString()}));
+	FRegexPattern Pattern = FRegexPattern(FString::Format(TEXT("^{0}_[0-9]+$"), {*ResultPinNamePrefix.ToString()}));
 	FRegexMatcher Matcher(Pattern, PinName);
 	if (Matcher.FindNext())
 	{
