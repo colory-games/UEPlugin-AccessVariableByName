@@ -1,0 +1,29 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0.0",
+  "FriendlyName": "Access Variable by Name",
+  "Description": "Blueprint node to get/set a variable by name",
+  "EngineVersion": "5.0.0",
+  "Category": "Other",
+  "CreatedBy": "nutti (Colory Games)",
+  "CreatedByURL": "https://github.com/colory-games/UEPlugin-AccessVariableByName",
+  "DocsURL": "https://github.com/colory-games/UEPlugin-AccessVariableByName",
+  "MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/b9e4a73c7e974b1581e711243a693fe3",
+  "SupportURL": "https://github.com/colory-games/UEPlugin-AccessVariableByName",
+  "CanContainContent": true,
+  "IsBetaVersion": false,
+  "Installed": false,
+  "Modules": [
+    {
+      "Name": "AccessVariableByName",
+      "Type": "UncookedOnly",
+      "LoadingPhase": "PreLoadingScreen",
+      "WhitelistPlatforms": [
+        "Win64",
+        "Mac",
+        "Linux"
+      ]
+    }
+  ]
+}

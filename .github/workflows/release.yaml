@@ -17,9 +17,15 @@ jobs:
       matrix:
         unreal_engine_version:
           ["4.26.0", "4.27.0", "5.0.0"]
+        version:
+          ["free", "full"]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
+
+      - name: Run scripts for the code removing
+        run: |
+          bash tools/remove_code.sh AccessVariableByName ${{ matrix.unreal_engine_version }} ${{ matrix.version }} .
 
       - name: Run scripts for the release
         run: |
@@ -28,8 +34,8 @@ jobs:
       - name: Compress plugin's sources
         run: |
           mkdir release-plugin
-          zip -r AccessVariableByName_UE${{ matrix.unreal_engine_version }}.zip AccessVariableByName
-          mv AccessVariableByName_UE${{ matrix.unreal_engine_version }}.zip release-plugin
+          zip -r AccessVariableByName_UE${{ matrix.unreal_engine_version }}_${{ matrix.version }}.zip AccessVariableByName
+          mv AccessVariableByName_UE${{ matrix.unreal_engine_version }}_${{ matrix.version }}.zip release-plugin
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
@@ -37,24 +43,24 @@ jobs:
           name: AccessVariableByName
           path: "release-plugin"
 
-  sample-pack:
-    name: Pack sample sources
-    runs-on: ubuntu-18.04
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
+  # sample-pack:
+  #   name: Pack sample sources
+  #   runs-on: ubuntu-18.04
+  #   steps:
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v2
 
-      - name: Compress sample project's sources
-        run: |
-          mkdir release-sample
-          cd samples && zip -r SampleProject.zip SampleProject && cd ..
-          mv samples/SampleProject.zip release-sample
+  #     - name: Compress sample project's sources
+  #       run: |
+  #         mkdir release-sample
+  #         cd samples && zip -r SampleProject.zip SampleProject && cd ..
+  #         mv samples/SampleProject.zip release-sample
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: SampleProject
-          path: "release-sample"
+  #     - name: Upload artifact
+  #       uses: actions/upload-artifact@v2
+  #       with:
+  #         name: SampleProject
+  #         path: "release-sample"
 
   publish:
     name: Publish
