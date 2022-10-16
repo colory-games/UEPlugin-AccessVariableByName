@@ -32,7 +32,7 @@ This plugin adds below Blueprint nodes.
 
 ### Get/Set Variable by Name (Dynamic)
 
-![Set Variable by Name](docs/images/tutorial/set_variable_by_name.png)
+![Get Variable by Name (Dynamic)](images/tutorial/get_variable_by_name_dynamic.png)
 
 * Get/Set a variable by specifying name and target object.
 * These nodes accepts the name which can be changed dynamically at runtime.
