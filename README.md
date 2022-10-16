@@ -49,17 +49,21 @@ This plugin supports on the below environment.
 
 ## Installation
 
-This plugin is distributed at [the Marketplace]().
+This plugin is distributed at [the Marketplace]().  
 You can buy and install from there.
 
-Free trial version is also available.
-See [the installation document](docs/installation.md) if you want to install a free trial version.
+> TODO: Add link to the Marketplace
+
+Free trial version is also available.  
+See [the installation document](docs/installation.md) if you want to install a free trial version.  
 Free trial version does not support below features.
 
 * A Variable whose type is Struct/Enum/Array/Set/Map.
 * [A custom syntax](docs/tutorial.md#custom-syntax) to access the nested variable.
 
 To get the benefit fully from this plugin, consider to buy this plugin at [the Marketplace]().
+
+> TODO: Add link to the Marketplace
 
 ## Tutorial
 

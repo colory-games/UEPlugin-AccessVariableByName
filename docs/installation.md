@@ -8,6 +8,8 @@ Free trial version does not support below features.
 
 To get the benefit fully from this plugin, consider to buy this plugin at [the Marketplace]().
 
+> TODO: Add link to the Marketplace
+
 ## 1. Download source code
 
 Download whole project's source code from [the release page](https://github.com/colory-games/UEPlugin-AccessVariableByName/releases) and unzip it.
