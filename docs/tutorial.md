@@ -4,84 +4,84 @@
 
 > TODO: Add Video link
 
-## Get Variables by Name
+## Get Variable by Name
 
-'Get Variables by Name' node gets variables by specifing the name and the target object.  
-This node analyzes the name and the target (static analysis), and changes the type of output pins to the same variable type automatically.  
-It is useful to check if the pin type is valid on the compilation time.
+'Get Variable by Name' node gets a variable by specifing the name and the target object.  
+This node analyzes the name and the target (static analysis), and changes the type of output pin to the same variable type automatically.  
+It is useful to check if the variable name and pin type is valid on the compilation time.
 
-![Get Variables by Name](images/tutorial/get_variables_by_name.png)
+![Get Variable by Name](images/tutorial/get_variable_by_name.png)
 
 ### Usage
 
-1. Search and place 'Get Variables by Name' node on the Blueprint editor.
+1. Search and place 'Get Variable by Name' node on the Blueprint editor.
 2. Connect node's pins to the other pins or input a literal string.
 
 |Pin Name|Input/Output|Description|
 |---|---|---|
-|Target|Input|An object reference which may have a desired member variables.|
-|Var Name|Input|The name of a desired variable.<br>This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.<br>Only literal string is allowed, and error if you connect pin to the other node. Use [Get Variables by Name (Dynamic)]() node instead.|
+|Target|Input|An object reference which may have a desired member variable.|
+|Var Name|Input|The name of a desired variable.<br>This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.<br>Only literal string is allowed, and error if you connect the pin to the another node.<br>Use [Get Variable by Name (Dynamic)]() node instead.|
 |Success|Output|Output `True` if a desired member variable is successfully acquired.|
 |(Output variable name)|Output|Output the value of a desired member variable.<br>The pin name will be same as a name of a desired member variable.<br>This pin will be hidden if a desired member variable does not exist.|
 
-## Set Variables by Name
+## Set Variable by Name
 
-'Set Variables by Name' node sets a new value to variables by specifing the name and the target object.  
+'Set Variable by Name' node sets a new value to a variable by specifing the name and the target object.  
 This node analyzes the name and the target (static analysis), and changes the type of new value pins and output pins to the same variable type automatically.  
 
-![Set Variables by Name](images/tutorial/set_variables_by_name.png)
+![Set Variable by Name](images/tutorial/set_variable_by_name.png)
 
 ### Usage
 
-1. Search and place 'Set Variables by Name' node on the Blueprint editor.
+1. Search and place 'Set Variable by Name' node on the Blueprint editor.
 2. Connect node's pins to the other pins or input a literal string.
 
 |Pin Name|Input/Output|Description|
 |---|---|---|
-|Target|Input|An object reference which may have a desired member variables.|
-|Var Name|Input|The name of a desired variable.<br>This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.<br>Only literal string is allowed, and error if you connect pin to the other node.|
+|Target|Input|An object reference which may have a desired member variable.|
+|Var Name|Input|The name of a desired variable.<br>This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.<br>Only literal string is allowed, and error if you connect pin to the another node.|
 |(Input variable name)|Input|A new value to be set to a desired member variable.<br>The pin name will be same as a name of a desired member variable.<br>This pin will be hidden if a desired member variable does not exist.|
 |Success|Output|Output `True` if a desired member variable is successfully acquired.<br>An output will be an value after a new value set.|
 |(Output variable name)|Output|Output the value of a desired member variable.<br>The pin name will be same as a name of a desired member variable.<br>This pin will be hidden if a desired member variable does not exist.|
 
-## Get Variables by Name (Dynamic)
+## Get Variable by Name (Dynamic)
 
-'Get Variables by Name (Dynamic)' node gets variables by specifing the name and the target object.  
-The concept of this node is same as [Get Variable by Name](#get-variables-by-name) node.  
+'Get Variable by Name (Dynamic)' node gets a variable by specifing the name and the target object.  
+The concept of this node is same as [Get Variable by Name](#get-variable-by-name) node.  
 But this node accepts [the name which can be changed dynamically at runtime](#dynamically-changeable-name).
 
-![Get Variables by Name (Dynamic)](images/tutorial/get_variables_by_name_dynamic.png)
+![Get Variable by Name (Dynamic)](images/tutorial/get_variable_by_name_dynamic.png)
 
 ### Usage
 
-1. Search and place 'Get Variables by Name (Dynamic)' node on the Blueprint editor.
-2. Select 'Variable Type' which is a desired type same as the type of a desired member variables.
+1. Search and place 'Get Variable by Name (Dynamic)' node on the Blueprint editor.
+2. Select 'Variable Type' which is a desired type same as the type of a desired member variable.
 3. Connect node's pins to the other pins or input a literal string.
 
 |Pin Name|Input/Output|Description|
 |---|---|---|
-|Target|Input|An object reference which may have a desired member variables.|
+|Target|Input|An object reference which may have a desired member variable.|
 |Var Name|Input|The name of a desired variable.<br>This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.|
 |Success|Output|Output `True` if a desired member variable is successfully acquired.<br>Output `False` if types are mismatched between 'Variable Type' and actual one.|
 |Result|Output|Output the value of a desired member variable.|
 
-## Set Variables by Name (Dynamic)
+## Set Variable by Name (Dynamic)
 
-'Set Variables by Name (Dynamic)' node gets variables by specifing the name and the target object.  
-The concept of this node is same as [Set Variable by Name](#get-variables-by-name) node.  
+'Set Variable by Name (Dynamic)' node gets a variable by specifing the name and the target object.  
+The concept of this node is same as [Set Variable by Name](#get-variable-by-name) node.  
 But this node accepts [the name which can be changed dynamically at runtime](#dynamically-changeable-name).
 
-![Set Variables by Name (Dynamic)](images/tutorial/set_variables_by_name_dynamic.png)
+![Set Variable by Name (Dynamic)](images/tutorial/set_variable_by_name_dynamic.png)
 
 ### Usage
 
-1. Search and place 'Set Variables by Name (Dynamic)' node on the Blueprint editor.
-2. Select 'Variable Type' which is a desired type same as the type of a desired member variables.
+1. Search and place 'Set Variable by Name (Dynamic)' node on the Blueprint editor.
+2. Select 'Variable Type' which is a desired type same as the type of a desired member variable.
 3. Connect node's pins to the other pins or input a literal string.
 
 |Pin Name|Input/Output|Description|
 |---|---|---|
-|Target|Input|An object reference which may have a desired member variables.|
+|Target|Input|An object reference which may have a desired member variable.|
 |Var Name|Input|The name of a desired variable.<br>This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.|
 |New Value|Input|A new value to be set to a desired member variable.|
 |Success|Output|Output `True` if a desired member variable is successfully acquired.<br>Output `False` if types are mismatched between 'Variable Type' and actual one.|
@@ -110,17 +110,11 @@ If the variable is deeper, this syntax will be much more powerful.
 ### Access to an array/map element
 
 You can access to the element of array/map by specifing the index or key.  
-In the case you want to access the 2nd element of the array member variable `ArrayVar`, specify the index `1` surrounded by `[]`.
+In the case you want to access the 3rd element of the array member variable `ArrayVar`, specify the index `2` surrounded by `[]`.
 
 ```
 ArrayVar[2]
 ```
-
-![Access to an array element](images/tutorial/access_array_element.png)
-
-Note: Array index is 0-based index. If the specified index is out of range, 'Success' pin will output `False` value.
-
-#### Compare to the Blueprint script
 
 In the case you want to access the element of the set member variable `SetVar` whose key is `"Key"`, specify the key `"Key"` surrounded by `[]`.
 
@@ -128,9 +122,15 @@ In the case you want to access the element of the set member variable `SetVar` w
 SetVar["Key"]
 ```
 
-![Access to a map element](images/tutorial/access_map_element.png)
+Note: Array index is 0-based index. If the specified index is out of range, 'Success' pin will output `False` value.
 
 Note: If the element is not found, 'Success' pin will output `False` value.
+
+#### Compare to the Blueprint script
+
+![Access to an array element](images/tutorial/access_array_element.png)
+
+![Access to a map element](images/tutorial/access_map_element.png)
 
 ### Combined syntax
 

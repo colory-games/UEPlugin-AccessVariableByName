@@ -1,8 +1,11 @@
 # Unreal Engine Plugin: Access Variable by Name
 
-**Access Variable by Name** is a Unreal Engine plugin which adds Blueprint nodes to get/set the variables by name.
+**Access Variable by Name** is an Unreal Engine plugin which adds Blueprint nodes to get/set the variable by name.
+These nodes enable you to get/set the variable by the string instead of the get/set node.
 
-Generally, you need to place a get/set node when you try to get/set the variables on the vanilla Unreal Engine.  
+![Thumbnail](docs/images/thumbnail/access_variable_by_name.png)
+
+Generally, you need to place a get/set node when you try to get/set the variable on the vanilla Unreal Engine.  
 This workflow works greatly in many cases, but there are problems in some cases.
 
 For example:
@@ -14,29 +17,27 @@ For example:
 
 By using this plugin, these problems will be solved gracefully.
 
-![Thumbnail](docs/images/thumbnail/access_variable_by_name.png)
-
 ## Features
 
 This plugin adds below Blueprint nodes.
 
-### Get/Set Variables by Name
+### Get/Set Variable by Name
 
-![Get Variables by Name](docs/images/tutorial/get_variables_by_name.png)
+![Get Variable by Name](docs/images/tutorial/get_variable_by_name.png)
 
-* Get/Set variables by specifying name and target object.
+* Get/Set a variable by specifying name and target object.
 * These nodes will analyze the name and target (static analysis), and change the node's pin type to the same variable type automatically.
-  * This ensures that the pin type is valid.
-* The name pin supports [a custom syntax](docs/tutorial.md#custom-syntax) to access the deep nested variable.
+  * This ensures that the variable name and pin type is valid.
+* The name pin supports [a custom syntax](docs/tutorial.md#custom-syntax) to access a deep nested variable.
 
-### Get/Set Variables by Name (Dynamic)
+### Get/Set Variable by Name (Dynamic)
 
-![Set Variables by Name](docs/images/tutorial/set_variables_by_name.png)
+![Set Variable by Name](docs/images/tutorial/set_variable_by_name.png)
 
-* Get/Set variables by specifying name and target object.
+* Get/Set a variable by specifying name and target object.
 * These nodes accepts the name which can be changed dynamically at runtime.
   * This feature is useful when you get/set many variables at once.
-* The name pin supports [a custom syntax](docs/tutorial.md#custom-syntax) to access the deep nested variable.
+* The name pin supports [a custom syntax](docs/tutorial.md#custom-syntax) to access a deep nested variable.
 
 ## Supported Environment
 
