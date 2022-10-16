@@ -20,7 +20,7 @@ It is useful to check if the variable name and pin type is valid on the compilat
 |Pin Name|Input/Output|Description|
 |---|---|---|
 |Target|Input|An object reference which may have a desired member variable.|
-|Var Name|Input|The name of a desired variable.<br>This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.<br>Only literal string is allowed, and error if you connect the pin to the another node.<br>Use [Get Variable by Name (Dynamic)]() node instead.|
+|Var Name|Input|The name of a desired variable.<br>This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.<br>Only literal string is allowed, and error if you connect the pin to another node.<br>Use [Get Variable by Name (Dynamic)]() node instead.|
 |Success|Output|Output `True` if a desired member variable is successfully acquired.|
 |(Output variable name)|Output|Output the value of a desired member variable.<br>The pin name will be same as a name of a desired member variable.<br>This pin will be hidden if a desired member variable does not exist.|
 
@@ -39,7 +39,7 @@ This node analyzes the name and the target (static analysis), and changes the ty
 |Pin Name|Input/Output|Description|
 |---|---|---|
 |Target|Input|An object reference which may have a desired member variable.|
-|Var Name|Input|The name of a desired variable.<br>This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.<br>Only literal string is allowed, and error if you connect pin to the another node.|
+|Var Name|Input|The name of a desired variable.<br>This pin's value support [a custom syntax](#custom-syntax) to access the nested variable.<br>Only literal string is allowed, and error if you connect pin to another node.|
 |(Input variable name)|Input|A new value to be set to a desired member variable.<br>The pin name will be same as a name of a desired member variable.<br>This pin will be hidden if a desired member variable does not exist.|
 |Success|Output|Output `True` if a desired member variable is successfully acquired.<br>An output will be an value after a new value set.|
 |(Output variable name)|Output|Output the value of a desired member variable.<br>The pin name will be same as a name of a desired member variable.<br>This pin will be hidden if a desired member variable does not exist.|
