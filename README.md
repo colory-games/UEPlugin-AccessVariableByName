@@ -23,7 +23,7 @@ This plugin adds below Blueprint nodes.
 
 ### Get/Set Variable by Name
 
-![Get Variable by Name](docs/images/tutorial/get_variable_by_name.png)
+![Get Variable by Name](docs/images/readme/get_set_variable_by_name.png)
 
 * Get/Set a variable by specifying name and target object.
 * These nodes will analyze the name and target (static analysis), and change the node's pin type to the same variable type automatically.
@@ -32,7 +32,7 @@ This plugin adds below Blueprint nodes.
 
 ### Get/Set Variable by Name (Dynamic)
 
-![Get Variable by Name (Dynamic)](docs/images/tutorial/get_variable_by_name_dynamic.png)
+![Get Variable by Name (Dynamic)](docs/images/readme/get_set_variable_by_name_dynamic.png)
 
 * Get/Set a variable by specifying name and target object.
 * These nodes accepts the name which can be changed dynamically at runtime.
