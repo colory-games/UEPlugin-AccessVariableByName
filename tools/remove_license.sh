@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # require: bash version >= 4
-# usage example: bash remove_license.sh
+# usage example: bash remove_license.sh src full
 set -eEu
 
 
