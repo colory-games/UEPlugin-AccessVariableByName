@@ -19,7 +19,7 @@ if [ "${2}" = "full" ]; then
     FULL=1
 fi
 
-if [ ${FULL} -ne 1 ]; then
+if [ ${FULL} -eq 1 ]; then
     for file in $(find "${SOURCE_DIR}" -name "*.cpp" -or -name "*.h" -or -name "*.cs"); do
         sed -i -z -e "s/\s*\\*\s*This software is released under the MIT License.*\s*\\*\s*https:\\/\\/opensource.org\\/licenses\\/MIT//g" ${file}
         echo "Removed license in ${file}"
