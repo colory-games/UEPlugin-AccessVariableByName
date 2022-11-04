@@ -14,6 +14,7 @@ function usage() {
 }
 
 if [ $# -ne 4 ]; then
+    usage
     exit 1
 fi
 
