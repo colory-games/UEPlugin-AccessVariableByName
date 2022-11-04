@@ -37,7 +37,7 @@ jobs:
 
       - name: Compress plugin's sources
         run: |
-          mkdir release-plugin
+          mkdir release-plugin-${{ matrix.version }}
           zip -r AccessVariableByName_UE${{ matrix.unreal_engine_version }}_${{ matrix.version }}.zip AccessVariableByName
           mv AccessVariableByName_UE${{ matrix.unreal_engine_version }}_${{ matrix.version }}.zip release-plugin-${{ matrix.version }}
 
