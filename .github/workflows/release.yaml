@@ -25,7 +25,7 @@ jobs:
 
       - name: Run scripts for the license removing
         run: |
-          bash tools/remove_license.sh AccessVariableByName
+          bash tools/remove_license.sh AccessVariableByName ${{ matrix.version }}
 
       - name: Run scripts for the code removing
         run: |
