@@ -23,6 +23,10 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
 
+      - name: Run scripts for the license removing
+        run: |
+          bash tools/remove_license.sh AccessVariableByName ${{ matrix.version }}
+
       - name: Run scripts for the code removing
         run: |
           bash tools/remove_code.sh AccessVariableByName ${{ matrix.unreal_engine_version }} ${{ matrix.version }} .
@@ -33,15 +37,15 @@ jobs:
 
       - name: Compress plugin's sources
         run: |
-          mkdir release-plugin
+          mkdir release-plugin-${{ matrix.version }}
           zip -r AccessVariableByName_UE${{ matrix.unreal_engine_version }}_${{ matrix.version }}.zip AccessVariableByName
-          mv AccessVariableByName_UE${{ matrix.unreal_engine_version }}_${{ matrix.version }}.zip release-plugin
+          mv AccessVariableByName_UE${{ matrix.unreal_engine_version }}_${{ matrix.version }}.zip release-plugin-${{ matrix.version }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: AccessVariableByName
-          path: "release-plugin"
+          name: AccessVariableByName_${{ matrix.version }}
+          path: "release-plugin-${{ matrix.version }}"
 
   sample-pack:
     name: Pack sample sources
@@ -80,7 +84,7 @@ jobs:
         run: |
           set -x
           assets=()
-          for asset in dist/**/*.zip; do
+          for asset in dist/AccessVariableByName_free/*.zip; do
             assets+=("-a" "$asset")
           done
           tag_name="${GITHUB_REF##*/}"
