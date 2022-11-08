@@ -87,5 +87,8 @@ jobs:
           for asset in dist/AccessVariableByName_free/*.zip; do
             assets+=("-a" "$asset")
           done
+          for asset in dist/SampleProject/*.zip; do
+            assets+=("-a" "$asset")
+          done
           tag_name="${GITHUB_REF##*/}"
           hub release create "${assets[@]}" -m "$tag_name" "$tag_name"
