@@ -6,9 +6,7 @@ Free trial version does not support below features.
 * A Variable whose type is Struct/Enum/Array/Set/Map.
 * A Syntax to access the nested variable.
 
-To get the benefit fully from this plugin, consider to buy this plugin at [the Marketplace]().
-
-> TODO: Add link to the Marketplace
+To get the benefit fully from this plugin, consider to buy this plugin at [the Marketplace](https://www.unrealengine.com/marketplace/ja/product/b9e4a73c7e974b1581e711243a693fe3).
 
 ## 1. Download source code
 
