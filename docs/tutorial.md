@@ -2,7 +2,7 @@
 
 ## Introduction Video
 
-> TODO: Add Video link
+[![](https://img.youtube.com/vi/zUzJBnCgB1k/0.jpg)](https://www.youtube.com/watch?v=zUzJBnCgB1k)
 
 ## Get Variable by Name
 
