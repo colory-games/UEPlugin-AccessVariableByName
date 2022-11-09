@@ -14,7 +14,7 @@
 #include "VariableSetterFunctionLibrary.generated.h"
 
 UCLASS()
-class ACCESSVARIABLEBYNAME_API UVariableSetterFunctionLibarary : public UBlueprintFunctionLibrary
+class VARIABLEACCESSFUNCTIONLIBRARY_API UVariableSetterFunctionLibarary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
@@ -37,10 +37,6 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly)
 	static void SetFloatVariableByName(UObject* Target, FName VarName, float NweValue, bool& Success, float& Result);
 
-	// @remove-start UE_VERSION=4.26.0,4.27.0
-	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly)
-	static void SetFloat64VariableByName(UObject* Target, FName VarName, double NewValue, bool& Success, double& Result);
-	// @remove-end
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly)
 	static void SetNameVariableByName(UObject* Target, FName VarName, FName NewValue, bool& Success, FName& Result);

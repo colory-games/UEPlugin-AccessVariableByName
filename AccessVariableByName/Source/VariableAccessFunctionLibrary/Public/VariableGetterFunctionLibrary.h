@@ -14,7 +14,7 @@
 #include "VariableGetterFunctionLibrary.generated.h"
 
 UCLASS()
-class ACCESSVARIABLEBYNAME_API UVariableGetterFunctionLibarary : public UBlueprintFunctionLibrary
+class VARIABLEACCESSFUNCTIONLIBRARY_API UVariableGetterFunctionLibarary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
@@ -37,10 +37,6 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly)
 	static void GetFloatVariableByName(UObject* Target, FName VarName, bool& Success, float& Result);
 
-	// @remove-start UE_VERSION=4.26.0,4.27.0
-	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly)
-	static void GetFloat64VariableByName(UObject* Target, FName VarName, bool& Success, double& Result);
-	// @remove-end
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly)
 	static void GetNameVariableByName(UObject* Target, FName VarName, bool& Success, FName& Result);

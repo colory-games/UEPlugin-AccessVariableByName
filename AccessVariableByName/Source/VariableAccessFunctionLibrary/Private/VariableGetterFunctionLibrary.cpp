@@ -7,12 +7,11 @@
  * https://opensource.org/licenses/MIT
  */
 
-#include "VariableSetterFunctionLibrary.h"
+#include "VariableGetterFunctionLibrary.h"
 
 #include "Common.h"
 
-void UVariableSetterFunctionLibarary::SetBooleanVariableByName(
-	UObject* Target, FName VarName, bool NewValue, bool& Success, bool& Result)
+void UVariableGetterFunctionLibarary::GetBooleanVariableByName(UObject* Target, FName VarName, bool& Success, bool& Result)
 {
 	Success = false;
 
@@ -27,13 +26,11 @@ void UVariableSetterFunctionLibarary::SetBooleanVariableByName(
 		return;
 	}
 
-	Property->SetPropertyValue_InContainer(Target, NewValue);
 	Result = Property->GetPropertyValue_InContainer(Target);
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetByteVariableByName(
-	UObject* Target, FName VarName, uint8 NewValue, bool& Success, uint8& Result)
+void UVariableGetterFunctionLibarary::GetByteVariableByName(UObject* Target, FName VarName, bool& Success, uint8& Result)
 {
 	Success = false;
 
@@ -48,13 +45,11 @@ void UVariableSetterFunctionLibarary::SetByteVariableByName(
 		return;
 	}
 
-	Property->SetPropertyValue_InContainer(Target, NewValue);
 	Result = Property->GetPropertyValue_InContainer(Target);
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetClassVariableByName(
-	UObject* Target, FName VarName, UClass* NewValue, bool& Success, UClass*& Result)
+void UVariableGetterFunctionLibarary::GetClassVariableByName(UObject* Target, FName VarName, bool& Success, UClass*& Result)
 {
 	Success = false;
 
@@ -69,13 +64,11 @@ void UVariableSetterFunctionLibarary::SetClassVariableByName(
 		return;
 	}
 
-	Property->SetPropertyValue_InContainer(Target, NewValue);
 	Result = Property->GetPropertyValue_InContainer(Target)->StaticClass();
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetIntVariableByName(
-	UObject* Target, FName VarName, int32 NewValue, bool& Success, int32& Result)
+void UVariableGetterFunctionLibarary::GetIntVariableByName(UObject* Target, FName VarName, bool& Success, int32& Result)
 {
 	Success = false;
 
@@ -90,13 +83,11 @@ void UVariableSetterFunctionLibarary::SetIntVariableByName(
 		return;
 	}
 
-	Property->SetPropertyValue_InContainer(Target, NewValue);
 	Result = Property->GetPropertyValue_InContainer(Target);
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetInt64VariableByName(
-	UObject* Target, FName VarName, int64 NewValue, bool& Success, int64& Result)
+void UVariableGetterFunctionLibarary::GetInt64VariableByName(UObject* Target, FName VarName, bool& Success, int64& Result)
 {
 	Success = false;
 
@@ -111,13 +102,11 @@ void UVariableSetterFunctionLibarary::SetInt64VariableByName(
 		return;
 	}
 
-	Property->SetPropertyValue_InContainer(Target, NewValue);
 	Result = Property->GetPropertyValue_InContainer(Target);
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetFloatVariableByName(
-	UObject* Target, FName VarName, float NewValue, bool& Success, float& Result)
+void UVariableGetterFunctionLibarary::GetFloatVariableByName(UObject* Target, FName VarName, bool& Success, float& Result)
 {
 	Success = false;
 
@@ -132,36 +121,12 @@ void UVariableSetterFunctionLibarary::SetFloatVariableByName(
 		return;
 	}
 
-	Property->SetPropertyValue_InContainer(Target, NewValue);
 	Result = Property->GetPropertyValue_InContainer(Target);
 	Success = true;
 }
 
-// @remove-start UE_VERSION=4.26.0,4.27.0
-void UVariableSetterFunctionLibarary::SetFloat64VariableByName(
-	UObject* Target, FName VarName, double NewValue, bool& Success, double& Result)
-{
-	Success = false;
 
-	if (Target == nullptr)
-	{
-		return;
-	}
-
-	FDoubleProperty* Property = FindFProperty<FDoubleProperty>(Target->GetClass(), VarName);
-	if (Property == nullptr)
-	{
-		return;
-	}
-
-	Property->SetPropertyValue_InContainer(Target, NewValue);
-	Result = Property->GetPropertyValue_InContainer(Target);
-	Success = true;
-}
-// @remove-end
-
-void UVariableSetterFunctionLibarary::SetNameVariableByName(
-	UObject* Target, FName VarName, FName NewValue, bool& Success, FName& Result)
+void UVariableGetterFunctionLibarary::GetNameVariableByName(UObject* Target, FName VarName, bool& Success, FName& Result)
 {
 	Success = false;
 
@@ -176,13 +141,11 @@ void UVariableSetterFunctionLibarary::SetNameVariableByName(
 		return;
 	}
 
-	Property->SetPropertyValue_InContainer(Target, NewValue);
 	Result = Property->GetPropertyValue_InContainer(Target);
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetObjectVariableByName(
-	UObject* Target, FName VarName, UObject* NewValue, bool& Success, UObject*& Result)
+void UVariableGetterFunctionLibarary::GetObjectVariableByName(UObject* Target, FName VarName, bool& Success, UObject*& Result)
 {
 	Success = false;
 
@@ -197,13 +160,11 @@ void UVariableSetterFunctionLibarary::SetObjectVariableByName(
 		return;
 	}
 
-	Property->SetPropertyValue_InContainer(Target, NewValue);
 	Result = Property->GetPropertyValue_InContainer(Target);
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetStringVariableByName(
-	UObject* Target, FName VarName, FString NewValue, bool& Success, FString& Result)
+void UVariableGetterFunctionLibarary::GetStringVariableByName(UObject* Target, FName VarName, bool& Success, FString& Result)
 {
 	Success = false;
 
@@ -218,13 +179,11 @@ void UVariableSetterFunctionLibarary::SetStringVariableByName(
 		return;
 	}
 
-	Property->SetPropertyValue_InContainer(Target, NewValue);
 	Result = Property->GetPropertyValue_InContainer(Target);
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetTextVariableByName(
-	UObject* Target, FName VarName, FText NewValue, bool& Success, FText& Result)
+void UVariableGetterFunctionLibarary::GetTextVariableByName(UObject* Target, FName VarName, bool& Success, FText& Result)
 {
 	Success = false;
 
@@ -239,19 +198,16 @@ void UVariableSetterFunctionLibarary::SetTextVariableByName(
 		return;
 	}
 
-	Property->SetPropertyValue_InContainer(Target, NewValue);
 	Result = Property->GetPropertyValue_InContainer(Target);
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetStructVariableByName(
-	UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
+void UVariableGetterFunctionLibarary::GetStructVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result)
 {
 	check(0);
 }
 
-void UVariableSetterFunctionLibarary::GenericSetStructVariableByName(
-	UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue)
+void UVariableGetterFunctionLibarary::GenericGetStructVariableByName(UObject* Target, FName VarName, bool& Success, void* Result)
 {
 	Success = false;
 
@@ -272,19 +228,16 @@ void UVariableSetterFunctionLibarary::GenericSetStructVariableByName(
 		return;
 	}
 
-	Property->Struct->CopyScriptStruct(StructProperty, NewValue);
 	Property->Struct->CopyScriptStruct(Result, StructProperty);
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetEnumVariableByName(
-	UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
+void UVariableGetterFunctionLibarary::GetEnumVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result)
 {
 	check(0);
 }
 
-void UVariableSetterFunctionLibarary::GenericSetEnumVariableByName(
-	UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue)
+void UVariableGetterFunctionLibarary::GenericGetEnumVariableByName(UObject* Target, FName VarName, bool& Success, void* Result)
 {
 	Success = false;
 
@@ -305,19 +258,16 @@ void UVariableSetterFunctionLibarary::GenericSetEnumVariableByName(
 		return;
 	}
 
-	Property->CopyCompleteValue(EnumProperty, NewValue);
 	Property->CopyCompleteValue(Result, EnumProperty);
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetArrayVariableByName(
-	UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
+void UVariableGetterFunctionLibarary::GetArrayVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result)
 {
 	check(0);
 }
 
-void UVariableSetterFunctionLibarary::GenericSetArrayVariableByName(
-	UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue)
+void UVariableGetterFunctionLibarary::GenericGetArrayVariableByName(UObject* Target, FName VarName, bool& Success, void* Result)
 {
 	Success = false;
 
@@ -338,19 +288,16 @@ void UVariableSetterFunctionLibarary::GenericSetArrayVariableByName(
 		return;
 	}
 
-	Property->CopyCompleteValue(ArrayProperty, NewValue);
 	Property->CopyCompleteValue(Result, ArrayProperty);
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetSetVariableByName(
-	UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
+void UVariableGetterFunctionLibarary::GetSetVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result)
 {
 	check(0);
 }
 
-void UVariableSetterFunctionLibarary::GenericSetSetVariableByName(
-	UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue)
+void UVariableGetterFunctionLibarary::GenericGetSetVariableByName(UObject* Target, FName VarName, bool& Success, void* Result)
 {
 	Success = false;
 
@@ -371,19 +318,16 @@ void UVariableSetterFunctionLibarary::GenericSetSetVariableByName(
 		return;
 	}
 
-	Property->CopyCompleteValue(SetProperty, NewValue);
 	Property->CopyCompleteValue(Result, SetProperty);
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetMapVariableByName(
-	UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
+void UVariableGetterFunctionLibarary::GetMapVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result)
 {
 	check(0);
 }
 
-void UVariableSetterFunctionLibarary::GenericSetMapVariableByName(
-	UObject* Target, FName VarName, bool& Success, void* Result, void* NewValue)
+void UVariableGetterFunctionLibarary::GenericGetMapVariableByName(UObject* Target, FName VarName, bool& Success, void* Result)
 {
 	Success = false;
 
@@ -404,19 +348,17 @@ void UVariableSetterFunctionLibarary::GenericSetMapVariableByName(
 		return;
 	}
 
-	Property->CopyCompleteValue(MapProperty, NewValue);
 	Property->CopyCompleteValue(Result, MapProperty);
 	Success = true;
 }
 
-void UVariableSetterFunctionLibarary::SetNestedVariableByName(
-	UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
+void UVariableGetterFunctionLibarary::GetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result)
 {
 	check(0);
 }
 
-void UVariableSetterFunctionLibarary::GenericSetNestedVariableByName(UObject* Target, FName VarName, bool& Success,
-	UProperty* ResultProperty, void* ResultAddr, UProperty* NewValue, void* NewValueAddr)
+void UVariableGetterFunctionLibarary::GenericGetNestedVariableByName(
+	UObject* Target, FName VarName, bool& Success, UProperty* ResultProperty, void* ResultAddr)
 {
 	TArray<FString> Vars;
 	TArray<FVarDescription> VarDescs;
@@ -439,5 +381,5 @@ void UVariableSetterFunctionLibarary::GenericSetNestedVariableByName(UObject* Ta
 	}
 #endif
 
-	Success = HandleTerminalProperty(VarDescs, 0, Target, ResultProperty, ResultAddr, NewValue, NewValueAddr);
+	Success = HandleTerminalProperty(VarDescs, 0, Target, ResultProperty, ResultAddr, nullptr, nullptr);
 }

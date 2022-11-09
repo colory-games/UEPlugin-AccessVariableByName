@@ -9,9 +9,9 @@
 
 using UnrealBuildTool;
 
-public class AccessVariableByName : ModuleRules
+public class VariableAccessFunctionLibrary : ModuleRules
 {
-	public AccessVariableByName(ReadOnlyTargetRules Target) : base(Target)
+	public VariableAccessFunctionLibrary(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
@@ -19,20 +19,9 @@ public class AccessVariableByName : ModuleRules
 			"Core",
 			"CoreUObject",
 			"Engine",
-			"VariableAccessFunctionLibrary",
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[]{
-			"BlueprintGraph",
-			"EditorStyle",
-			"GraphEditor",
-			"KismetCompiler",
-			"KismetWidgets",
-			"Slate",
-			"SlateCore",
-			"ToolMenus",
-			"UnrealEd",
-		});
+		PrivateDependencyModuleNames.AddRange(new string[]{});
 
 		// @remove-start FULL_VERSION=true
 		PublicDefinitions.Add("AVBN_FREE_VERSION");

@@ -9,6 +9,7 @@
 
 #include "Common.h"
 
+#include "UObject/UnrealType.h"
 #include "Internationalization/Regex.h"
 
 const FName ExecThenPinName(TEXT("ExecThen"));
@@ -23,10 +24,29 @@ const FString VarNamePinFriendlyName(TEXT("Var Name"));
 const FString SuccessPinFriendlyName(TEXT("Success"));
 
 FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass);
-bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty,
-	void* OuterAddr, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr);
-bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest,
-	void* DestAddr, FProperty* NewValue, void* NewValueAddr);
+
+FEdGraphPinType CreateDefaultPinType()
+{
+	FEdGraphPinType PinType;
+	PinType.PinCategory = UEdGraphSchema_K2::PC_Boolean;
+
+	return PinType;
+}
+
+UClass* GetClassFromNode(const UEdGraphNode* Node)
+{
+	UClass* Class = nullptr;
+
+	UEdGraph* Graph = Node->GetGraph();
+	UObject* GraphOwner = Graph->GetOutermostObject();
+	UBlueprint* Blueprint = Cast<UBlueprint>(GraphOwner);
+	if (Blueprint != nullptr)
+	{
+		Class = Blueprint->GeneratedClass;
+	}
+
+	return Class;
+}
 
 FProperty* GetScriptStructProperty(UScriptStruct* ScriptStruct, FString VarName)
 {
@@ -60,325 +80,6 @@ FProperty* GetScriptStructProperty(UScriptStruct* ScriptStruct, FString VarName)
 	}
 
 	return Property;
-}
-
-bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property, void* OuterAddr,
-	FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr)
-{
-	const FVarDescription& Desc = VarDescs[VarDepth];
-
-	if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_None)
-	{
-		if (VarDescs.Num() == VarDepth + 1)
-		{
-			if (!Property->SameType(Dest))
-			{
-				return false;
-			}
-
-			void* SrcAddr = Property->ContainerPtrToValuePtr<void>(OuterAddr);
-			if (NewValue != nullptr)
-			{
-				Property->CopyCompleteValue(SrcAddr, NewValueAddr);
-			}
-			Property->CopyCompleteValue(DestAddr, SrcAddr);
-			return true;
-		}
-
-		if (Property->IsA<FStructProperty>())
-		{
-			FStructProperty* StructProperty = CastChecked<FStructProperty>(Property);
-			void* StructAddr = Property->ContainerPtrToValuePtr<void>(OuterAddr);
-
-			return HandleTerminalProperty(
-				VarDescs, VarDepth + 1, StructProperty, StructAddr, Dest, DestAddr, NewValue, NewValueAddr);
-		}
-		else if (Property->IsA<FObjectProperty>())
-		{
-			FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(Property);
-			UObject* Object = ObjectProperty->GetPropertyValue_InContainer(OuterAddr);
-			void* ObjectAddr = ObjectProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-
-			return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr);
-		}
-
-		return false;
-	}
-	else if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_Integer)
-	{
-		if (Property->IsA<FArrayProperty>())
-		{
-			FArrayProperty* ArrayProperty = CastChecked<FArrayProperty>(Property);
-			void* ArrayAddr = ArrayProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-			auto ArrayPtr = ArrayProperty->GetPropertyValuePtr(ArrayAddr);
-			FProperty* InnerProperty = ArrayProperty->Inner;
-
-			if (VarDescs.Num() == VarDepth + 1)
-			{
-				int32 Index = Desc.ArrayAccessValue.Integer;
-				if (Index >= ArrayPtr->Num())
-				{
-					return false;
-				}
-
-				int32 Stride = Dest->ArrayDim * Dest->ElementSize;
-				int8* InnerAddr = static_cast<int8*>(ArrayPtr->GetData());
-				void* InnerItemAddr = InnerAddr + Index * Stride;
-
-				if (!InnerProperty->SameType(Dest))
-				{
-					return false;
-				}
-
-				if (NewValue != nullptr)
-				{
-					Dest->CopyCompleteValue(InnerItemAddr, NewValueAddr);
-				}
-				Dest->CopyCompleteValue(DestAddr, InnerItemAddr);
-
-				return true;
-			}
-
-			if (InnerProperty->IsA<FStructProperty>())
-			{
-				FStructProperty* StructProperty = CastChecked<FStructProperty>(InnerProperty);
-
-				int32 Index = Desc.ArrayAccessValue.Integer;
-				if (Index >= ArrayPtr->Num())
-				{
-					return false;
-				}
-
-				int32 Stride = StructProperty->ArrayDim * StructProperty->ElementSize;
-				int8* InnerAddr = static_cast<int8*>(ArrayPtr->GetData());
-				void* InnerItemAddr = InnerAddr + Index * Stride;
-
-				return HandleTerminalProperty(
-					VarDescs, VarDepth + 1, StructProperty, InnerItemAddr, Dest, DestAddr, NewValue, NewValueAddr);
-			}
-			else if (InnerProperty->IsA<FObjectProperty>())
-			{
-				FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(InnerProperty);
-
-				int32 Index = Desc.ArrayAccessValue.Integer;
-				if (Index >= ArrayPtr->Num())
-				{
-					return false;
-				}
-
-				int32 Stride = ObjectProperty->ArrayDim * ObjectProperty->ElementSize;
-				int8* InnerAddr = static_cast<int8*>(ArrayPtr->GetData());
-				void* InnerItemAddr = InnerAddr + Index * Stride;
-				UObject* Object = ObjectProperty->GetPropertyValue_InContainer(InnerItemAddr);
-
-				return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr);
-			}
-
-			return false;
-		}
-		else if (Property->IsA<FMapProperty>())
-		{
-			FMapProperty* MapProperty = CastChecked<FMapProperty>(Property);
-
-			FProperty* KeyProperty = MapProperty->KeyProp;
-			FProperty* ValueProperty = MapProperty->ValueProp;
-			if (!KeyProperty->IsA<FIntProperty>() && !KeyProperty->IsA<FInt64Property>())
-			{
-				return false;
-			}
-
-			if (VarDescs.Num() == VarDepth + 1)
-			{
-				void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-				auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
-				int32 Key = Desc.ArrayAccessValue.Integer;
-				uint8* ValueAddr = MapPtr->FindValue(
-					&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-					[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
-				if (ValueAddr == nullptr)
-				{
-					return false;
-				}
-
-				if (!ValueProperty->SameType(Dest))
-				{
-					return false;
-				}
-
-				if (NewValue != nullptr)
-				{
-					Dest->CopyCompleteValue(ValueAddr, NewValueAddr);
-				}
-				Dest->CopyCompleteValue(DestAddr, ValueAddr);
-
-				return true;
-			}
-
-			if (ValueProperty->IsA<FStructProperty>())
-			{
-				FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
-				void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-				auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
-				int32 Key = Desc.ArrayAccessValue.Integer;
-				uint8* ValueAddr = MapPtr->FindValue(
-					&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-					[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
-				if (ValueAddr == nullptr)
-				{
-					return false;
-				}
-
-				return HandleTerminalProperty(
-					VarDescs, VarDepth + 1, StructProperty, ValueAddr, Dest, DestAddr, NewValue, NewValueAddr);
-			}
-			else if (ValueProperty->IsA<FObjectProperty>())
-			{
-				FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(ValueProperty);
-				void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-				auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
-				int32 Key = Desc.ArrayAccessValue.Integer;
-				void* ValueAddr = MapPtr->FindValue(
-					&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-					[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
-				if (ValueAddr == nullptr)
-				{
-					return false;
-				}
-				UObject* Object = ObjectProperty->GetPropertyValue(ValueAddr);
-
-				return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr);
-			}
-
-			return false;
-		}
-
-		return false;
-	}
-	else if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_String)
-	{
-		if (!Property->IsA<FMapProperty>())
-		{
-			return false;
-		}
-		FMapProperty* MapProperty = CastChecked<FMapProperty>(Property);
-
-		FProperty* KeyProperty = MapProperty->KeyProp;
-		FProperty* ValueProperty = MapProperty->ValueProp;
-		if (!KeyProperty->IsA<FStrProperty>())
-		{
-			return false;
-		}
-
-		if (VarDescs.Num() == VarDepth + 1)
-		{
-			void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-			auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
-			FString Key = Desc.ArrayAccessValue.String;
-			uint8* ValueAddr = MapPtr->FindValue(
-				&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-				[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
-			if (ValueAddr == nullptr)
-			{
-				return false;
-			}
-
-			if (!ValueProperty->SameType(Dest))
-			{
-				return false;
-			}
-
-			if (NewValue != nullptr)
-			{
-				Dest->CopyCompleteValue(ValueAddr, NewValueAddr);
-			}
-			Dest->CopyCompleteValue(DestAddr, ValueAddr);
-
-			return true;
-		}
-
-		if (ValueProperty->IsA<FStructProperty>())
-		{
-			FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
-			void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-			auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
-			FString Key = Desc.ArrayAccessValue.String;
-			uint8* ValueAddr = MapPtr->FindValue(
-				&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-				[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
-			if (ValueAddr == nullptr)
-			{
-				return false;
-			}
-
-			return HandleTerminalProperty(
-				VarDescs, VarDepth + 1, StructProperty, ValueAddr, Dest, DestAddr, NewValue, NewValueAddr);
-		}
-		else if (ValueProperty->IsA<FObjectProperty>())
-		{
-			FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(ValueProperty);
-			void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-			auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
-			FString Key = Desc.ArrayAccessValue.String;
-			void* ValueAddr = MapPtr->FindValue(
-				&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-				[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
-			if (ValueAddr == nullptr)
-			{
-				return false;
-			}
-			UObject* Object = ObjectProperty->GetPropertyValue(ValueAddr);
-
-			return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr);
-		}
-
-		return false;
-	}
-
-	return false;
-}
-
-bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty,
-	void* OuterAddr, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr)
-{
-	const FVarDescription& Desc = VarDescs[VarDepth];
-
-	if (!Desc.bIsValid)
-	{
-		return false;
-	}
-
-	UScriptStruct* ScriptStruct = OuterProperty->Struct;
-	FProperty* Property = GetScriptStructProperty(ScriptStruct, Desc.VarName);
-	if (Property == nullptr)
-	{
-		return false;
-	}
-
-	return HandleTerminalPropertyInternal(VarDescs, VarDepth, Property, OuterAddr, Dest, DestAddr, NewValue, NewValueAddr);
-}
-
-bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest,
-	void* DestAddr, FProperty* NewValue, void* NewValueAddr)
-{
-	const FVarDescription& Desc = VarDescs[VarDepth];
-
-	if (!Desc.bIsValid)
-	{
-		return false;
-	}
-
-	if (OuterObject == nullptr)
-	{
-		return false;
-	}
-
-	FProperty* Property = FindFProperty<FProperty>(OuterObject->GetClass(), *Desc.VarName);
-	if (Property == nullptr)
-	{
-		return false;
-	}
-
-	return HandleTerminalPropertyInternal(VarDescs, VarDepth, Property, OuterObject, Dest, DestAddr, NewValue, NewValueAddr);
 }
 
 FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property)
@@ -627,27 +328,4 @@ void AnalyzeVarNames(const TArray<FString>& VarNames, TArray<FVarDescription>* V
 		Desc.bIsValid = false;
 		VarDescs->Add(Desc);
 	}
-}
-
-FEdGraphPinType CreateDefaultPinType()
-{
-	FEdGraphPinType PinType;
-	PinType.PinCategory = UEdGraphSchema_K2::PC_Boolean;
-
-	return PinType;
-}
-
-UClass* GetClassFromNode(const UEdGraphNode* Node)
-{
-	UClass* Class = nullptr;
-
-	UEdGraph* Graph = Node->GetGraph();
-	UObject* GraphOwner = Graph->GetOutermostObject();
-	UBlueprint* Blueprint = Cast<UBlueprint>(GraphOwner);
-	if (Blueprint != nullptr)
-	{
-		Class = Blueprint->GeneratedClass;
-	}
-
-	return Class;
 }
