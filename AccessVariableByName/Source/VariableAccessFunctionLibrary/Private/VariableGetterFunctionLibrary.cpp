@@ -125,6 +125,26 @@ void UVariableGetterFunctionLibarary::GetFloatVariableByName(UObject* Target, FN
 	Success = true;
 }
 
+// @remove-start UE_VERSION=4.26.0,4.27.0
+void UVariableGetterFunctionLibarary::GetFloat64VariableByName(UObject* Target, FName VarName, bool& Success, double& Result)
+{
+	Success = false;
+
+	if (Target == nullptr)
+	{
+		return;
+	}
+
+	FDoubleProperty* Property = FindFProperty<FDoubleProperty>(Target->GetClass(), VarName);
+	if (Property == nullptr)
+	{
+		return;
+	}
+
+	Result = Property->GetPropertyValue_InContainer(Target);
+	Success = true;
+}
+// @remove-end
 
 void UVariableGetterFunctionLibarary::GetNameVariableByName(UObject* Target, FName VarName, bool& Success, FName& Result)
 {

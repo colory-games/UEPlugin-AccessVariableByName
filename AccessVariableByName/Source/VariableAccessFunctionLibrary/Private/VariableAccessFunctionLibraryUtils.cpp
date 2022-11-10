@@ -255,7 +255,6 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 		FMapProperty* MapProperty = CastChecked<FMapProperty>(Property);
 
 		FProperty* KeyProperty = MapProperty->KeyProp;
-		FProperty* ValueProperty = MapProperty->ValueProp;
 		if (!KeyProperty->IsA<FStrProperty>())
 		{
 			return false;
@@ -274,7 +273,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				return false;
 			}
 
-			if (!ValueProperty->SameType(Dest))
+			if (!Property->SameType(Dest))
 			{
 				return false;
 			}
@@ -288,6 +287,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 			return true;
 		}
 
+		FProperty* ValueProperty = MapProperty->ValueProp;
 		if (ValueProperty->IsA<FStructProperty>())
 		{
 			FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);

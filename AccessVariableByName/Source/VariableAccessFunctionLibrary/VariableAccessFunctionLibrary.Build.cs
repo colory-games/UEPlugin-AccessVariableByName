@@ -24,7 +24,7 @@ public class VariableAccessFunctionLibrary : ModuleRules
 		PrivateDependencyModuleNames.AddRange(new string[]{});
 
 		// @remove-start FULL_VERSION=true
-		//PublicDefinitions.Add("AVBN_FREE_VERSION");
+		PublicDefinitions.Add("AVBN_FREE_VERSION");
 		// @remove-end
 	}
 }
