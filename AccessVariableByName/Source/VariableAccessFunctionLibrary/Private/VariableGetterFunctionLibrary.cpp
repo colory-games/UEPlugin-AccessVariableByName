@@ -401,5 +401,6 @@ void UVariableGetterFunctionLibarary::GenericGetNestedVariableByName(
 	}
 #endif
 
-	Success = FVariableAccessFunctionLibraryUtils::HandleTerminalProperty(VarDescs, 0, Target, ResultProperty, ResultAddr, nullptr, nullptr);
+	Success = FVariableAccessFunctionLibraryUtils::HandleTerminalProperty(
+		VarDescs, 0, Target, ResultProperty, ResultAddr, nullptr, nullptr);
 }

@@ -9,12 +9,11 @@
 
 #include "VariableAccessFunctionLibraryUtils.h"
 
-#include "UObject/UnrealType.h"
 #include "Internationalization/Regex.h"
+#include "UObject/UnrealType.h"
 
 namespace FVariableAccessFunctionLibraryUtils
 {
-
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty,
 	void* OuterAddr, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr);
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest,
@@ -464,4 +463,4 @@ void AnalyzeVarNames(const TArray<FString>& VarNames, TArray<FVarDescription>* V
 		VarDescs->Add(Desc);
 	}
 }
-}
+}	 // namespace FVariableAccessFunctionLibraryUtils

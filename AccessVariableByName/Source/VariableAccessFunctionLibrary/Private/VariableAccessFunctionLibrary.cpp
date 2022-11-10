@@ -11,7 +11,6 @@
 
 #define LOCTEXT_NAMESPACE "FVariableAccessFunctionLibrary"
 
-
 void FVariableAccessFunctionLibraryModule::StartupModule()
 {
 }

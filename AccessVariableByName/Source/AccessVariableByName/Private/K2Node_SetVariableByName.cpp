@@ -9,8 +9,8 @@
 
 #include "K2Node_SetVariableByName.h"
 
-#include "BlueprintNodeSpawner.h"
 #include "AccessVariableByNameUtils.h"
+#include "BlueprintNodeSpawner.h"
 #include "EditorCategoryUtils.h"
 #include "GraphEditorSettings.h"
 #include "Internationalization/Regex.h"

@@ -439,5 +439,6 @@ void UVariableSetterFunctionLibarary::GenericSetNestedVariableByName(UObject* Ta
 	}
 #endif
 
-	Success = FVariableAccessFunctionLibraryUtils::HandleTerminalProperty(VarDescs, 0, Target, ResultProperty, ResultAddr, NewValue, NewValueAddr);
+	Success = FVariableAccessFunctionLibraryUtils::HandleTerminalProperty(
+		VarDescs, 0, Target, ResultProperty, ResultAddr, NewValue, NewValueAddr);
 }
