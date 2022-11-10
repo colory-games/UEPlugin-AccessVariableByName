@@ -9,6 +9,7 @@
 
 #include "VariableGetterFunctionLibrary.h"
 
+#include "UObject/Field.h"
 #include "VariableAccessFunctionLibraryUtils.h"
 
 void UVariableGetterFunctionLibarary::GetBooleanVariableByName(UObject* Target, FName VarName, bool& Success, bool& Result)
