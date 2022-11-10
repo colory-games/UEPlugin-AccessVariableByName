@@ -9,7 +9,7 @@
 
 #include "VariableGetterFunctionLibrary.h"
 
-#include "Common.h"
+#include "VariableAccessFunctionLibraryUtils.h"
 
 void UVariableGetterFunctionLibarary::GetBooleanVariableByName(UObject* Target, FName VarName, bool& Success, bool& Result)
 {
@@ -362,8 +362,8 @@ void UVariableGetterFunctionLibarary::GenericGetNestedVariableByName(
 {
 	TArray<FString> Vars;
 	TArray<FVarDescription> VarDescs;
-	SplitVarName(VarName.ToString(), &Vars);
-	AnalyzeVarNames(Vars, &VarDescs);
+	FVariableAccessFunctionLibraryUtils::SplitVarName(VarName.ToString(), &Vars);
+	FVariableAccessFunctionLibraryUtils::AnalyzeVarNames(Vars, &VarDescs);
 
 #ifdef AVBN_FREE_VERSION
 	if (VarDescs.Num() >= 2)
@@ -381,5 +381,5 @@ void UVariableGetterFunctionLibarary::GenericGetNestedVariableByName(
 	}
 #endif
 
-	Success = HandleTerminalProperty(VarDescs, 0, Target, ResultProperty, ResultAddr, nullptr, nullptr);
+	Success = FVariableAccessFunctionLibraryUtils::HandleTerminalProperty(VarDescs, 0, Target, ResultProperty, ResultAddr, nullptr, nullptr);
 }

@@ -9,7 +9,7 @@
 
 #include "VariableSetterFunctionLibrary.h"
 
-#include "Common.h"
+#include "VariableAccessFunctionLibraryUtils.h"
 
 void UVariableSetterFunctionLibarary::SetBooleanVariableByName(
 	UObject* Target, FName VarName, bool NewValue, bool& Success, bool& Result)
@@ -398,8 +398,8 @@ void UVariableSetterFunctionLibarary::GenericSetNestedVariableByName(UObject* Ta
 {
 	TArray<FString> Vars;
 	TArray<FVarDescription> VarDescs;
-	SplitVarName(VarName.ToString(), &Vars);
-	AnalyzeVarNames(Vars, &VarDescs);
+	FVariableAccessFunctionLibraryUtils::SplitVarName(VarName.ToString(), &Vars);
+	FVariableAccessFunctionLibraryUtils::AnalyzeVarNames(Vars, &VarDescs);
 
 #ifdef AVBN_FREE_VERSION
 	if (VarDescs.Num() >= 2)
@@ -417,5 +417,5 @@ void UVariableSetterFunctionLibarary::GenericSetNestedVariableByName(UObject* Ta
 	}
 #endif
 
-	Success = HandleTerminalProperty(VarDescs, 0, Target, ResultProperty, ResultAddr, NewValue, NewValueAddr);
+	Success = FVariableAccessFunctionLibraryUtils::HandleTerminalProperty(VarDescs, 0, Target, ResultProperty, ResultAddr, NewValue, NewValueAddr);
 }

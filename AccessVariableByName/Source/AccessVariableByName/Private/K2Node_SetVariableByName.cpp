@@ -10,7 +10,7 @@
 #include "K2Node_SetVariableByName.h"
 
 #include "BlueprintNodeSpawner.h"
-#include "Common.h"
+#include "AccessVariableByNameUtils.h"
 #include "EditorCategoryUtils.h"
 #include "GraphEditorSettings.h"
 #include "Internationalization/Regex.h"
@@ -323,9 +323,9 @@ void UK2Node_SetVariableByNameNode::RecreateVariantPinInternal(UClass* TargetCla
 	}
 
 	TArray<FString> Vars;
-	SplitVarName(VarName, &Vars);
+	FVariableAccessFunctionLibraryUtils::SplitVarName(VarName, &Vars);
 	TArray<FVarDescription> VarDescs;
-	AnalyzeVarNames(Vars, &VarDescs);
+	FVariableAccessFunctionLibraryUtils::AnalyzeVarNames(Vars, &VarDescs);
 
 	if (VarDescs.Num() == 0)
 	{

@@ -7,12 +7,14 @@
  * https://opensource.org/licenses/MIT
  */
 
-#include "Common.h"
+#include "VariableAccessFunctionLibraryUtils.h"
 
 #include "UObject/UnrealType.h"
 #include "Internationalization/Regex.h"
 
-FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass);
+namespace FVariableAccessFunctionLibraryUtils
+{
+
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty,
 	void* OuterAddr, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr);
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest,
@@ -371,162 +373,6 @@ bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDe
 	return HandleTerminalPropertyInternal(VarDescs, VarDepth, Property, OuterObject, Dest, DestAddr, NewValue, NewValueAddr);
 }
 
-FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property)
-{
-	const FVarDescription& Desc = VarDescs[VarDepth];
-
-	if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_None)
-	{
-		if (VarDescs.Num() == VarDepth + 1)
-		{
-			return Property;
-		}
-
-		if (Property->IsA<FStructProperty>())
-		{
-			FStructProperty* StructProperty = CastChecked<FStructProperty>(Property);
-			UScriptStruct* ScriptStruct = StructProperty->Struct;
-
-			return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
-		}
-		else if (Property->IsA<FObjectProperty>())
-		{
-			FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(Property);
-			UClass* Class = ObjectProperty->PropertyClass;
-
-			return GetTerminalProperty(VarDescs, VarDepth + 1, Class);
-		}
-
-		return nullptr;
-	}
-	else if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_Integer)
-	{
-		if (Property->IsA<FArrayProperty>())
-		{
-			FArrayProperty* ArrayProperty = CastChecked<FArrayProperty>(Property);
-
-			if (VarDescs.Num() == VarDepth + 1)
-			{
-				return ArrayProperty->Inner;
-			}
-
-			FProperty* InnerProperty = ArrayProperty->Inner;
-			if (InnerProperty->IsA<FStructProperty>())
-			{
-				FStructProperty* StructProperty = CastChecked<FStructProperty>(InnerProperty);
-				UScriptStruct* ScriptStruct = StructProperty->Struct;
-
-				return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
-			}
-			else if (InnerProperty->IsA<FObjectProperty>())
-			{
-				FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(InnerProperty);
-				UClass* Class = ObjectProperty->PropertyClass;
-
-				return GetTerminalProperty(VarDescs, VarDepth + 1, Class);
-			}
-
-			return nullptr;
-		}
-		else if (Property->IsA<FMapProperty>())
-		{
-			FMapProperty* MapProperty = CastChecked<FMapProperty>(Property);
-
-			if (VarDescs.Num() == VarDepth + 1)
-			{
-				return MapProperty->ValueProp;
-			}
-
-			FProperty* ValueProperty = MapProperty->ValueProp;
-			if (ValueProperty->IsA<FStructProperty>())
-			{
-				FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
-				UScriptStruct* ScriptStruct = StructProperty->Struct;
-
-				return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
-			}
-			else if (ValueProperty->IsA<FObjectProperty>())
-			{
-				FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(ValueProperty);
-				UClass* Class = ObjectProperty->PropertyClass;
-
-				return GetTerminalProperty(VarDescs, VarDepth + 1, Class);
-			}
-		}
-
-		return nullptr;
-	}
-	else if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_String)
-	{
-		if (!Property->IsA<FMapProperty>())
-		{
-			return nullptr;
-		}
-		FMapProperty* MapProperty = CastChecked<FMapProperty>(Property);
-
-		if (VarDescs.Num() == VarDepth + 1)
-		{
-			return MapProperty->ValueProp;
-		}
-
-		FProperty* ValueProperty = MapProperty->ValueProp;
-		if (ValueProperty->IsA<FStructProperty>())
-		{
-			FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
-			UScriptStruct* ScriptStruct = StructProperty->Struct;
-
-			return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
-		}
-		else if (ValueProperty->IsA<FObjectProperty>())
-		{
-			FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(ValueProperty);
-			UClass* Class = ObjectProperty->PropertyClass;
-
-			return GetTerminalProperty(VarDescs, VarDepth + 1, Class);
-		}
-
-		return nullptr;
-	}
-
-	return nullptr;
-}
-
-FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass)
-{
-	const FVarDescription& Desc = VarDescs[VarDepth];
-
-	if (!Desc.bIsValid)
-	{
-		return nullptr;
-	}
-
-	FProperty* Property = GetScriptStructProperty(OuterClass, Desc.VarName);
-	if (Property == nullptr)
-	{
-		return nullptr;
-	}
-
-	return GetTerminalPropertyInternal(VarDescs, VarDepth, Property);
-}
-
-FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass)
-{
-	const FVarDescription& Desc = VarDescs[VarDepth];
-
-	if (!Desc.bIsValid)
-	{
-		return nullptr;
-	}
-
-	FProperty* Property = FindFProperty<FProperty>(OuterClass, *Desc.VarName);
-	if (Property == nullptr)
-	{
-		return nullptr;
-	}
-
-	return GetTerminalPropertyInternal(VarDescs, VarDepth, Property);
-}
-
 void SplitVarNameInternal(const FString& In, int32 StartIndex, TArray<FString>* Out)
 {
 	bool bInString = false;
@@ -618,4 +464,4 @@ void AnalyzeVarNames(const TArray<FString>& VarNames, TArray<FVarDescription>* V
 		VarDescs->Add(Desc);
 	}
 }
-
+}

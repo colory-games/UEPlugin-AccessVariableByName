@@ -7,7 +7,7 @@
  * https://opensource.org/licenses/MIT
  */
 
-#include "Common.h"
+#include "AccessVariableByNameUtils.h"
 
 #include "UObject/UnrealType.h"
 #include "Internationalization/Regex.h"
@@ -46,40 +46,6 @@ UClass* GetClassFromNode(const UEdGraphNode* Node)
 	}
 
 	return Class;
-}
-
-FProperty* GetScriptStructProperty(UScriptStruct* ScriptStruct, FString VarName)
-{
-	FProperty* Property = nullptr;
-
-	if (ScriptStruct->IsNative())
-	{
-		Property = ScriptStruct->FindPropertyByName(*VarName);
-	}
-	else
-	{
-		FField* Field = ScriptStruct->ChildProperties;
-		while (Field)
-		{
-			FString FieldName = Field->GetName();
-			int32 Index = FieldName.Len();
-			for (int Iter = 0; Iter < 2; ++Iter)
-			{
-				Index = FieldName.Find(FString("_"), ESearchCase::CaseSensitive, ESearchDir::FromEnd, Index);
-			}
-			FString PropertyName = FieldName.Left(Index);
-
-			if (PropertyName == VarName)
-			{
-				Property = ScriptStruct->FindPropertyByName(*FieldName);
-				break;
-			}
-
-			Field = Field->Next;
-		}
-	}
-
-	return Property;
 }
 
 FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property)
@@ -211,7 +177,7 @@ FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 Va
 		return nullptr;
 	}
 
-	FProperty* Property = GetScriptStructProperty(OuterClass, Desc.VarName);
+	FProperty* Property = FVariableAccessFunctionLibraryUtils::GetScriptStructProperty(OuterClass, Desc.VarName);
 	if (Property == nullptr)
 	{
 		return nullptr;
@@ -236,96 +202,4 @@ FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 Va
 	}
 
 	return GetTerminalPropertyInternal(VarDescs, VarDepth, Property);
-}
-
-void SplitVarNameInternal(const FString& In, int32 StartIndex, TArray<FString>* Out)
-{
-	bool bInString = false;
-	int32 Index = StartIndex;
-	for (; Index < In.Len(); ++Index)
-	{
-		FString Ch = In.Mid(Index, 1);
-		if (Ch == "\"")
-		{
-			bInString = !bInString;
-		}
-
-		if (!bInString && Ch == ".")
-		{
-			Out->Add(In.Mid(StartIndex, Index - StartIndex));
-			SplitVarNameInternal(In, Index + 1, Out);
-			break;
-		}
-	}
-	if (Index == In.Len())
-	{
-		Out->Add(In.Mid(StartIndex, Index - StartIndex));
-	}
-}
-
-void SplitVarName(const FString& In, TArray<FString>* Out)
-{
-	SplitVarNameInternal(In, 0, Out);
-	*Out = Out->FilterByPredicate([](const FString& S) { return !S.IsEmpty(); });
-}
-
-void AnalyzeVarNames(const TArray<FString>& VarNames, TArray<FVarDescription>* VarDescs)
-{
-	for (auto& Var : VarNames)
-	{
-		// String pattern.
-		{
-			FRegexPattern Pattern = FRegexPattern("^([a-zA-Z_][a-zA-Z0-9_]*)\\[\"(\\S+)\"\\]$");
-			FRegexMatcher Matcher(Pattern, Var);
-			if (Matcher.FindNext())
-			{
-				FVarDescription Desc;
-				Desc.bIsValid = true;
-				Desc.VarName = Matcher.GetCaptureGroup(1);
-				Desc.ArrayAccessType = EArrayAccessType::ArrayAccessType_String;
-				Desc.ArrayAccessValue.Integer = -1;
-				Desc.ArrayAccessValue.String = Matcher.GetCaptureGroup(2);
-				VarDescs->Add(Desc);
-				continue;
-			}
-		}
-
-		// Integer pattern.
-		{
-			FRegexPattern Pattern = FRegexPattern("^([a-zA-Z_][a-zA-Z0-9_]*)\\[([0-9]+)\\]$");
-			FRegexMatcher Matcher(Pattern, Var);
-			if (Matcher.FindNext())
-			{
-				FVarDescription Desc;
-				Desc.bIsValid = true;
-				Desc.VarName = Matcher.GetCaptureGroup(1);
-				Desc.ArrayAccessType = EArrayAccessType::ArrayAccessType_Integer;
-				Desc.ArrayAccessValue.Integer = FCString::Atoi(*Matcher.GetCaptureGroup(2));
-				Desc.ArrayAccessValue.String = "";
-				VarDescs->Add(Desc);
-				continue;
-			}
-		}
-
-		// None pattern.
-		{
-			FRegexPattern Pattern = FRegexPattern("^([a-zA-Z_][a-zA-Z0-9_]*)$");
-			FRegexMatcher Matcher(Pattern, Var);
-			if (Matcher.FindNext())
-			{
-				FVarDescription Desc;
-				Desc.bIsValid = true;
-				Desc.VarName = Matcher.GetCaptureGroup(1);
-				Desc.ArrayAccessType = EArrayAccessType::ArrayAccessType_None;
-				Desc.ArrayAccessValue.Integer = -1;
-				Desc.ArrayAccessValue.String = "";
-				VarDescs->Add(Desc);
-				continue;
-			}
-		}
-
-		FVarDescription Desc;
-		Desc.bIsValid = false;
-		VarDescs->Add(Desc);
-	}
 }
