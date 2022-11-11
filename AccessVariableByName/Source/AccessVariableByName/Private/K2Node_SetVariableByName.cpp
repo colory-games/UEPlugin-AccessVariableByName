@@ -436,90 +436,9 @@ UClass* UK2Node_SetVariableByNameNode::GetTargetClass(UEdGraphPin* Pin)
 
 UFunction* UK2Node_SetVariableByNameNode::FindSetterFunction(UEdGraphPin* Pin)
 {
-	FEdGraphPinType PinType = Pin->PinType;
 	UClass* FunctionLibrary = UVariableSetterFunctionLibarary::StaticClass();
 
-	if (bIsNestedVarName)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("SetNestedVariableByName"));
-	}
-
-	switch (PinType.ContainerType)
-	{
-		case EPinContainerType::Array:
-			return FunctionLibrary->FindFunctionByName(FName("SetArrayVariableByName"));
-		case EPinContainerType::Set:
-			return FunctionLibrary->FindFunctionByName(FName("SetSetVariableByName"));
-		case EPinContainerType::Map:
-			return FunctionLibrary->FindFunctionByName(FName("SetMapVariableByName"));
-	}
-
-	if (PinType.PinCategory == UEdGraphSchema_K2::PC_Boolean)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("SetBooleanVariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Byte)
-	{
-		if (PinType.PinSubCategoryObject == nullptr)
-		{
-			return FunctionLibrary->FindFunctionByName(FName("SetByteVariableByName"));
-		}
-		else
-		{
-			return FunctionLibrary->FindFunctionByName(FName("SetEnumVariableByName"));
-		}
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Class)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("SetClassVariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Int)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("SetIntVariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Int64)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("SetInt64VariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Float)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("SetFloatVariableByName"));
-	}
-#if !UE_VERSION_OLDER_THAN(5, 0, 0)
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Double)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("SetFloat64VariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Real)
-	{
-		if (PinType.PinSubCategory == "double")
-		{
-			return FunctionLibrary->FindFunctionByName(FName("SetFloat64VariableByName"));
-		}
-	}
-#endif
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Name)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("SetNameVariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Object)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("SetObjectVariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_String)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("SetStringVariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Text)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("SetTextVariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Struct)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("SetStructVariableByName"));
-	}
-
-	return nullptr;
+	return FunctionLibrary->FindFunctionByName(FName("SetNestedVariableByName"));
 }
 
 bool UK2Node_SetVariableByNameNode::IsNewValuePin(const UEdGraphPin* Pin) const

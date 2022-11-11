@@ -26,6 +26,44 @@ UK2Node_GetVariableByNameNode::UK2Node_GetVariableByNameNode(const FObjectInitia
 {
 }
 
+void UK2Node_GetVariableByNameNode::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	TArray<UEdGraphPin*> OldPins = MoveTemp(Pins);
+	UEdGraphPin* OldTargetPin = nullptr;
+	UEdGraphPin* OldVarNamePin = nullptr;
+	for (auto& Pin : OldPins)
+	{
+		if (Pin->GetFName() == UEdGraphSchema_K2::PN_Self)
+		{
+			OldTargetPin = Pin;
+		}
+		else if (Pin->GetFName() == VarNamePinName)
+		{
+			OldVarNamePin = Pin;
+		}
+	}
+
+	AllocateDefaultPins();
+
+	UClass* TargetClass = GetTargetClass(OldTargetPin);
+	FString VarName = OldVarNamePin->DefaultValue;
+	RecreateResultPinInternal(TargetClass, VarName);
+
+	// Restore connection.
+	RestoreSplitPins(OldPins);
+	RewireOldPinsToNewPins(OldPins, Pins, nullptr);
+
+	for (auto& Pin : OldPins)
+	{
+		RemovePin(Pin);
+	}
+
+	UEdGraph* Graph = GetGraph();
+	Graph->NotifyGraphChanged();
+}
+
 FText UK2Node_GetVariableByNameNode::GetMenuCategory() const
 {
 	return FEditorCategoryUtils::GetCommonCategory(FCommonEditorCategory::Variables);
@@ -47,8 +85,6 @@ void UK2Node_GetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 {
 	Super::ExpandNode(CompilerContext, SourceGraph);
 
-	UEdGraphPin* ExecTriggeringPin = GetExecPin();
-	UEdGraphPin* ExecThenPin = GetExecThenPin();
 	UEdGraphPin* TargetPin = GetTargetPin();
 	UEdGraphPin* VarNamePin = GetVarNamePin();
 	UEdGraphPin* SuccessPin = GetSuccessPin();
@@ -92,8 +128,6 @@ void UK2Node_GetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 	CallFunction->SetFromFunction(GetterFunction);
 	CallFunction->AllocateDefaultPins();
 
-	UEdGraphPin* FunctionExecTriggeringPin = CallFunction->GetExecPin();
-	UEdGraphPin* FunctionExecThenPin = CallFunction->GetThenPin();
 	UEdGraphPin* FunctionTargetPin = CallFunction->FindPinChecked(TEXT("Target"));
 	UEdGraphPin* FunctionVarNamePin = CallFunction->FindPinChecked(TEXT("VarName"));
 	UEdGraphPin* FunctionSuccessPin = CallFunction->FindPinChecked(TEXT("Success"));
@@ -104,8 +138,17 @@ void UK2Node_GetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 	FunctionResultPin->PinType.PinSubCategoryObject = ResultPin->PinType.PinSubCategoryObject;
 	FunctionResultPin->PinType.PinValueType = ResultPin->PinType.PinValueType;
 
-	CompilerContext.MovePinLinksToIntermediate(*ExecTriggeringPin, *FunctionExecTriggeringPin);
-	CompilerContext.MovePinLinksToIntermediate(*ExecThenPin, *FunctionExecThenPin);
+	if (!bPureNode)
+	{
+		UEdGraphPin* ExecTriggeringPin = GetExecPin();
+		UEdGraphPin* ExecThenPin = GetExecThenPin();
+		UEdGraphPin* FunctionExecTriggeringPin = CallFunction->GetExecPin();
+		UEdGraphPin* FunctionExecThenPin = CallFunction->GetThenPin();
+
+		CompilerContext.MovePinLinksToIntermediate(*ExecTriggeringPin, *FunctionExecTriggeringPin);
+		CompilerContext.MovePinLinksToIntermediate(*ExecThenPin, *FunctionExecThenPin);
+	}
+
 	if (TargetPin->LinkedTo.Num() >= 1)
 	{
 		CompilerContext.MovePinLinksToIntermediate(*TargetPin, *FunctionTargetPin);
@@ -137,8 +180,11 @@ void UK2Node_GetVariableByNameNode::AllocateDefaultPins()
 	// 4: Success (Out, Boolean)
 	// 5-: Result (Out, *)
 
-	CreateExecTriggeringPin();
-	CreateExecThenPin();
+	if (!bPureNode)
+	{
+		CreateExecTriggeringPin();
+		CreateExecThenPin();
+	}
 	CreateTargetPin();
 	CreateVarNamePin();
 	CreateSuccessPin();
@@ -301,23 +347,14 @@ void UK2Node_GetVariableByNameNode::RecreateResultPinInternal(UClass* TargetClas
 	TArray<FVarDescription> VarDescs;
 	FVariableAccessFunctionLibraryUtils::AnalyzeVarNames(Vars, &VarDescs);
 
-	if (VarDescs.Num() == 0)
+	FProperty* Property = GetTerminalProperty(VarDescs, 0, TargetClass);
+	if (Property != nullptr)
 	{
-		bIsNestedVarName = false;
-	}
-	else
-	{
-		bIsNestedVarName = !(VarDescs.Num() == 1 && VarDescs[0].ArrayAccessType == EArrayAccessType::ArrayAccessType_None);
+		const UEdGraphSchema_K2* Schema = GetDefault<UEdGraphSchema_K2>();
 
-		FProperty* Property = GetTerminalProperty(VarDescs, 0, TargetClass);
-		if (Property != nullptr)
-		{
-			const UEdGraphSchema_K2* Schema = GetDefault<UEdGraphSchema_K2>();
-
-			FEdGraphPinType PinType;
-			Schema->ConvertPropertyToPinType(Property, PinType);
-			CreateResultPin(PinType, Property->GetAuthoredName(), 0);
-		}
+		FEdGraphPinType PinType;
+		Schema->ConvertPropertyToPinType(Property, PinType);
+		CreateResultPin(PinType, Property->GetAuthoredName(), 0);
 	}
 }
 
@@ -409,90 +446,14 @@ UClass* UK2Node_GetVariableByNameNode::GetTargetClass(UEdGraphPin* Pin)
 
 UFunction* UK2Node_GetVariableByNameNode::FindGetterFunction(UEdGraphPin* Pin)
 {
-	FEdGraphPinType PinType = Pin->PinType;
 	UClass* FunctionLibrary = UVariableGetterFunctionLibarary::StaticClass();
 
-	if (bIsNestedVarName)
+	if (bPureNode)
 	{
-		return FunctionLibrary->FindFunctionByName(FName("GetNestedVariableByName"));
+		return FunctionLibrary->FindFunctionByName(FName("GetNestedVariableByNamePure"));
 	}
 
-	switch (PinType.ContainerType)
-	{
-		case EPinContainerType::Array:
-			return FunctionLibrary->FindFunctionByName(FName("GetArrayVariableByName"));
-		case EPinContainerType::Set:
-			return FunctionLibrary->FindFunctionByName(FName("GetSetVariableByName"));
-		case EPinContainerType::Map:
-			return FunctionLibrary->FindFunctionByName(FName("GetMapVariableByName"));
-	}
-
-	if (PinType.PinCategory == UEdGraphSchema_K2::PC_Boolean)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("GetBooleanVariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Byte)
-	{
-		if (PinType.PinSubCategoryObject == nullptr)
-		{
-			return FunctionLibrary->FindFunctionByName(FName("GetByteVariableByName"));
-		}
-		else
-		{
-			return FunctionLibrary->FindFunctionByName(FName("GetEnumVariableByName"));
-		}
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Class)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("GetClassVariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Int)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("GetIntVariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Int64)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("GetInt64VariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Float)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("GetFloatVariableByName"));
-	}
-#if !UE_VERSION_OLDER_THAN(5, 0, 0)
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Double)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("GetFloat64VariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Real)
-	{
-		if (PinType.PinSubCategory == "double")
-		{
-			return FunctionLibrary->FindFunctionByName(FName("GetFloat64VariableByName"));
-		}
-	}
-#endif
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Name)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("GetNameVariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Object)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("GetObjectVariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_String)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("GetStringVariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Text)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("GetTextVariableByName"));
-	}
-	else if (PinType.PinCategory == UEdGraphSchema_K2::PC_Struct)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("GetStructVariableByName"));
-	}
-
-	return nullptr;
+	return FunctionLibrary->FindFunctionByName(FName("GetNestedVariableByName"));
 }
 
 bool UK2Node_GetVariableByNameNode::IsResultPin(const UEdGraphPin* Pin) const
@@ -540,7 +501,14 @@ bool UK2Node_GetVariableByNameNode::IsSupport(const UEdGraphPin* Pin) const
 
 UEdGraphPin* UK2Node_GetVariableByNameNode::GetExecThenPin()
 {
-	return FindPinChecked(ExecThenPinName);
+	if (bPureNode)
+	{
+		return FindPin(ExecThenPinName);
+	}
+	else
+	{
+		return FindPinChecked(ExecThenPinName);
+	}
 }
 
 UEdGraphPin* UK2Node_GetVariableByNameNode::GetTargetPin()

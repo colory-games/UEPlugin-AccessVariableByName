@@ -20,10 +20,14 @@ class UK2Node_DynamicGetVariableByNameNode : public UK2Node
 	GENERATED_BODY()
 
 protected:
+	// Override from UObject
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
+
 	// Override from UK2Node
 	virtual FText GetMenuCategory() const override;
 	virtual void GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const override;
 	virtual FNodeHandlingFunctor* CreateNodeHandler(FKismetCompilerContext& CompilerContext) const override;
+	virtual bool IsNodePure() const override { return bPureNode; }
 
 	// Override from UEdGraphNode
 	virtual void AllocateDefaultPins() override;
@@ -32,6 +36,7 @@ protected:
 	virtual FLinearColor GetNodeTitleColor() const override;
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
 	virtual FSlateIcon GetIconAndTint(FLinearColor& OutColor) const override;
+	virtual bool ShouldShowNodeProperties() const override { return true; }
 
 	// Internal
 	void CreateFunctionPin();
@@ -61,4 +66,7 @@ public:
 
 	void ChangeResultPinType(const FEdGraphPinType& PinType);
 	FEdGraphPinType GetResultPinType() const;
+
+	UPROPERTY(EditAnywhere, Category = "Options")
+	bool bPureNode = false;
 };
