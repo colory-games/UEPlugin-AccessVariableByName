@@ -327,24 +327,15 @@ void UK2Node_SetVariableByNameNode::RecreateVariantPinInternal(UClass* TargetCla
 	TArray<FVarDescription> VarDescs;
 	FVariableAccessFunctionLibraryUtils::AnalyzeVarNames(Vars, &VarDescs);
 
-	if (VarDescs.Num() == 0)
+	FProperty* Property = GetTerminalProperty(VarDescs, 0, TargetClass);
+	if (Property != nullptr)
 	{
-		bIsNestedVarName = false;
-	}
-	else
-	{
-		bIsNestedVarName = !(VarDescs.Num() == 1 && VarDescs[0].ArrayAccessType == EArrayAccessType::ArrayAccessType_None);
+		const UEdGraphSchema_K2* Schema = GetDefault<UEdGraphSchema_K2>();
 
-		FProperty* Property = GetTerminalProperty(VarDescs, 0, TargetClass);
-		if (Property != nullptr)
-		{
-			const UEdGraphSchema_K2* Schema = GetDefault<UEdGraphSchema_K2>();
-
-			FEdGraphPinType PinType;
-			Schema->ConvertPropertyToPinType(Property, PinType);
-			CreateNewValuePin(PinType, Property->GetAuthoredName(), 0);
-			CreateResultPin(PinType, Property->GetAuthoredName(), 0);
-		}
+		FEdGraphPinType PinType;
+		Schema->ConvertPropertyToPinType(Property, PinType);
+		CreateNewValuePin(PinType, Property->GetAuthoredName(), 0);
+		CreateResultPin(PinType, Property->GetAuthoredName(), 0);
 	}
 }
 

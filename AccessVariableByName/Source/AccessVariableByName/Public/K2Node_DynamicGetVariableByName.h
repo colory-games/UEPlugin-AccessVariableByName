@@ -74,5 +74,5 @@ public:
 	FEdGraphPinType GetResultPinType() const;
 
 	UPROPERTY(EditAnywhere, Category = "Options")
-	bool bPureNode = false;
+	bool bPureNode = true;
 };

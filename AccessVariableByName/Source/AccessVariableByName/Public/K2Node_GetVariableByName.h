@@ -70,5 +70,5 @@ public:
 	TArray<UEdGraphPin*> GetAllResultPins();
 
 	UPROPERTY(EditAnywhere, Category = "Options")
-	bool bPureNode = false;
+	bool bPureNode = true;
 };
