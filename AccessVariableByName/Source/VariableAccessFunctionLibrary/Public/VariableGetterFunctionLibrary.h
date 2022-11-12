@@ -19,7 +19,6 @@ class VARIABLEACCESSFUNCTIONLIBRARY_API UVariableGetterFunctionLibarary : public
 	GENERATED_BODY()
 
 public:
-
 	static void GenericGetNestedVariableByName(
 		UObject* Target, FName VarName, bool& Success, UProperty* ResultProperty, void* ResultAddr);
 

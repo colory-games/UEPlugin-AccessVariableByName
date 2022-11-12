@@ -27,7 +27,10 @@ protected:
 	virtual FText GetMenuCategory() const override;
 	virtual void GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const override;
 	virtual FNodeHandlingFunctor* CreateNodeHandler(FKismetCompilerContext& CompilerContext) const override;
-	virtual bool IsNodePure() const override { return bPureNode; }
+	virtual bool IsNodePure() const override
+	{
+		return bPureNode;
+	}
 
 	// Override from UEdGraphNode
 	virtual void AllocateDefaultPins() override;
@@ -36,7 +39,10 @@ protected:
 	virtual FLinearColor GetNodeTitleColor() const override;
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
 	virtual FSlateIcon GetIconAndTint(FLinearColor& OutColor) const override;
-	virtual bool ShouldShowNodeProperties() const override { return true; }
+	virtual bool ShouldShowNodeProperties() const override
+	{
+		return true;
+	}
 
 	// Internal
 	void CreateFunctionPin();
