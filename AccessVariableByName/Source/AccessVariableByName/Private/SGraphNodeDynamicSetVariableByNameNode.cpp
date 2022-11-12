@@ -11,7 +11,7 @@
 
 #include "SGraphNodeDynamicSetVariableByNameNode.h"
 
-#include "Common.h"
+#include "AccessVariableByNameUtils.h"
 #include "DetailLayoutBuilder.h"
 #include "GraphEditorSettings.h"
 #include "K2Node_DynamicSetVariableByName.h"

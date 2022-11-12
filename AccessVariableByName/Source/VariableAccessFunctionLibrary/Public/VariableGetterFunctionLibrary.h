@@ -14,7 +14,7 @@
 #include "VariableGetterFunctionLibrary.generated.h"
 
 UCLASS()
-class ACCESSVARIABLEBYNAME_API UVariableGetterFunctionLibarary : public UBlueprintFunctionLibrary
+class VARIABLEACCESSFUNCTIONLIBRARY_API UVariableGetterFunctionLibarary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 

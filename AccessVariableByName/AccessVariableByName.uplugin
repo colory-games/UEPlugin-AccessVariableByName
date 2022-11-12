@@ -24,6 +24,16 @@
         "Mac",
         "Linux"
       ]
+    },
+    {
+      "Name": "VariableAccessFunctionLibrary",
+      "Type": "Runtime",
+      "LoadingPhase": "PreLoadingScreen",
+      "WhitelistPlatforms": [
+        "Win64",
+        "Mac",
+        "Linux"
+      ]
     }
   ]
 }

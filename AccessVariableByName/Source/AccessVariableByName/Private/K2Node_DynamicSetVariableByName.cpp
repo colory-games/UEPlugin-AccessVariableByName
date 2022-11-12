@@ -9,8 +9,8 @@
 
 #include "K2Node_DynamicSetVariableByName.h"
 
+#include "AccessVariableByNameUtils.h"
 #include "BlueprintNodeSpawner.h"
-#include "Common.h"
 #include "EdGraphUtilities.h"
 #include "EditorCategoryUtils.h"
 #include "GraphEditorSettings.h"
