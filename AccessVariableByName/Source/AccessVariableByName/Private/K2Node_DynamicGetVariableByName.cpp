@@ -112,8 +112,6 @@ public:
 		UFunction* FunctionPtr = FindUField<UFunction>(FunctionClass, FunctionPin->PinName);
 		check(FunctionPtr);
 
-		UEdGraphPin* ExecThenPin = DynamicGetVariableByNameNode->GetExecThenPin();
-
 		UEdGraphPin* TargetPin = DynamicGetVariableByNameNode->GetTargetPin();
 		FBPTerminal* TargetTerm = nullptr;
 		if (TargetPin->LinkedTo.Num() >= 1)
@@ -158,7 +156,12 @@ public:
 		CallFuncStatement.RHS.Add(SuccessTerm);
 		CallFuncStatement.RHS.Add(ResultTerm);
 
-		GenerateSimpleThenGoto(Context, *DynamicGetVariableByNameNode, ExecThenPin);
+		if (!DynamicGetVariableByNameNode->bPureNode)
+		{
+			UEdGraphPin* ExecThenPin = DynamicGetVariableByNameNode->GetExecThenPin();
+
+			GenerateSimpleThenGoto(Context, *DynamicGetVariableByNameNode, ExecThenPin);
+		}
 	}
 };
 
@@ -166,7 +169,52 @@ UK2Node_DynamicGetVariableByNameNode::UK2Node_DynamicGetVariableByNameNode(const
 	: Super(ObjectInitializer)
 {
 	InternalCallFuncClass = UVariableGetterFunctionLibarary::StaticClass();
-	InternalCallFuncName = FName("GetNestedVariableByName");
+
+	if (bPureNode)
+	{
+		InternalCallFuncName = FName("GetNestedVariableByNamePure");
+	}
+	else
+	{
+		InternalCallFuncName = FName("GetNestedVariableByName");
+	}
+}
+
+void UK2Node_DynamicGetVariableByNameNode::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	TArray<UEdGraphPin*> OldPins = MoveTemp(Pins);
+	FEdGraphPinType ResultPinType;
+	for (auto& Pin : OldPins)
+	{
+		if (IsResultPin(Pin))
+		{
+			ResultPinType = Pin->PinType;
+			break;
+		}
+	}
+
+	AllocateDefaultPins();
+	for (auto& Pin : Pins)
+	{
+		if (IsResultPin(Pin))
+		{
+			Pin->PinType = ResultPinType;
+		}
+	}
+
+	// Restore connection.
+	RestoreSplitPins(OldPins);
+	RewireOldPinsToNewPins(OldPins, Pins, nullptr);
+
+	for (auto& Pin : OldPins)
+	{
+		RemovePin(Pin);
+	}
+
+	UEdGraph* Graph = GetGraph();
+	Graph->NotifyGraphChanged();
 }
 
 FText UK2Node_DynamicGetVariableByNameNode::GetMenuCategory() const
@@ -205,8 +253,11 @@ void UK2Node_DynamicGetVariableByNameNode::AllocateDefaultPins()
 	// 6-: Result (Out, *)
 
 	CreateFunctionPin();
-	CreateExecTriggeringPin();
-	CreateExecThenPin();
+	if (!bPureNode)
+	{
+		CreateExecTriggeringPin();
+		CreateExecThenPin();
+	}
 	CreateTargetPin();
 	CreateVarNamePin();
 	CreateSuccessPin();
@@ -228,8 +279,11 @@ void UK2Node_DynamicGetVariableByNameNode::ReallocatePinsDuringReconstruction(TA
 	}
 
 	CreateFunctionPin();
-	CreateExecTriggeringPin();
-	CreateExecThenPin();
+	if (!bPureNode)
+	{
+		CreateExecTriggeringPin();
+		CreateExecThenPin();
+	}
 	CreateTargetPin();
 	CreateVarNamePin();
 	CreateSuccessPin();
@@ -245,7 +299,14 @@ FText UK2Node_DynamicGetVariableByNameNode::GetTooltipText() const
 
 FLinearColor UK2Node_DynamicGetVariableByNameNode::GetNodeTitleColor() const
 {
-	return GetDefault<UGraphEditorSettings>()->FunctionCallNodeTitleColor;
+	if (bPureNode)
+	{
+		return GetDefault<UGraphEditorSettings>()->PureFunctionCallNodeTitleColor;
+	}
+	else
+	{
+		return GetDefault<UGraphEditorSettings>()->FunctionCallNodeTitleColor;
+	}
 }
 
 FText UK2Node_DynamicGetVariableByNameNode::GetNodeTitle(ENodeTitleType::Type TitleType) const
@@ -257,7 +318,14 @@ FSlateIcon UK2Node_DynamicGetVariableByNameNode::GetIconAndTint(FLinearColor& Ou
 {
 	static FSlateIcon Icon("EditorStyle", "GraphEditor.Function_16x");
 
-	OutColor = GetDefault<UGraphEditorSettings>()->FunctionCallNodeTitleColor;
+	if (bPureNode)
+	{
+		OutColor = GetDefault<UGraphEditorSettings>()->PureFunctionCallNodeTitleColor;
+	}
+	else
+	{
+		OutColor = GetDefault<UGraphEditorSettings>()->FunctionCallNodeTitleColor;
+	}
 
 	return Icon;
 }
@@ -266,6 +334,15 @@ void UK2Node_DynamicGetVariableByNameNode::CreateFunctionPin()
 {
 	FCreatePinParams Params;
 	Params.Index = 0;
+
+	if (bPureNode)
+	{
+		InternalCallFuncName = FName("GetNestedVariableByNamePure");
+	}
+	else
+	{
+		InternalCallFuncName = FName("GetNestedVariableByName");
+	}
 
 	UClass* FunctionClass = UVariableGetterFunctionLibarary::StaticClass();
 	UFunction* FunctionPtr = FunctionClass->FindFunctionByName(InternalCallFuncName);
@@ -383,12 +460,26 @@ void UK2Node_DynamicGetVariableByNameNode::RecreateVariantPins(const FEdGraphPin
 
 UEdGraphPin* UK2Node_DynamicGetVariableByNameNode::GetFunctionPin() const
 {
-	return FindPinChecked(InternalCallFuncName);
+	if (bPureNode)
+	{
+		return FindPinChecked(FName("GetNestedVariableByNamePure"));
+	}
+	else
+	{
+		return FindPinChecked(FName("GetNestedVariableByName"));
+	}
 }
 
 UEdGraphPin* UK2Node_DynamicGetVariableByNameNode::GetExecThenPin() const
 {
-	return FindPinChecked(ExecThenPinName);
+	if (bPureNode)
+	{
+		return FindPin(ExecThenPinName);
+	}
+	else
+	{
+		return FindPinChecked(ExecThenPinName);
+	}
 }
 
 UEdGraphPin* UK2Node_DynamicGetVariableByNameNode::GetTargetPin() const

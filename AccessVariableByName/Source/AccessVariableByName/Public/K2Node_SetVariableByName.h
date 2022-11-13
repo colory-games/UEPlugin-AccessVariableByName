@@ -60,7 +60,4 @@ public:
 	UEdGraphPin* GetSuccessPin() const;
 	TArray<UEdGraphPin*> GetAllNewValuePins() const;
 	TArray<UEdGraphPin*> GetAllResultPins() const;
-
-	UPROPERTY()
-	bool bIsNestedVarName = false;
 };
