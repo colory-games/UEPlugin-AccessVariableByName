@@ -231,7 +231,14 @@ FText UK2Node_GetVariableByNameNode::GetTooltipText() const
 
 FLinearColor UK2Node_GetVariableByNameNode::GetNodeTitleColor() const
 {
-	return GetDefault<UGraphEditorSettings>()->FunctionCallNodeTitleColor;
+	if (bPureNode)
+	{
+		return GetDefault<UGraphEditorSettings>()->PureFunctionCallNodeTitleColor;
+	}
+	else
+	{
+		return GetDefault<UGraphEditorSettings>()->FunctionCallNodeTitleColor;
+	}
 }
 
 FText UK2Node_GetVariableByNameNode::GetNodeTitle(ENodeTitleType::Type TitleType) const
@@ -243,7 +250,14 @@ FSlateIcon UK2Node_GetVariableByNameNode::GetIconAndTint(FLinearColor& OutColor)
 {
 	static FSlateIcon Icon("EditorStyle", "GraphEditor.Function_16x");
 
-	OutColor = GetDefault<UGraphEditorSettings>()->FunctionCallNodeTitleColor;
+	if (bPureNode)
+	{
+		OutColor = GetDefault<UGraphEditorSettings>()->PureFunctionCallNodeTitleColor;
+	}
+	else
+	{
+		OutColor = GetDefault<UGraphEditorSettings>()->FunctionCallNodeTitleColor;
+	}
 
 	return Icon;
 }
