@@ -56,6 +56,11 @@ FProperty* GetScriptStructProperty(UScriptStruct* ScriptStruct, FString VarName)
 bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property, void* OuterAddr,
 	FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr)
 {
+	if (VarDescs.Num() <= VarDepth)
+	{
+		return false;
+	}
+
 	const FVarDescription& Desc = VarDescs[VarDepth];
 
 	if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_None)
@@ -331,6 +336,11 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty,
 	void* OuterAddr, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr)
 {
+	if (VarDescs.Num() <= VarDepth)
+	{
+		return false;
+	}
+
 	const FVarDescription& Desc = VarDescs[VarDepth];
 
 	if (!Desc.bIsValid)
@@ -351,6 +361,11 @@ bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDe
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest,
 	void* DestAddr, FProperty* NewValue, void* NewValueAddr)
 {
+	if (VarDescs.Num() <= VarDepth)
+	{
+		return false;
+	}
+
 	const FVarDescription& Desc = VarDescs[VarDepth];
 
 	if (!Desc.bIsValid)

@@ -50,6 +50,11 @@ UClass* GetClassFromNode(const UEdGraphNode* Node)
 
 FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property)
 {
+	if (VarDescs.Num() <= VarDepth)
+	{
+		return nullptr;
+	}
+
 	const FVarDescription& Desc = VarDescs[VarDepth];
 
 	if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_None)
@@ -170,6 +175,11 @@ FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, 
 
 FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass)
 {
+	if (VarDescs.Num() <= VarDepth)
+	{
+		return nullptr;
+	}
+
 	const FVarDescription& Desc = VarDescs[VarDepth];
 
 	if (!Desc.bIsValid)
@@ -188,6 +198,11 @@ FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 Va
 
 FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass)
 {
+	if (VarDescs.Num() <= VarDepth)
+	{
+		return nullptr;
+	}
+
 	const FVarDescription& Desc = VarDescs[VarDepth];
 
 	if (!Desc.bIsValid)
