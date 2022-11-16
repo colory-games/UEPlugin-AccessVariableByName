@@ -83,7 +83,8 @@ public:
 
 		SetVariableParams Params;
 		Params.bSizeToFit = bSizeToFit;
-		GenericSetNestedVariableByName(Target, VarName, Success, ResultProperty, ResultAddr, NewValueProperty, NewValueAddr, Params);
+		GenericSetNestedVariableByName(
+			Target, VarName, Success, ResultProperty, ResultAddr, NewValueProperty, NewValueAddr, Params);
 
 		P_NATIVE_END;
 		ResultProperty->DestroyValue(NewValueAddr);
