@@ -391,7 +391,8 @@ bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDe
 		return false;
 	}
 
-	return HandleTerminalPropertyInternal(VarDescs, VarDepth, Property, OuterObject, Dest, DestAddr, NewValue, NewValueAddr, Params);
+	return HandleTerminalPropertyInternal(
+		VarDescs, VarDepth, Property, OuterObject, Dest, DestAddr, NewValue, NewValueAddr, Params);
 }
 
 void SplitVarNameInternal(const FString& In, int32 StartIndex, TArray<FString>* Out)

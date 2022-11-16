@@ -26,8 +26,8 @@ extern const FString SuccessPinFriendlyName;
 
 struct TerminalProperty
 {
-    EPinContainerType ContainerType = EPinContainerType::None;
-    FProperty* Property = nullptr;
+	EPinContainerType ContainerType = EPinContainerType::None;
+	FProperty* Property = nullptr;
 };
 
 FEdGraphPinType CreateDefaultPinType();

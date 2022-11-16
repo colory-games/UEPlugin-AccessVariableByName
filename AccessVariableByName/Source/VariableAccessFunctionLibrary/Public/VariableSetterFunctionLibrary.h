@@ -48,14 +48,16 @@ public:
 		P_NATIVE_BEGIN;
 
 		SetVariableParams Params;
-		GenericSetNestedVariableByName(Target, VarName, Success, ResultProperty, ResultAddr, NewValueProperty, NewValueAddr, Params);
+		GenericSetNestedVariableByName(
+			Target, VarName, Success, ResultProperty, ResultAddr, NewValueProperty, NewValueAddr, Params);
 
 		P_NATIVE_END;
 		ResultProperty->DestroyValue(NewValueAddr);
 	}
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
-		static void SetNestedVariableByNameForArray(UObject* Target, FName VarName, bool bSizeToFit, bool& Success, UProperty*& Result, UProperty* NewValue);
+	static void SetNestedVariableByNameForArray(
+		UObject* Target, FName VarName, bool bSizeToFit, bool& Success, UProperty*& Result, UProperty* NewValue);
 
 	DECLARE_FUNCTION(execSetNestedVariableByNameForArray)
 	{
@@ -88,7 +90,8 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
-		static void SetNestedVariableByNameForAllTypes(UObject* Target, FName VarName, bool bSizeToFit, bool& Success, UProperty*& Result, UProperty* NewValue);
+	static void SetNestedVariableByNameForAllTypes(
+		UObject* Target, FName VarName, bool bSizeToFit, bool& Success, UProperty*& Result, UProperty* NewValue);
 
 	DECLARE_FUNCTION(execSetNestedVariableByNameForAllTypes)
 	{
@@ -114,7 +117,8 @@ public:
 
 		SetVariableParams Params;
 		Params.bSizeToFit = bSizeToFit;
-		GenericSetNestedVariableByName(Target, VarName, Success, ResultProperty, ResultAddr, NewValueProperty, NewValueAddr, Params);
+		GenericSetNestedVariableByName(
+			Target, VarName, Success, ResultProperty, ResultAddr, NewValueProperty, NewValueAddr, Params);
 
 		P_NATIVE_END;
 		ResultProperty->DestroyValue(NewValueAddr);
