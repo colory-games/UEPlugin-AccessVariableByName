@@ -9,8 +9,6 @@
 
 #include "VariableSetterFunctionLibrary.h"
 
-#include "VariableAccessFunctionLibraryUtils.h"
-
 void UVariableSetterFunctionLibarary::SetNestedVariableByName(
 	UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
 {
@@ -18,7 +16,7 @@ void UVariableSetterFunctionLibarary::SetNestedVariableByName(
 }
 
 void UVariableSetterFunctionLibarary::GenericSetNestedVariableByName(UObject* Target, FName VarName, bool& Success,
-	UProperty* ResultProperty, void* ResultAddr, UProperty* NewValue, void* NewValueAddr)
+	UProperty* ResultProperty, void* ResultAddr, UProperty* NewValue, void* NewValueAddr, const SetVariableParams& Params)
 {
 	TArray<FString> Vars;
 	TArray<FVarDescription> VarDescs;
@@ -42,5 +40,5 @@ void UVariableSetterFunctionLibarary::GenericSetNestedVariableByName(UObject* Ta
 #endif
 
 	Success = FVariableAccessFunctionLibraryUtils::HandleTerminalProperty(
-		VarDescs, 0, Target, ResultProperty, ResultAddr, NewValue, NewValueAddr);
+		VarDescs, 0, Target, ResultProperty, ResultAddr, NewValue, NewValueAddr, Params);
 }

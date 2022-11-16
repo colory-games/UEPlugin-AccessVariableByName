@@ -14,6 +14,7 @@
 
 const FName ExecThenPinName(TEXT("ExecThen"));
 const FName VarNamePinName(TEXT("VarName"));
+const FName SizeToFitPinName(TEXT("SizeToFit"));
 const FName SuccessPinName(TEXT("Success"));
 const FName ResultPinNamePrefix(TEXT("Result_"));
 const FName NewValuePinNamePrefix(TEXT("NewValue_"));
@@ -21,9 +22,10 @@ const FName NewValuePinNamePrefix(TEXT("NewValue_"));
 const FString ExecThenPinFriendlyName(TEXT(" "));
 const FString TargetPinFriendlyName(TEXT("Target"));
 const FString VarNamePinFriendlyName(TEXT("Var Name"));
+const FString SizeToFitPinFriendlyName(TEXT("Size to Fit"));
 const FString SuccessPinFriendlyName(TEXT("Success"));
 
-FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass);
+TerminalProperty GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass);
 
 FEdGraphPinType CreateDefaultPinType()
 {
@@ -48,11 +50,11 @@ UClass* GetClassFromNode(const UEdGraphNode* Node)
 	return Class;
 }
 
-FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property)
+TerminalProperty GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property)
 {
 	if (VarDescs.Num() <= VarDepth)
 	{
-		return nullptr;
+		return TerminalProperty();
 	}
 
 	const FVarDescription& Desc = VarDescs[VarDepth];
@@ -61,7 +63,9 @@ FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, 
 	{
 		if (VarDescs.Num() == VarDepth + 1)
 		{
-			return Property;
+			TerminalProperty TP;
+			TP.Property = Property;
+			return TP;
 		}
 
 		if (Property->IsA<FStructProperty>())
@@ -79,7 +83,7 @@ FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, 
 			return GetTerminalProperty(VarDescs, VarDepth + 1, Class);
 		}
 
-		return nullptr;
+		return TerminalProperty();
 	}
 	else if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_Integer)
 	{
@@ -89,7 +93,10 @@ FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, 
 
 			if (VarDescs.Num() == VarDepth + 1)
 			{
-				return ArrayProperty->Inner;
+				TerminalProperty TP;
+				TP.ContainerType = EPinContainerType::Array;
+				TP.Property = ArrayProperty->Inner;
+				return TP;
 			}
 
 			FProperty* InnerProperty = ArrayProperty->Inner;
@@ -108,7 +115,7 @@ FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, 
 				return GetTerminalProperty(VarDescs, VarDepth + 1, Class);
 			}
 
-			return nullptr;
+			return TerminalProperty();
 		}
 		else if (Property->IsA<FMapProperty>())
 		{
@@ -116,7 +123,10 @@ FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, 
 
 			if (VarDescs.Num() == VarDepth + 1)
 			{
-				return MapProperty->ValueProp;
+				TerminalProperty TP;
+				TP.ContainerType = EPinContainerType::Map;
+				TP.Property = MapProperty->ValueProp;
+				return TP;
 			}
 
 			FProperty* ValueProperty = MapProperty->ValueProp;
@@ -136,19 +146,22 @@ FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, 
 			}
 		}
 
-		return nullptr;
+		return TerminalProperty();
 	}
 	else if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_String)
 	{
 		if (!Property->IsA<FMapProperty>())
 		{
-			return nullptr;
+			return TerminalProperty();
 		}
 		FMapProperty* MapProperty = CastChecked<FMapProperty>(Property);
 
 		if (VarDescs.Num() == VarDepth + 1)
 		{
-			return MapProperty->ValueProp;
+			TerminalProperty TP;
+			TP.ContainerType = EPinContainerType::Map;
+			TP.Property = MapProperty->ValueProp;
+			return TP;
 		}
 
 		FProperty* ValueProperty = MapProperty->ValueProp;
@@ -167,53 +180,53 @@ FProperty* GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, 
 			return GetTerminalProperty(VarDescs, VarDepth + 1, Class);
 		}
 
-		return nullptr;
+		return TerminalProperty();
 	}
 
-	return nullptr;
+	return TerminalProperty();
 }
 
-FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass)
+TerminalProperty GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass)
 {
 	if (VarDescs.Num() <= VarDepth)
 	{
-		return nullptr;
+		return TerminalProperty();
 	}
 
 	const FVarDescription& Desc = VarDescs[VarDepth];
 
 	if (!Desc.bIsValid)
 	{
-		return nullptr;
+		return TerminalProperty();
 	}
 
 	FProperty* Property = FVariableAccessFunctionLibraryUtils::GetScriptStructProperty(OuterClass, Desc.VarName);
 	if (Property == nullptr)
 	{
-		return nullptr;
+		return TerminalProperty();
 	}
 
 	return GetTerminalPropertyInternal(VarDescs, VarDepth, Property);
 }
 
-FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass)
+TerminalProperty GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass)
 {
 	if (VarDescs.Num() <= VarDepth)
 	{
-		return nullptr;
+		return TerminalProperty();
 	}
 
 	const FVarDescription& Desc = VarDescs[VarDepth];
 
 	if (!Desc.bIsValid)
 	{
-		return nullptr;
+		return TerminalProperty();
 	}
 
 	FProperty* Property = FindFProperty<FProperty>(OuterClass, *Desc.VarName);
 	if (Property == nullptr)
 	{
-		return nullptr;
+		return TerminalProperty();
 	}
 
 	return GetTerminalPropertyInternal(VarDescs, VarDepth, Property);

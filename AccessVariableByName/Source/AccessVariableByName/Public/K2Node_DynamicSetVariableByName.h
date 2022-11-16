@@ -32,6 +32,10 @@ protected:
 	virtual FLinearColor GetNodeTitleColor() const override;
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
 	virtual FSlateIcon GetIconAndTint(FLinearColor& OutColor) const override;
+	virtual bool ShouldShowNodeProperties() const override
+	{
+		return true;
+	}
 
 	// Internal
 	void CreateFunctionPin();
@@ -64,4 +68,7 @@ public:
 
 	void ChangeVariantPinType(const FEdGraphPinType& PinType);
 	FEdGraphPinType GetVariantPinType() const;
+
+	UPROPERTY(EditAnywhere, Category = "ArrayAccessOptions")
+	bool bSizeToFit = false;
 };
