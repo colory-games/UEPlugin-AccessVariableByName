@@ -13,6 +13,7 @@
 
 #include "AccessVariableByNameUtils.h"
 #include "DetailLayoutBuilder.h"
+#include "EditorStyleSet.h"
 #include "GraphEditorSettings.h"
 #include "K2Node_DynamicSetVariableByName.h"
 #include "Kismet2/BlueprintEditorUtils.h"
