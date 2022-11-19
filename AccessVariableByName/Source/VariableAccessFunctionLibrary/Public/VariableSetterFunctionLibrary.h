@@ -91,14 +91,50 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
+		static void SetNestedVariableByNameForMap(
+			UObject* Target, FName VarName, bool bAddIfNotPresent, bool& Success, UProperty*& Result, UProperty* NewValue);
+
+	DECLARE_FUNCTION(execSetNestedVariableByNameForMap)
+	{
+		P_GET_OBJECT(UObject, Target);
+		P_GET_PROPERTY(FNameProperty, VarName);
+		P_GET_PROPERTY(FBoolProperty, bAddIfNotPresent);
+		P_GET_PROPERTY_REF(FBoolProperty, Success);
+
+		Stack.StepCompiledIn<FProperty>(NULL);
+		void* ResultAddr = Stack.MostRecentPropertyAddress;
+		FProperty* ResultProperty = Stack.MostRecentProperty;
+
+		int32 PropertySize = ResultProperty->ElementSize * ResultProperty->ArrayDim;
+		void* NewValueAddr = FMemory_Alloca(PropertySize);
+		ResultProperty->InitializeValue(NewValueAddr);
+		Stack.MostRecentPropertyAddress = NULL;
+		Stack.StepCompiledIn<FProperty>(NewValueAddr);
+		FProperty* NewValueProperty = Stack.MostRecentProperty;
+
+		P_FINISH;
+
+		P_NATIVE_BEGIN;
+
+		SetVariableParams Params;
+		Params.bAddIfNotPresent = bAddIfNotPresent;
+		GenericSetNestedVariableByName(
+			Target, VarName, Success, ResultProperty, ResultAddr, NewValueProperty, NewValueAddr, Params);
+
+		P_NATIVE_END;
+		ResultProperty->DestroyValue(NewValueAddr);
+	}
+
+	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
 	static void SetNestedVariableByNameForAllTypes(
-		UObject* Target, FName VarName, bool bSizeToFit, bool& Success, UProperty*& Result, UProperty* NewValue);
+		UObject* Target, FName VarName, bool bSizeToFit, bool bAddIfNotPresent, bool& Success, UProperty*& Result, UProperty* NewValue);
 
 	DECLARE_FUNCTION(execSetNestedVariableByNameForAllTypes)
 	{
 		P_GET_OBJECT(UObject, Target);
 		P_GET_PROPERTY(FNameProperty, VarName);
 		P_GET_PROPERTY(FBoolProperty, bSizeToFit);
+		P_GET_PROPERTY(FBoolProperty, bAddIfNotPresent);
 		P_GET_PROPERTY_REF(FBoolProperty, Success);
 
 		Stack.StepCompiledIn<FProperty>(NULL);
@@ -118,6 +154,7 @@ public:
 
 		SetVariableParams Params;
 		Params.bSizeToFit = bSizeToFit;
+		Params.bAddIfNotPresent = bAddIfNotPresent;
 		GenericSetNestedVariableByName(
 			Target, VarName, Success, ResultProperty, ResultAddr, NewValueProperty, NewValueAddr, Params);
 

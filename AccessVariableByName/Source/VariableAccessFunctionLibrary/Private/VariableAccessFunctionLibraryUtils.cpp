@@ -187,18 +187,28 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 
 			if (VarDescs.Num() == VarDepth + 1)
 			{
-				void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-				auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
-				int32 Key = Desc.ArrayAccessValue.Integer;
-				uint8* ValueAddr = MapPtr->FindValue(
-					&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-					[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
-				if (ValueAddr == nullptr)
+				if (!ValueProperty->SameType(Dest))
 				{
 					return false;
 				}
 
-				if (!ValueProperty->SameType(Dest))
+				void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
+				auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
+				int32 Key = Desc.ArrayAccessValue.Integer;
+				uint8* ValueAddr = nullptr;
+				if (Params.bAddIfNotPresent)
+				{
+					// Add the map item if needed.
+					FScriptMapHelper MapHelper(MapProperty, MapAddr);
+					ValueAddr = (uint8*)MapHelper.FindOrAdd(&Key);
+				}
+				else
+				{
+					ValueAddr = MapPtr->FindValue(
+						&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
+						[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
+				}
+				if (ValueAddr == nullptr)
 				{
 					return false;
 				}
@@ -269,18 +279,28 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 
 		if (VarDescs.Num() == VarDepth + 1)
 		{
-			void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-			auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
-			FString Key = Desc.ArrayAccessValue.String;
-			uint8* ValueAddr = MapPtr->FindValue(
-				&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-				[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
-			if (ValueAddr == nullptr)
+			if (!ValueProperty->SameType(Dest))
 			{
 				return false;
 			}
 
-			if (!ValueProperty->SameType(Dest))
+			void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
+			auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
+			FString Key = Desc.ArrayAccessValue.String;
+			uint8* ValueAddr = nullptr;
+			if (Params.bAddIfNotPresent)
+			{
+				// Add the map item if needed.
+				FScriptMapHelper MapHelper(MapProperty, MapAddr);
+				ValueAddr = (uint8*)MapHelper.FindOrAdd(&Key);
+			}
+			else
+			{
+				ValueAddr = MapPtr->FindValue(
+					&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
+					[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
+			}
+			if (ValueAddr == nullptr)
 			{
 				return false;
 			}
