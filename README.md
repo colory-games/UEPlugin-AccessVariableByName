@@ -49,7 +49,7 @@ This plugin supports on the below environment.
 
 ## Installation
 
-This plugin is distributed at [the Marketplace](https://www.unrealengine.com/marketplace/ja/product/b9e4a73c7e974b1581e711243a693fe3).  
+This plugin is distributed at [the Marketplace](https://www.unrealengine.com/marketplace/en-US/product/access-variable-by-name).  
 You can buy and install from there.
 
 Free trial version is also available.  
@@ -59,7 +59,7 @@ Free trial version does not support below features.
 * A Variable whose type is Struct/Enum/Array/Set/Map.
 * [A custom syntax](docs/tutorial.md#custom-syntax) to access the nested variable.
 
-To get the benefit fully from this plugin, consider to buy this plugin at [the Marketplace](https://www.unrealengine.com/marketplace/ja/product/b9e4a73c7e974b1581e711243a693fe3).
+To get the benefit fully from this plugin, consider to buy this plugin at [the Marketplace](https://www.unrealengine.com/marketplace/en-US/product/access-variable-by-name).
 
 ## Tutorial
 

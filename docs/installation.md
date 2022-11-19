@@ -6,11 +6,11 @@ Free trial version does not support below features.
 * A Variable whose type is Struct/Enum/Array/Set/Map.
 * A Syntax to access the nested variable.
 
-To get the benefit fully from this plugin, consider to buy this plugin at [the Marketplace](https://www.unrealengine.com/marketplace/ja/product/b9e4a73c7e974b1581e711243a693fe3).
+To get the benefit fully from this plugin, consider to buy this plugin at [the Marketplace](https://www.unrealengine.com/marketplace/en-US/product/access-variable-by-name).
 
 ## 1. Download source code
 
-Download whole project's source code from [the release page](https://github.com/colory-games/UEPlugin-AccessVariableByName/releases) and unzip it.
+Download whole source code from [the release page](https://github.com/colory-games/UEPlugin-AccessVariableByName/releases) and unzip it.
 
 ## 2. Move the plugin
 
