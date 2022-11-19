@@ -33,14 +33,9 @@ FProperty* GetScriptStructProperty(UScriptStruct* ScriptStruct, FString VarName)
 		while (Field)
 		{
 			FString FieldName = Field->GetName();
-			int32 Index = FieldName.Len();
-			for (int Iter = 0; Iter < 2; ++Iter)
-			{
-				Index = FieldName.Find(FString("_"), ESearchCase::CaseSensitive, ESearchDir::FromEnd, Index);
-			}
-			FString PropertyName = FieldName.Left(Index);
+			FString PropertyName = Field->GetDisplayNameText().ToString();
 
-			if (PropertyName == VarName)
+			if (PropertyName.Equals(VarName))
 			{
 				Property = ScriptStruct->FindPropertyByName(*FieldName);
 				break;
