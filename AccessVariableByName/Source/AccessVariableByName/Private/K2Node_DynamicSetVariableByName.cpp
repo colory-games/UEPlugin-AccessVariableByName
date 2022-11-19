@@ -23,6 +23,8 @@
 
 class FKCHandler_DynamicSetVariableByName : public FNodeHandlingFunctor
 {
+	TMap<FString, FBPTerminal*> TermMap;
+
 public:
 	FKCHandler_DynamicSetVariableByName(FKismetCompilerContext& InCompilerContext) : FNodeHandlingFunctor(InCompilerContext)
 	{
@@ -100,6 +102,13 @@ public:
 				}
 			}
 		}
+
+		// Add options as terminal.
+		FBPTerminal* BoolTerm = Context.CreateLocalTerminal(ETerminalSpecification::TS_Literal);
+		BoolTerm->bIsLiteral = true;
+		BoolTerm->Type.PinCategory = UEdGraphSchema_K2::PC_Boolean;
+		BoolTerm->Name = DynamicSetVariableByNameNode->bSizeToFit ? TEXT("true") : TEXT("false");
+		TermMap.Add("bSizeToFit", BoolTerm);
 	}
 
 	virtual void Compile(FKismetFunctionContext& Context, UEdGraphNode* Node) override
@@ -160,6 +169,7 @@ public:
 		CallFuncStatement.bIsParentContext = false;
 		CallFuncStatement.RHS.Add(TargetTerm);
 		CallFuncStatement.RHS.Add(VarNameTerm);
+		CallFuncStatement.RHS.Add(TermMap.FindRef("bSizeToFit"));
 		CallFuncStatement.RHS.Add(SuccessTerm);
 		CallFuncStatement.RHS.Add(ResultTerm);
 		CallFuncStatement.RHS.Add(NewValueTerm);	// Argument order is different from pin index.
@@ -172,7 +182,7 @@ UK2Node_DynamicSetVariableByNameNode::UK2Node_DynamicSetVariableByNameNode(const
 	: Super(ObjectInitializer)
 {
 	InternalCallFuncClass = UVariableSetterFunctionLibarary::StaticClass();
-	InternalCallFuncName = FName("SetNestedVariableByName");
+	InternalCallFuncName = FName("SetNestedVariableByNameForAllTypes");
 }
 
 FText UK2Node_DynamicSetVariableByNameNode::GetMenuCategory() const

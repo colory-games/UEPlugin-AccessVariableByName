@@ -361,14 +361,14 @@ void UK2Node_GetVariableByNameNode::RecreateResultPinInternal(UClass* TargetClas
 	TArray<FVarDescription> VarDescs;
 	FVariableAccessFunctionLibraryUtils::AnalyzeVarNames(Vars, &VarDescs);
 
-	FProperty* Property = GetTerminalProperty(VarDescs, 0, TargetClass);
-	if (Property != nullptr)
+	TerminalProperty TP = GetTerminalProperty(VarDescs, 0, TargetClass);
+	if (TP.Property != nullptr)
 	{
 		const UEdGraphSchema_K2* Schema = GetDefault<UEdGraphSchema_K2>();
 
 		FEdGraphPinType PinType;
-		Schema->ConvertPropertyToPinType(Property, PinType);
-		CreateResultPin(PinType, Property->GetAuthoredName(), 0);
+		Schema->ConvertPropertyToPinType(TP.Property, PinType);
+		CreateResultPin(PinType, TP.Property->GetAuthoredName(), 0);
 	}
 }
 

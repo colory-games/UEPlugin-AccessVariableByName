@@ -15,9 +15,9 @@
 namespace FVariableAccessFunctionLibraryUtils
 {
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty,
-	void* OuterAddr, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr);
+	void* OuterAddr, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr, const SetVariableParams& Params);
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest,
-	void* DestAddr, FProperty* NewValue, void* NewValueAddr);
+	void* DestAddr, FProperty* NewValue, void* NewValueAddr, const SetVariableParams& Params);
 
 FProperty* GetScriptStructProperty(UScriptStruct* ScriptStruct, FString VarName)
 {
@@ -54,7 +54,7 @@ FProperty* GetScriptStructProperty(UScriptStruct* ScriptStruct, FString VarName)
 }
 
 bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property, void* OuterAddr,
-	FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr)
+	FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr, const SetVariableParams& Params)
 {
 	if (VarDescs.Num() <= VarDepth)
 	{
@@ -87,7 +87,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 			void* StructAddr = Property->ContainerPtrToValuePtr<void>(OuterAddr);
 
 			return HandleTerminalProperty(
-				VarDescs, VarDepth + 1, StructProperty, StructAddr, Dest, DestAddr, NewValue, NewValueAddr);
+				VarDescs, VarDepth + 1, StructProperty, StructAddr, Dest, DestAddr, NewValue, NewValueAddr, Params);
 		}
 		else if (Property->IsA<FObjectProperty>())
 		{
@@ -95,7 +95,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 			UObject* Object = ObjectProperty->GetPropertyValue_InContainer(OuterAddr);
 			void* ObjectAddr = ObjectProperty->ContainerPtrToValuePtr<void>(OuterAddr);
 
-			return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr);
+			return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr, Params);
 		}
 
 		return false;
@@ -111,8 +111,15 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 
 			if (VarDescs.Num() == VarDepth + 1)
 			{
+				// Expand the array if needed.
+				FScriptArrayHelper ArrayHelper(ArrayProperty, ArrayAddr);
 				int32 Index = Desc.ArrayAccessValue.Integer;
-				if (Index >= ArrayPtr->Num())
+				if (!ArrayHelper.IsValidIndex(Index) && Params.bSizeToFit && (Index >= 0))
+				{
+					ArrayHelper.ExpandForIndex(Index);
+				}
+
+				if (!ArrayHelper.IsValidIndex(Index))
 				{
 					return false;
 				}
@@ -150,7 +157,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				void* InnerItemAddr = InnerAddr + Index * Stride;
 
 				return HandleTerminalProperty(
-					VarDescs, VarDepth + 1, StructProperty, InnerItemAddr, Dest, DestAddr, NewValue, NewValueAddr);
+					VarDescs, VarDepth + 1, StructProperty, InnerItemAddr, Dest, DestAddr, NewValue, NewValueAddr, Params);
 			}
 			else if (InnerProperty->IsA<FObjectProperty>())
 			{
@@ -167,7 +174,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				void* InnerItemAddr = InnerAddr + Index * Stride;
 				UObject* Object = ObjectProperty->GetPropertyValue_InContainer(InnerItemAddr);
 
-				return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr);
+				return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr, Params);
 			}
 
 			return false;
@@ -225,7 +232,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				}
 
 				return HandleTerminalProperty(
-					VarDescs, VarDepth + 1, StructProperty, ValueAddr, Dest, DestAddr, NewValue, NewValueAddr);
+					VarDescs, VarDepth + 1, StructProperty, ValueAddr, Dest, DestAddr, NewValue, NewValueAddr, Params);
 			}
 			else if (ValueProperty->IsA<FObjectProperty>())
 			{
@@ -242,7 +249,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				}
 				UObject* Object = ObjectProperty->GetPropertyValue(ValueAddr);
 
-				return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr);
+				return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr, Params);
 			}
 
 			return false;
@@ -307,7 +314,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 			}
 
 			return HandleTerminalProperty(
-				VarDescs, VarDepth + 1, StructProperty, ValueAddr, Dest, DestAddr, NewValue, NewValueAddr);
+				VarDescs, VarDepth + 1, StructProperty, ValueAddr, Dest, DestAddr, NewValue, NewValueAddr, Params);
 		}
 		else if (ValueProperty->IsA<FObjectProperty>())
 		{
@@ -324,7 +331,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 			}
 			UObject* Object = ObjectProperty->GetPropertyValue(ValueAddr);
 
-			return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr);
+			return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr, Params);
 		}
 
 		return false;
@@ -334,7 +341,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 }
 
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty,
-	void* OuterAddr, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr)
+	void* OuterAddr, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr, const SetVariableParams& Params)
 {
 	if (VarDescs.Num() <= VarDepth)
 	{
@@ -355,11 +362,11 @@ bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDe
 		return false;
 	}
 
-	return HandleTerminalPropertyInternal(VarDescs, VarDepth, Property, OuterAddr, Dest, DestAddr, NewValue, NewValueAddr);
+	return HandleTerminalPropertyInternal(VarDescs, VarDepth, Property, OuterAddr, Dest, DestAddr, NewValue, NewValueAddr, Params);
 }
 
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest,
-	void* DestAddr, FProperty* NewValue, void* NewValueAddr)
+	void* DestAddr, FProperty* NewValue, void* NewValueAddr, const SetVariableParams& Params)
 {
 	if (VarDescs.Num() <= VarDepth)
 	{
@@ -384,7 +391,8 @@ bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDe
 		return false;
 	}
 
-	return HandleTerminalPropertyInternal(VarDescs, VarDepth, Property, OuterObject, Dest, DestAddr, NewValue, NewValueAddr);
+	return HandleTerminalPropertyInternal(
+		VarDescs, VarDepth, Property, OuterObject, Dest, DestAddr, NewValue, NewValueAddr, Params);
 }
 
 void SplitVarNameInternal(const FString& In, int32 StartIndex, TArray<FString>* Out)

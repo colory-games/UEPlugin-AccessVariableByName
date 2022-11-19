@@ -13,6 +13,7 @@
 
 extern const FName ExecThenPinName;
 extern const FName VarNamePinName;
+extern const FName SizeToFitPinName;
 extern const FName SuccessPinName;
 extern const FName ResultPinNamePrefix;
 extern const FName NewValuePinNamePrefix;
@@ -20,8 +21,15 @@ extern const FName NewValuePinNamePrefix;
 extern const FString ExecThenPinFriendlyName;
 extern const FString TargetPinFriendlyName;
 extern const FString VarNamePinFriendlyName;
+extern const FString SizeToFitPinFriendlyName;
 extern const FString SuccessPinFriendlyName;
+
+struct TerminalProperty
+{
+	EPinContainerType ContainerType = EPinContainerType::None;
+	FProperty* Property = nullptr;
+};
 
 FEdGraphPinType CreateDefaultPinType();
 UClass* GetClassFromNode(const UEdGraphNode* Node);
-FProperty* GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass);
+TerminalProperty GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass);

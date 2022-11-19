@@ -18,23 +18,29 @@ enum EArrayAccessType
 
 struct FArrayAccessValue
 {
-	int32 Integer;
-	FString String;
+	int32 Integer = -1;
+	FString String = "";
 };
 
 struct FVarDescription
 {
-	bool bIsValid;
+	bool bIsValid = false;
 	FString VarName;
 	EArrayAccessType ArrayAccessType;
 	FArrayAccessValue ArrayAccessValue;
+};
+
+struct SetVariableParams
+{
+	bool bSizeToFit = false;
 };
 
 namespace FVariableAccessFunctionLibraryUtils
 {
 VARIABLEACCESSFUNCTIONLIBRARY_API FProperty* GetScriptStructProperty(UScriptStruct* ScriptStruct, FString VarName);
 VARIABLEACCESSFUNCTIONLIBRARY_API bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth,
-	UObject* OuterObject, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr);
+	UObject* OuterObject, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr,
+	const SetVariableParams& Params);
 VARIABLEACCESSFUNCTIONLIBRARY_API void SplitVarName(const FString& In, TArray<FString>* Out);
 VARIABLEACCESSFUNCTIONLIBRARY_API void AnalyzeVarNames(const TArray<FString>& VarNames, TArray<FVarDescription>* VarDescs);
 }	 // namespace FVariableAccessFunctionLibraryUtils

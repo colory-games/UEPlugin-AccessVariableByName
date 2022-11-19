@@ -36,8 +36,9 @@ void UVariableGetterFunctionLibarary::GenericGetNestedVariableByName(
 	}
 #endif
 
+	SetVariableParams Params;
 	Success = FVariableAccessFunctionLibraryUtils::HandleTerminalProperty(
-		VarDescs, 0, Target, ResultProperty, ResultAddr, nullptr, nullptr);
+		VarDescs, 0, Target, ResultProperty, ResultAddr, nullptr, nullptr, Params);
 }
 
 void UVariableGetterFunctionLibarary::GetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result)
