@@ -33,7 +33,7 @@ FProperty* GetScriptStructProperty(UScriptStruct* ScriptStruct, FString VarName)
 		while (Field)
 		{
 			FString FieldName = Field->GetName();
-			FString PropertyName = Field->GetDisplayNameText().ToString();
+			FString PropertyName = Field->GetAuthoredName();
 
 			if (PropertyName.Equals(VarName))
 			{
