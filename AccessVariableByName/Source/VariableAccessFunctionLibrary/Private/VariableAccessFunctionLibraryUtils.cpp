@@ -33,14 +33,9 @@ FProperty* GetScriptStructProperty(UScriptStruct* ScriptStruct, FString VarName)
 		while (Field)
 		{
 			FString FieldName = Field->GetName();
-			int32 Index = FieldName.Len();
-			for (int Iter = 0; Iter < 2; ++Iter)
-			{
-				Index = FieldName.Find(FString("_"), ESearchCase::CaseSensitive, ESearchDir::FromEnd, Index);
-			}
-			FString PropertyName = FieldName.Left(Index);
+			FString PropertyName = Field->GetAuthoredName();
 
-			if (PropertyName == VarName)
+			if (PropertyName.Equals(VarName))
 			{
 				Property = ScriptStruct->FindPropertyByName(*FieldName);
 				break;
@@ -432,7 +427,7 @@ void AnalyzeVarNames(const TArray<FString>& VarNames, TArray<FVarDescription>* V
 	{
 		// String pattern.
 		{
-			FRegexPattern Pattern = FRegexPattern("^([a-zA-Z_][a-zA-Z0-9_]*)\\[\"(\\S+)\"\\]$");
+			FRegexPattern Pattern = FRegexPattern("^([a-zA-Z_][a-zA-Z0-9_ ]*)\\[\"(\\S+)\"\\]$");
 			FRegexMatcher Matcher(Pattern, Var);
 			if (Matcher.FindNext())
 			{
@@ -449,7 +444,7 @@ void AnalyzeVarNames(const TArray<FString>& VarNames, TArray<FVarDescription>* V
 
 		// Integer pattern.
 		{
-			FRegexPattern Pattern = FRegexPattern("^([a-zA-Z_][a-zA-Z0-9_]*)\\[([0-9]+)\\]$");
+			FRegexPattern Pattern = FRegexPattern("^([a-zA-Z_][a-zA-Z0-9_ ]*)\\[([0-9]+)\\]$");
 			FRegexMatcher Matcher(Pattern, Var);
 			if (Matcher.FindNext())
 			{
@@ -466,7 +461,7 @@ void AnalyzeVarNames(const TArray<FString>& VarNames, TArray<FVarDescription>* V
 
 		// None pattern.
 		{
-			FRegexPattern Pattern = FRegexPattern("^([a-zA-Z_][a-zA-Z0-9_]*)$");
+			FRegexPattern Pattern = FRegexPattern("^([a-zA-Z_][a-zA-Z0-9_ ]*)$");
 			FRegexMatcher Matcher(Pattern, Var);
 			if (Matcher.FindNext())
 			{
