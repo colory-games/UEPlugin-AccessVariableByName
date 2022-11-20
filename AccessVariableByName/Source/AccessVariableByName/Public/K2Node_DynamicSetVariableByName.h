@@ -71,4 +71,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "ArrayAccessOptions")
 	bool bSizeToFit = false;
+
+	UPROPERTY(EditAnywhere, Category = "MapAccessOptions")
+	bool bAddIfNotPresent = false;
 };
