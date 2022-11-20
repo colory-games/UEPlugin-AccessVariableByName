@@ -62,8 +62,8 @@ jobs:
           password: $GHCR_PASSWORD
     steps:
       - checkout
-      - run: Run scripts for the license removing
-          name:
+      - run:
+          name: Run scripts for the license removing
           command: bash tools/remove_license.sh AccessVariableByName << parameters.version >>
       - run:
           name: Run scripts for the code removing
