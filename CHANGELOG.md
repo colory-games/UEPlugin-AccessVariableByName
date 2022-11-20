@@ -7,7 +7,7 @@
 ### Updated Features
 
 * Support on Unreal Engine 5.1
-* Add 'If not Present' and 'Size to Fit' pins/options to Set node
+* Add 'Add If not Present' and 'Size to Fit' pins/options to Set node
 * Add 'Pure Node' option to Get node
 
 ### Other Updates
