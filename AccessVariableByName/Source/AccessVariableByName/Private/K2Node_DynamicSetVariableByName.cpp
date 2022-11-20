@@ -104,11 +104,17 @@ public:
 		}
 
 		// Add options as terminal.
-		FBPTerminal* BoolTerm = Context.CreateLocalTerminal(ETerminalSpecification::TS_Literal);
-		BoolTerm->bIsLiteral = true;
-		BoolTerm->Type.PinCategory = UEdGraphSchema_K2::PC_Boolean;
-		BoolTerm->Name = DynamicSetVariableByNameNode->bSizeToFit ? TEXT("true") : TEXT("false");
-		TermMap.Add("bSizeToFit", BoolTerm);
+		FBPTerminal* SizeToFitTerm = Context.CreateLocalTerminal(ETerminalSpecification::TS_Literal);
+		SizeToFitTerm->bIsLiteral = true;
+		SizeToFitTerm->Type.PinCategory = UEdGraphSchema_K2::PC_Boolean;
+		SizeToFitTerm->Name = DynamicSetVariableByNameNode->bSizeToFit ? TEXT("true") : TEXT("false");
+		TermMap.Add("bSizeToFit", SizeToFitTerm);
+
+		FBPTerminal* AddIfNotPresent = Context.CreateLocalTerminal(ETerminalSpecification::TS_Literal);
+		AddIfNotPresent->bIsLiteral = true;
+		AddIfNotPresent->Type.PinCategory = UEdGraphSchema_K2::PC_Boolean;
+		AddIfNotPresent->Name = DynamicSetVariableByNameNode->bAddIfNotPresent ? TEXT("true") : TEXT("false");
+		TermMap.Add("bAddIfNotPresent", AddIfNotPresent);
 	}
 
 	virtual void Compile(FKismetFunctionContext& Context, UEdGraphNode* Node) override
@@ -170,6 +176,7 @@ public:
 		CallFuncStatement.RHS.Add(TargetTerm);
 		CallFuncStatement.RHS.Add(VarNameTerm);
 		CallFuncStatement.RHS.Add(TermMap.FindRef("bSizeToFit"));
+		CallFuncStatement.RHS.Add(TermMap.FindRef("bAddIfNotPresent"));
 		CallFuncStatement.RHS.Add(SuccessTerm);
 		CallFuncStatement.RHS.Add(ResultTerm);
 		CallFuncStatement.RHS.Add(NewValueTerm);	// Argument order is different from pin index.
