@@ -13,7 +13,7 @@
 #include "VariableAccessFunctionLibraryUtils.h"
 
 void UVariableGetterFunctionLibarary::GenericGetNestedVariableByName(
-	UObject* Target, FName VarName, bool& Success, UProperty* ResultProperty, void* ResultAddr)
+	UObject* Target, FName VarName, bool& Success, FProperty* ResultProperty, void* ResultAddr)
 {
 	TArray<FString> Vars;
 	TArray<FVarDescription> VarDescs;

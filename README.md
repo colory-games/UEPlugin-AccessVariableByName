@@ -43,7 +43,7 @@ This plugin adds below Blueprint nodes.
 
 This plugin supports on the below environment.
 
-* Unreal Engine Version: 4.26 / 4.27 / 5.0
+* Unreal Engine Version: 4.26 / 4.27 / 5.0 / 5.1
 * Development Platforms: Windows / macOS / Linux
 * Target Build Platforms: All platforms
 
