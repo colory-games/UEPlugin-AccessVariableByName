@@ -200,7 +200,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				{
 					// Add the map item if needed.
 					FScriptMapHelper MapHelper(MapProperty, MapAddr);
-					ValueAddr = (uint8*)MapHelper.FindOrAdd(&Key);
+					ValueAddr = (uint8*) MapHelper.FindOrAdd(&Key);
 				}
 				else
 				{
@@ -292,7 +292,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 			{
 				// Add the map item if needed.
 				FScriptMapHelper MapHelper(MapProperty, MapAddr);
-				ValueAddr = (uint8*)MapHelper.FindOrAdd(&Key);
+				ValueAddr = (uint8*) MapHelper.FindOrAdd(&Key);
 			}
 			else
 			{

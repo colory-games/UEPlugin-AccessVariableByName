@@ -91,8 +91,8 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
-		static void SetNestedVariableByNameForMap(
-			UObject* Target, FName VarName, bool bAddIfNotPresent, bool& Success, UProperty*& Result, UProperty* NewValue);
+	static void SetNestedVariableByNameForMap(
+		UObject* Target, FName VarName, bool bAddIfNotPresent, bool& Success, UProperty*& Result, UProperty* NewValue);
 
 	DECLARE_FUNCTION(execSetNestedVariableByNameForMap)
 	{
@@ -126,8 +126,8 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
-	static void SetNestedVariableByNameForAllTypes(
-		UObject* Target, FName VarName, bool bSizeToFit, bool bAddIfNotPresent, bool& Success, UProperty*& Result, UProperty* NewValue);
+	static void SetNestedVariableByNameForAllTypes(UObject* Target, FName VarName, bool bSizeToFit, bool bAddIfNotPresent,
+		bool& Success, UProperty*& Result, UProperty* NewValue);
 
 	DECLARE_FUNCTION(execSetNestedVariableByNameForAllTypes)
 	{
