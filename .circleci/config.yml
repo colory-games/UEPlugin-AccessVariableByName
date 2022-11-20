@@ -33,8 +33,8 @@ jobs:
     steps:
       - checkout
       - run:
-        name: Run scripts for the license removing
-        command: bash tools/remove_license.sh AccessVariableByName << parameters.version >>
+          name: Run scripts for the license removing
+          command: bash tools/remove_license.sh AccessVariableByName << parameters.version >>
       - run:
           name: Run scripts for the code removing
           command: bash tools/remove_code.sh AccessVariableByName << parameters.unreal-engine-version >> << parameters.version >> .
