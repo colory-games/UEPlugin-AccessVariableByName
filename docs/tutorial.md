@@ -24,6 +24,10 @@ It is useful to check if the variable name and pin type is valid on the compilat
 |Success|Output|Output `True` if a desired member variable is successfully acquired.|
 |(Output variable name)|Output|Output the value of a desired member variable.<br>The pin name will be same as a name of a desired member variable.<br>This pin will be hidden if a desired member variable does not exist.|
 
+### Additional Information
+
+* 'Get Variable by Name' node supports Pure node.
+
 ## Set Variable by Name
 
 'Set Variable by Name' node sets a new value to a variable by specifing the name and the target object.  
@@ -43,6 +47,12 @@ This node analyzes the name and the target (static analysis), and changes the ty
 |(Input variable name)|Input|A new value to be set to a desired member variable.<br>The pin name will be same as a name of a desired member variable.<br>This pin will be hidden if a desired member variable does not exist.|
 |Success|Output|Output `True` if a desired member variable is successfully acquired.<br>An output will be an value after a new value set.|
 |(Output variable name)|Output|Output the value of a desired member variable.<br>The pin name will be same as a name of a desired member variable.<br>This pin will be hidden if a desired member variable does not exist.|
+
+### Additional Information
+
+* 'Set Variable by Name' node supports contextual pins
+  * Size to Fit: If `True`, an array will be expanded if index is greater than the current size of the array.
+  * Add If not Present: If `True`, a map will be add an element if key is not presented in the current map.
 
 ## Get Variable by Name (Dynamic)
 
@@ -65,6 +75,10 @@ But this node accepts [the name which can be changed dynamically at runtime](#dy
 |Success|Output|Output `True` if a desired member variable is successfully acquired.<br>Output `False` if types are mismatched between 'Variable Type' and actual one.|
 |Result|Output|Output the value of a desired member variable.|
 
+### Additional Information
+
+* 'Get Variable by Name' node supports Pure node.
+
 ## Set Variable by Name (Dynamic)
 
 'Set Variable by Name (Dynamic)' node gets a variable by specifing the name and the target object.  
@@ -86,6 +100,12 @@ But this node accepts [the name which can be changed dynamically at runtime](#dy
 |New Value|Input|A new value to be set to a desired member variable.|
 |Success|Output|Output `True` if a desired member variable is successfully acquired.<br>Output `False` if types are mismatched between 'Variable Type' and actual one.|
 |Result|Output|Output the value of a desired member variable.|
+
+### Additional Information
+
+* 'Set Variable by Name' node supports contextual options
+  * Size to Fit: If `True`, an array will be expanded if index is greater than the current size of the array.
+  * Add If not Present: If `True`, a map will be add an element if key is not presented in the current map.
 
 ## Custom Syntax
 
