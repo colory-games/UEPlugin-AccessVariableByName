@@ -20,7 +20,7 @@ class VARIABLEACCESSFUNCTIONLIBRARY_API UVariableSetterFunctionLibarary : public
 	GENERATED_BODY()
 
 public:
-	static void GenericSetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty* ResultProperty,
+	static void GenericSetNestedVariableByName(UObject* Target, FName VarName, bool& Success, FProperty* ResultProperty,
 		void* ResultAddr, FProperty* NewValueProperty, void* NewValueAddr, const SetVariableParams& Params);
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
