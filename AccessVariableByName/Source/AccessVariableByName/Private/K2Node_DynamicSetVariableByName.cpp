@@ -97,7 +97,8 @@ public:
 				if (Pin == DynamicSetVariableByNameNode->GetSuccessPin() ||
 					Pin == DynamicSetVariableByNameNode->GetAllResultPins()[0])
 				{
-					FBPTerminal* Term = Context.CreateLocalTerminalFromPinAutoChooseScope(Pin, Pin->PinName.ToString());
+					FString NewName = FString::Format(TEXT("{0}_{1}"), { *Node->GetName(), *Pin->PinName.ToString() });
+					FBPTerminal* Term = Context.CreateLocalTerminalFromPinAutoChooseScope(Pin, NewName);
 					Context.NetMap.Add(Pin, Term);
 				}
 			}
