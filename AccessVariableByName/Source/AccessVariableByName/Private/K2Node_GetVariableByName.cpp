@@ -30,6 +30,11 @@ void UK2Node_GetVariableByNameNode::PostEditChangeProperty(struct FPropertyChang
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
+	if (PropertyChangedEvent.ChangeType == EPropertyChangeType::Unspecified)
+	{
+		return;
+	}
+
 	TArray<UEdGraphPin*> OldPins = MoveTemp(Pins);
 	UEdGraphPin* OldTargetPin = nullptr;
 	UEdGraphPin* OldVarNamePin = nullptr;
