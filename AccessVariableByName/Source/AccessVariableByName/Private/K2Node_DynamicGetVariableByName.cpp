@@ -185,6 +185,11 @@ void UK2Node_DynamicGetVariableByNameNode::PostEditChangeProperty(struct FProper
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
+	if (PropertyChangedEvent.ChangeType == EPropertyChangeType::Unspecified)
+	{
+		return;
+	}
+
 	TArray<UEdGraphPin*> OldPins = MoveTemp(Pins);
 	FEdGraphPinType ResultPinType;
 	for (auto& Pin : OldPins)
