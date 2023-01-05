@@ -56,8 +56,8 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
-	static void SetNestedVariableByNameForAllTypes(UObject* Target, FName VarName, bool bExtendIfNotPresent,
-		bool& Success, UProperty*& Result, UProperty* NewValue);
+	static void SetNestedVariableByNameForAllTypes(
+		UObject* Target, FName VarName, bool bExtendIfNotPresent, bool& Success, UProperty*& Result, UProperty* NewValue);
 
 	DECLARE_FUNCTION(execSetNestedVariableByNameForAllTypes)
 	{
