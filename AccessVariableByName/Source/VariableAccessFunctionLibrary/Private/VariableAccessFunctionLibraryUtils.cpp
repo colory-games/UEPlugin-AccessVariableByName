@@ -21,8 +21,6 @@ bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDe
 
 void* GetInnerItemAddrFromArray(FArrayProperty* ArrayProperty, void* OuterAddr, int32 Index, bool bExtendIfNotPresent)
 {
-	// TODO: dry-run before extend
-
 	void* ArrayAddr = ArrayProperty->ContainerPtrToValuePtr<void>(OuterAddr);
 	FScriptArrayHelper ArrayHelper(ArrayProperty, ArrayAddr);
 
