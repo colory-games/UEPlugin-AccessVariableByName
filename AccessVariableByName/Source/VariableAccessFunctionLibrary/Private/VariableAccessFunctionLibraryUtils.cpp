@@ -278,8 +278,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				return false;
 			}
 
-			void* ValueAddr =
-				GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.String, Params.bExtendIfNotPresent);
+			void* ValueAddr = GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.String, Params.bExtendIfNotPresent);
 			if (ValueAddr == nullptr)
 			{
 				return false;
@@ -296,8 +295,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 
 		if (ValueProperty->IsA<FStructProperty>())
 		{
-			void* ValueAddr =
-				GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.String, Params.bExtendIfNotPresent);
+			void* ValueAddr = GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.String, Params.bExtendIfNotPresent);
 			if (ValueAddr == nullptr)
 			{
 				return false;
@@ -310,8 +308,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 		}
 		else if (ValueProperty->IsA<FObjectProperty>())
 		{
-			void* ValueAddr =
-				GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.String, Params.bExtendIfNotPresent);
+			void* ValueAddr = GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.String, Params.bExtendIfNotPresent);
 			if (ValueAddr == nullptr)
 			{
 				return false;
