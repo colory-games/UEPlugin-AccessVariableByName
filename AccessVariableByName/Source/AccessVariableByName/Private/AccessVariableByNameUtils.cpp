@@ -14,8 +14,7 @@
 
 const FName ExecThenPinName(TEXT("ExecThen"));
 const FName VarNamePinName(TEXT("VarName"));
-const FName SizeToFitPinName(TEXT("SizeToFit"));
-const FName AddIfNotPresentPinName(TEXT("AddIfNotPresent"));
+const FName ExtendIfNotPresentPinName(TEXT("ExtendIfNotPresent"));
 const FName SuccessPinName(TEXT("Success"));
 const FName ResultPinNamePrefix(TEXT("Result_"));
 const FName NewValuePinNamePrefix(TEXT("NewValue_"));
@@ -23,8 +22,7 @@ const FName NewValuePinNamePrefix(TEXT("NewValue_"));
 const FString ExecThenPinFriendlyName(TEXT(" "));
 const FString TargetPinFriendlyName(TEXT("Target"));
 const FString VarNamePinFriendlyName(TEXT("Var Name"));
-const FString SizeToFitPinFriendlyName(TEXT("Size to Fit"));
-const FString AddIfNotPresentPinFriendlyName(TEXT("Add If not Present"));
+const FString ExtendIfNotPresentPinFriendlyName(TEXT("Extend If not Present"));
 const FString SuccessPinFriendlyName(TEXT("Success"));
 
 TerminalProperty GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass);

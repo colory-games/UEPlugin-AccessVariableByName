@@ -58,7 +58,6 @@ public:
 	UK2Node_DynamicSetVariableByNameNode(const FObjectInitializer& ObjectInitializer);
 
 	UEdGraphPin* GetFunctionPin() const;
-	UEdGraphPin* GetExecTriggeringPin() const;
 	UEdGraphPin* GetExecThenPin() const;
 	UEdGraphPin* GetTargetPin() const;
 	UEdGraphPin* GetVarNamePin() const;
@@ -69,9 +68,6 @@ public:
 	void ChangeVariantPinType(const FEdGraphPinType& PinType);
 	FEdGraphPinType GetVariantPinType() const;
 
-	UPROPERTY(EditAnywhere, Category = "ArrayAccessOptions")
-	bool bSizeToFit = false;
-
-	UPROPERTY(EditAnywhere, Category = "MapAccessOptions")
-	bool bAddIfNotPresent = false;
+	UPROPERTY(EditAnywhere, Category = "ContainerDataTypeAccessOptions")
+	bool bExtendIfNotPresent = false;
 };
