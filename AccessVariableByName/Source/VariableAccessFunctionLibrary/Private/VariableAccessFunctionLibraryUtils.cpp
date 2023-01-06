@@ -91,6 +91,7 @@ TTuple<FProperty*, UObject*> GetObjectProperty(UObject* Object, FString VarName,
 		return TTuple<FProperty*, UObject*>(Property, Object);
 	}
 
+#if WITH_EDITORONLY_DATA
 	if (bFindGeneratedBy)
 	{
 		UBlueprint* Blueprint = Cast<UBlueprint>(TargetClass->ClassGeneratedBy);
@@ -107,6 +108,7 @@ TTuple<FProperty*, UObject*> GetObjectProperty(UObject* Object, FString VarName,
 
 		return TTuple<FProperty*, UObject*>(Property, Blueprint);
 	}
+#endif
 
 	return NullReturn;
 }
