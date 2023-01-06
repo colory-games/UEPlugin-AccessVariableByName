@@ -30,8 +30,12 @@ struct FVarDescription
 	FArrayAccessValue ArrayAccessValue;
 };
 
-struct SetVariableParams
+struct FAccessVariableParams
 {
+	// Common.
+	bool bIncludeGenerationClass = true;
+
+	// Set.
 	bool bExtendIfNotPresent = false;
 };
 
@@ -40,7 +44,7 @@ namespace FVariableAccessFunctionLibraryUtils
 VARIABLEACCESSFUNCTIONLIBRARY_API FProperty* GetScriptStructProperty(UScriptStruct* ScriptStruct, FString VarName);
 VARIABLEACCESSFUNCTIONLIBRARY_API bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth,
 	UObject* OuterObject, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr,
-	const SetVariableParams& Params);
+	const FAccessVariableParams& Params);
 VARIABLEACCESSFUNCTIONLIBRARY_API void SplitVarName(const FString& In, TArray<FString>* Out);
 VARIABLEACCESSFUNCTIONLIBRARY_API void AnalyzeVarNames(const TArray<FString>& VarNames, TArray<FVarDescription>* VarDescs);
 }	 // namespace FVariableAccessFunctionLibraryUtils

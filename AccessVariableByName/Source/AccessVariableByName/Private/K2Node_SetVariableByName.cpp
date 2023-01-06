@@ -344,7 +344,8 @@ void UK2Node_SetVariableByNameNode::RecreateVariantPinInternal(UClass* TargetCla
 	TArray<FVarDescription> VarDescs;
 	FVariableAccessFunctionLibraryUtils::AnalyzeVarNames(Vars, &VarDescs);
 
-	TerminalProperty TP = GetTerminalProperty(VarDescs, 0, TargetClass);
+	FAccessVariableParams Params;
+	TerminalProperty TP = GetTerminalProperty(VarDescs, 0, TargetClass, Params);
 	if (TP.Property != nullptr)
 	{
 		const UEdGraphSchema_K2* Schema = GetDefault<UEdGraphSchema_K2>();

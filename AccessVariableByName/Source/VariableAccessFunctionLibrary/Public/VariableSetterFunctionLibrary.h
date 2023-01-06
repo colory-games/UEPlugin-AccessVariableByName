@@ -21,7 +21,7 @@ class VARIABLEACCESSFUNCTIONLIBRARY_API UVariableSetterFunctionLibarary : public
 
 public:
 	static void GenericSetNestedVariableByName(UObject* Target, FName VarName, bool& Success, FProperty* ResultProperty,
-		void* ResultAddr, FProperty* NewValueProperty, void* NewValueAddr, const SetVariableParams& Params);
+		void* ResultAddr, FProperty* NewValueProperty, void* NewValueAddr, const FAccessVariableParams& Params);
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
 	static void SetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue);
@@ -47,7 +47,7 @@ public:
 
 		P_NATIVE_BEGIN;
 
-		SetVariableParams Params;
+		FAccessVariableParams Params;
 		GenericSetNestedVariableByName(
 			Target, VarName, Success, ResultProperty, ResultAddr, NewValueProperty, NewValueAddr, Params);
 
@@ -81,7 +81,7 @@ public:
 
 		P_NATIVE_BEGIN;
 
-		SetVariableParams Params;
+		FAccessVariableParams Params;
 		Params.bExtendIfNotPresent = bExtendIfNotPresent;
 		GenericSetNestedVariableByName(
 			Target, VarName, Success, ResultProperty, ResultAddr, NewValueProperty, NewValueAddr, Params);

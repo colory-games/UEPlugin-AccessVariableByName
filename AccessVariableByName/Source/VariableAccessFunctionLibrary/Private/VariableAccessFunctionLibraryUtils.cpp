@@ -15,9 +15,9 @@
 namespace FVariableAccessFunctionLibraryUtils
 {
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty,
-	void* OuterAddr, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr, const SetVariableParams& Params);
+	void* OuterAddr, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr, const FAccessVariableParams& Params);
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest,
-	void* DestAddr, FProperty* NewValue, void* NewValueAddr, const SetVariableParams& Params);
+	void* DestAddr, FProperty* NewValue, void* NewValueAddr, const FAccessVariableParams& Params);
 
 void* GetInnerItemAddrFromArray(FArrayProperty* ArrayProperty, void* OuterAddr, int32 Index, bool bExtendIfNotPresent)
 {
@@ -80,8 +80,41 @@ FProperty* GetScriptStructProperty(UScriptStruct* ScriptStruct, FString VarName)
 	return Property;
 }
 
+TTuple<FProperty*, UObject*> GetObjectProperty(UObject* Object, FString VarName, bool bFindGeneratedBy)
+{
+	const TTuple<FProperty*, UObject*> NullReturn(nullptr, nullptr);
+
+	UClass* TargetClass = Object->GetClass();
+	FProperty* Property = FindFProperty<FProperty>(TargetClass, *VarName);
+	if (Property != nullptr)
+	{
+		return TTuple<FProperty*, UObject*>(Property, Object);
+	}
+
+#if WITH_EDITORONLY_DATA
+	if (bFindGeneratedBy)
+	{
+		UBlueprint* Blueprint = Cast<UBlueprint>(TargetClass->ClassGeneratedBy);
+		if (Blueprint == nullptr)
+		{
+			return NullReturn;
+		}
+
+		Property = FindFProperty<FProperty>(Blueprint->GetClass(), *VarName);
+		if (Property == nullptr)
+		{
+			return NullReturn;
+		}
+
+		return TTuple<FProperty*, UObject*>(Property, Blueprint);
+	}
+#endif
+
+	return NullReturn;
+}
+
 bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property, void* OuterAddr,
-	FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr, const SetVariableParams& Params)
+	FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr, const FAccessVariableParams& Params)
 {
 	if (VarDescs.Num() <= VarDepth)
 	{
@@ -327,7 +360,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 }
 
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty,
-	void* OuterAddr, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr, const SetVariableParams& Params)
+	void* OuterAddr, FProperty* Dest, void* DestAddr, FProperty* NewValue, void* NewValueAddr, const FAccessVariableParams& Params)
 {
 	if (VarDescs.Num() <= VarDepth)
 	{
@@ -352,7 +385,7 @@ bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDe
 }
 
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest,
-	void* DestAddr, FProperty* NewValue, void* NewValueAddr, const SetVariableParams& Params)
+	void* DestAddr, FProperty* NewValue, void* NewValueAddr, const FAccessVariableParams& Params)
 {
 	if (VarDescs.Num() <= VarDepth)
 	{
@@ -371,14 +404,14 @@ bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDe
 		return false;
 	}
 
-	FProperty* Property = FindFProperty<FProperty>(OuterObject->GetClass(), *Desc.VarName);
-	if (Property == nullptr)
+	TTuple<FProperty*, UObject*> Result = GetObjectProperty(OuterObject, Desc.VarName, Params.bIncludeGenerationClass);
+	if (Result.Get<0>() == nullptr || Result.Get<1>() == nullptr)
 	{
 		return false;
 	}
 
 	return HandleTerminalPropertyInternal(
-		VarDescs, VarDepth, Property, OuterObject, Dest, DestAddr, NewValue, NewValueAddr, Params);
+		VarDescs, VarDepth, Result.Get<0>(), Result.Get<1>(), Dest, DestAddr, NewValue, NewValueAddr, Params);
 }
 
 void SplitVarNameInternal(const FString& In, int32 StartIndex, TArray<FString>* Out)

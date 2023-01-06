@@ -25,7 +25,8 @@ const FString VarNamePinFriendlyName(TEXT("Var Name"));
 const FString ExtendIfNotPresentPinFriendlyName(TEXT("Extend If not Present"));
 const FString SuccessPinFriendlyName(TEXT("Success"));
 
-TerminalProperty GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass);
+TerminalProperty GetTerminalProperty(
+	const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass, const FAccessVariableParams& Params);
 
 FEdGraphPinType CreateDefaultPinType()
 {
@@ -50,7 +51,38 @@ UClass* GetClassFromNode(const UEdGraphNode* Node)
 	return Class;
 }
 
-TerminalProperty GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property)
+TTuple<FProperty*, UClass*> GetObjectProperty(UClass* TargetClass, FString VarName, bool bFindGeneratedBy)
+{
+	const TTuple<FProperty*, UClass*> NullReturn(nullptr, nullptr);
+
+	FProperty* Property = FindFProperty<FProperty>(TargetClass, *VarName);
+	if (Property != nullptr)
+	{
+		return TTuple<FProperty*, UClass*>(Property, TargetClass);
+	}
+
+	if (bFindGeneratedBy)
+	{
+		UBlueprint* Blueprint = Cast<UBlueprint>(TargetClass->ClassGeneratedBy);
+		if (Blueprint == nullptr)
+		{
+			return NullReturn;
+		}
+
+		Property = FindFProperty<FProperty>(Blueprint->GetClass(), *VarName);
+		if (Property == nullptr)
+		{
+			return NullReturn;
+		}
+
+		return TTuple<FProperty*, UClass*>(Property, Blueprint->GetClass());
+	}
+
+	return NullReturn;
+}
+
+TerminalProperty GetTerminalPropertyInternal(
+	const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property, const FAccessVariableParams& Params)
 {
 	if (VarDescs.Num() <= VarDepth)
 	{
@@ -73,14 +105,14 @@ TerminalProperty GetTerminalPropertyInternal(const TArray<FVarDescription>& VarD
 			FStructProperty* StructProperty = CastChecked<FStructProperty>(Property);
 			UScriptStruct* ScriptStruct = StructProperty->Struct;
 
-			return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
+			return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct, Params);
 		}
 		else if (Property->IsA<FObjectProperty>())
 		{
 			FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(Property);
 			UClass* Class = ObjectProperty->PropertyClass;
 
-			return GetTerminalProperty(VarDescs, VarDepth + 1, Class);
+			return GetTerminalProperty(VarDescs, VarDepth + 1, Class, Params);
 		}
 
 		return TerminalProperty();
@@ -105,14 +137,14 @@ TerminalProperty GetTerminalPropertyInternal(const TArray<FVarDescription>& VarD
 				FStructProperty* StructProperty = CastChecked<FStructProperty>(InnerProperty);
 				UScriptStruct* ScriptStruct = StructProperty->Struct;
 
-				return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
+				return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct, Params);
 			}
 			else if (InnerProperty->IsA<FObjectProperty>())
 			{
 				FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(InnerProperty);
 				UClass* Class = ObjectProperty->PropertyClass;
 
-				return GetTerminalProperty(VarDescs, VarDepth + 1, Class);
+				return GetTerminalProperty(VarDescs, VarDepth + 1, Class, Params);
 			}
 
 			return TerminalProperty();
@@ -135,14 +167,14 @@ TerminalProperty GetTerminalPropertyInternal(const TArray<FVarDescription>& VarD
 				FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
 				UScriptStruct* ScriptStruct = StructProperty->Struct;
 
-				return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
+				return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct, Params);
 			}
 			else if (ValueProperty->IsA<FObjectProperty>())
 			{
 				FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(ValueProperty);
 				UClass* Class = ObjectProperty->PropertyClass;
 
-				return GetTerminalProperty(VarDescs, VarDepth + 1, Class);
+				return GetTerminalProperty(VarDescs, VarDepth + 1, Class, Params);
 			}
 		}
 
@@ -170,14 +202,14 @@ TerminalProperty GetTerminalPropertyInternal(const TArray<FVarDescription>& VarD
 			FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
 			UScriptStruct* ScriptStruct = StructProperty->Struct;
 
-			return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct);
+			return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct, Params);
 		}
 		else if (ValueProperty->IsA<FObjectProperty>())
 		{
 			FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(ValueProperty);
 			UClass* Class = ObjectProperty->PropertyClass;
 
-			return GetTerminalProperty(VarDescs, VarDepth + 1, Class);
+			return GetTerminalProperty(VarDescs, VarDepth + 1, Class, Params);
 		}
 
 		return TerminalProperty();
@@ -186,7 +218,8 @@ TerminalProperty GetTerminalPropertyInternal(const TArray<FVarDescription>& VarD
 	return TerminalProperty();
 }
 
-TerminalProperty GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass)
+TerminalProperty GetTerminalProperty(
+	const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass, const FAccessVariableParams& Params)
 {
 	if (VarDescs.Num() <= VarDepth)
 	{
@@ -206,10 +239,11 @@ TerminalProperty GetTerminalProperty(const TArray<FVarDescription>& VarDescs, in
 		return TerminalProperty();
 	}
 
-	return GetTerminalPropertyInternal(VarDescs, VarDepth, Property);
+	return GetTerminalPropertyInternal(VarDescs, VarDepth, Property, Params);
 }
 
-TerminalProperty GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass)
+TerminalProperty GetTerminalProperty(
+	const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass, const FAccessVariableParams& Params)
 {
 	if (VarDescs.Num() <= VarDepth)
 	{
@@ -223,11 +257,11 @@ TerminalProperty GetTerminalProperty(const TArray<FVarDescription>& VarDescs, in
 		return TerminalProperty();
 	}
 
-	FProperty* Property = FindFProperty<FProperty>(OuterClass, *Desc.VarName);
-	if (Property == nullptr)
+	TTuple<FProperty*, UClass*> Result = GetObjectProperty(OuterClass, Desc.VarName, Params.bIncludeGenerationClass);
+	if (Result.Get<0>() == nullptr || Result.Get<1>() == nullptr)
 	{
 		return TerminalProperty();
 	}
 
-	return GetTerminalPropertyInternal(VarDescs, VarDepth, Property);
+	return GetTerminalPropertyInternal(VarDescs, VarDepth, Result.Get<0>(), Params);
 }
