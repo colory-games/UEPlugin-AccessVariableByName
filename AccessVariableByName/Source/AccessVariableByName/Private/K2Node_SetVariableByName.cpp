@@ -51,8 +51,7 @@ void UK2Node_SetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 	UEdGraphPin* ExecThenPin = GetExecThenPin();
 	UEdGraphPin* TargetPin = GetTargetPin();
 	UEdGraphPin* VarNamePin = GetVarNamePin();
-	UEdGraphPin* SizeToFitPin = GetSizeToFitPin();
-	UEdGraphPin* AddIfNotPresentPin = GetAddIfNotPresentPin();
+	UEdGraphPin* ExtendIfNotPresentPin = GetExtendIfNotPresentPin();
 	UEdGraphPin* SuccessPin = GetSuccessPin();
 	TArray<UEdGraphPin*> NewValuePins = GetAllNewValuePins();
 	TArray<UEdGraphPin*> ResultPins = GetAllResultPins();
@@ -127,15 +126,10 @@ void UK2Node_SetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 		UEdGraphPin* OutPin = SelfNode->Pins[0];
 		OutPin->MakeLinkTo(FunctionTargetPin);
 	}
-	if (!SizeToFitPin->bHidden)
+	if (!ExtendIfNotPresentPin->bHidden)
 	{
-		UEdGraphPin* FunctionSizeToFitPin = CallFunction->FindPinChecked(TEXT("bSizeToFit"));
-		CompilerContext.MovePinLinksToIntermediate(*SizeToFitPin, *FunctionSizeToFitPin);
-	}
-	if (!AddIfNotPresentPin->bHidden)
-	{
-		UEdGraphPin* FunctionAddIfNotPresentPin = CallFunction->FindPinChecked(TEXT("bAddIfNotPresent"));
-		CompilerContext.MovePinLinksToIntermediate(*AddIfNotPresentPin, *FunctionAddIfNotPresentPin);
+		UEdGraphPin* FunctionExtendIfNotPresentPin = CallFunction->FindPinChecked(TEXT("bExtendIfNotPresent"));
+		CompilerContext.MovePinLinksToIntermediate(*ExtendIfNotPresentPin, *FunctionExtendIfNotPresentPin);
 	}
 	CompilerContext.MovePinLinksToIntermediate(*VarNamePin, *FunctionVarNamePin);
 	CompilerContext.MovePinLinksToIntermediate(*NewValuePin, *FunctionNewValuePin);
@@ -154,18 +148,16 @@ void UK2Node_SetVariableByNameNode::AllocateDefaultPins()
 	// 1: Execution Then (Out, Exec)
 	// 2: Target (In, Object Reference)
 	// 3: Var Name (In, FName)
-	// 4: Size to Fit (In, Boolean)
-	// 5: Add If not Present (In, Boolean)
-	// 6: Success (Out, Boolean)
-	// 7+(N*2): New Value (In, *)
-	// 7+(N*2)+1: Result (Out, *)
+	// 4: Extend If not Present (In, Boolean)
+	// 5: Success (Out, Boolean)
+	// 6+(N*2): New Value (In, *)
+	// 6+(N*2)+1: Result (Out, *)
 
 	CreateExecTriggeringPin();
 	CreateExecThenPin();
 	CreateTargetPin();
 	CreateVarNamePin();
-	CreateSizeToFitPin(true);
-	CreateAddIfNotPresentPin(true);
+	CreateExtendIfNotPresentPin(true);
 	CreateSuccessPin();
 
 	Super::AllocateDefaultPins();
@@ -299,28 +291,19 @@ void UK2Node_SetVariableByNameNode::CreateVarNamePin()
 	Pin->PinFriendlyName = FText::AsCultureInvariant(VarNamePinFriendlyName);
 }
 
-void UK2Node_SetVariableByNameNode::CreateSizeToFitPin(bool bHidden)
+void UK2Node_SetVariableByNameNode::CreateExtendIfNotPresentPin(bool bHidden)
 {
 	FCreatePinParams Params;
 	Params.Index = 4;
-	UEdGraphPin* Pin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Boolean, SizeToFitPinName, Params);
-	Pin->PinFriendlyName = FText::AsCultureInvariant(SizeToFitPinFriendlyName);
-	Pin->bHidden = bHidden;
-}
-
-void UK2Node_SetVariableByNameNode::CreateAddIfNotPresentPin(bool bHidden)
-{
-	FCreatePinParams Params;
-	Params.Index = 5;
-	UEdGraphPin* Pin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Boolean, AddIfNotPresentPinName, Params);
-	Pin->PinFriendlyName = FText::AsCultureInvariant(AddIfNotPresentPinFriendlyName);
+	UEdGraphPin* Pin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Boolean, ExtendIfNotPresentPinName, Params);
+	Pin->PinFriendlyName = FText::AsCultureInvariant(ExtendIfNotPresentPinFriendlyName);
 	Pin->bHidden = bHidden;
 }
 
 void UK2Node_SetVariableByNameNode::CreateSuccessPin()
 {
 	FCreatePinParams Params;
-	Params.Index = 6;
+	Params.Index = 5;
 	UEdGraphPin* Pin = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Boolean, SuccessPinName, Params);
 	Pin->PinFriendlyName = FText::AsCultureInvariant(SuccessPinFriendlyName);
 }
@@ -331,7 +314,7 @@ void UK2Node_SetVariableByNameNode::CreateNewValuePin(const FEdGraphPinType& Pin
 	FString NewValuePinFriendlyName = PropertyName;
 
 	FCreatePinParams Params;
-	Params.Index = 7 + Index * 2;
+	Params.Index = 6 + Index * 2;
 	UEdGraphPin* Pin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Boolean, NewValuePinName, Params);
 	Pin->PinFriendlyName = FText::AsCultureInvariant(NewValuePinFriendlyName);
 	Pin->PinType = PinType;
@@ -343,7 +326,7 @@ void UK2Node_SetVariableByNameNode::CreateResultPin(const FEdGraphPinType& PinTy
 	FString ResultPinFriendlyName = PropertyName;
 
 	FCreatePinParams Params;
-	Params.Index = 7 + Index * 2 + 1;
+	Params.Index = 6 + Index * 2 + 1;
 	UEdGraphPin* Pin = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Boolean, ResultPinName, Params);
 	Pin->PinFriendlyName = FText::AsCultureInvariant(ResultPinFriendlyName);
 	Pin->PinType = PinType;
@@ -372,13 +355,19 @@ void UK2Node_SetVariableByNameNode::RecreateVariantPinInternal(UClass* TargetCla
 		CreateResultPin(PinType, TP.Property->GetAuthoredName(), 0);
 
 		// Change visibility of contextual pin
-		GetSizeToFitPin()->bHidden = (TP.ContainerType != EPinContainerType::Array);
-		GetAddIfNotPresentPin()->bHidden = (TP.ContainerType != EPinContainerType::Map);
+		GetExtendIfNotPresentPin()->bHidden = true;
+		for (auto& Desc : VarDescs)
+		{
+			if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_Integer ||
+				Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_String)
+			{
+				GetExtendIfNotPresentPin()->bHidden = false;
+			}
+		}
 	}
 	else
 	{
-		GetSizeToFitPin()->bHidden = true;
-		GetAddIfNotPresentPin()->bHidden = true;
+		GetExtendIfNotPresentPin()->bHidden = true;
 	}
 }
 
@@ -472,13 +461,9 @@ UFunction* UK2Node_SetVariableByNameNode::FindSetterFunction(UEdGraphPin* Pin)
 {
 	UClass* FunctionLibrary = UVariableSetterFunctionLibarary::StaticClass();
 
-	if (!GetSizeToFitPin()->bHidden)
+	if (!GetExtendIfNotPresentPin()->bHidden)
 	{
-		return FunctionLibrary->FindFunctionByName(FName("SetNestedVariableByNameForArray"));
-	}
-	else if (!GetAddIfNotPresentPin()->bHidden)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("SetNestedVariableByNameForMap"));
+		return FunctionLibrary->FindFunctionByName(FName("SetNestedVariableByNameForAllTypes"));
 	}
 
 	return FunctionLibrary->FindFunctionByName(FName("SetNestedVariableByName"));
@@ -556,14 +541,9 @@ UEdGraphPin* UK2Node_SetVariableByNameNode::GetVarNamePin() const
 	return FindPinChecked(VarNamePinName);
 }
 
-UEdGraphPin* UK2Node_SetVariableByNameNode::GetSizeToFitPin() const
+UEdGraphPin* UK2Node_SetVariableByNameNode::GetExtendIfNotPresentPin() const
 {
-	return FindPinChecked(SizeToFitPinName);
-}
-
-UEdGraphPin* UK2Node_SetVariableByNameNode::GetAddIfNotPresentPin() const
-{
-	return FindPinChecked(AddIfNotPresentPinName);
+	return FindPinChecked(ExtendIfNotPresentPinName);
 }
 
 UEdGraphPin* UK2Node_SetVariableByNameNode::GetSuccessPin() const

@@ -19,6 +19,38 @@ bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDe
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UObject* OuterObject, FProperty* Dest,
 	void* DestAddr, FProperty* NewValue, void* NewValueAddr, const SetVariableParams& Params);
 
+void* GetInnerItemAddrFromArray(FArrayProperty* ArrayProperty, void* OuterAddr, int32 Index, bool bExtendIfNotPresent)
+{
+	void* ArrayAddr = ArrayProperty->ContainerPtrToValuePtr<void>(OuterAddr);
+	FScriptArrayHelper ArrayHelper(ArrayProperty, ArrayAddr);
+
+	if (!ArrayHelper.IsValidIndex(Index) && bExtendIfNotPresent && (Index >= 0))
+	{
+		ArrayHelper.ExpandForIndex(Index);
+	}
+	if (!ArrayHelper.IsValidIndex(Index))
+	{
+		return nullptr;
+	}
+
+	return ArrayHelper.GetRawPtr(Index);
+}
+
+template <typename T>
+void* GetValueAddrFromMap(FMapProperty* MapProperty, void* OuterAddr, T Key, bool bExtendIfNotPresent)
+{
+	void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
+	auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
+	FScriptMapHelper MapHelper(MapProperty, MapAddr);
+
+	if (bExtendIfNotPresent)
+	{
+		return MapHelper.FindOrAdd(&Key);
+	}
+
+	return MapHelper.FindValueFromHash(&Key);
+}
+
 FProperty* GetScriptStructProperty(UScriptStruct* ScriptStruct, FString VarName)
 {
 	FProperty* Property = nullptr;
@@ -100,30 +132,18 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 		if (Property->IsA<FArrayProperty>())
 		{
 			FArrayProperty* ArrayProperty = CastChecked<FArrayProperty>(Property);
-			void* ArrayAddr = ArrayProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-			auto ArrayPtr = ArrayProperty->GetPropertyValuePtr(ArrayAddr);
 			FProperty* InnerProperty = ArrayProperty->Inner;
 
 			if (VarDescs.Num() == VarDepth + 1)
 			{
-				// Expand the array if needed.
-				FScriptArrayHelper ArrayHelper(ArrayProperty, ArrayAddr);
-				int32 Index = Desc.ArrayAccessValue.Integer;
-				if (!ArrayHelper.IsValidIndex(Index) && Params.bSizeToFit && (Index >= 0))
-				{
-					ArrayHelper.ExpandForIndex(Index);
-				}
-
-				if (!ArrayHelper.IsValidIndex(Index))
+				if (!InnerProperty->SameType(Dest))
 				{
 					return false;
 				}
 
-				int32 Stride = Dest->ArrayDim * Dest->ElementSize;
-				int8* InnerAddr = static_cast<int8*>(ArrayPtr->GetData());
-				void* InnerItemAddr = InnerAddr + Index * Stride;
-
-				if (!InnerProperty->SameType(Dest))
+				void* InnerItemAddr =
+					GetInnerItemAddrFromArray(ArrayProperty, OuterAddr, Desc.ArrayAccessValue.Integer, Params.bExtendIfNotPresent);
+				if (InnerItemAddr == nullptr)
 				{
 					return false;
 				}
@@ -139,34 +159,28 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 
 			if (InnerProperty->IsA<FStructProperty>())
 			{
-				FStructProperty* StructProperty = CastChecked<FStructProperty>(InnerProperty);
-
-				int32 Index = Desc.ArrayAccessValue.Integer;
-				if (Index >= ArrayPtr->Num())
+				void* InnerItemAddr =
+					GetInnerItemAddrFromArray(ArrayProperty, OuterAddr, Desc.ArrayAccessValue.Integer, Params.bExtendIfNotPresent);
+				if (InnerItemAddr == nullptr)
 				{
 					return false;
 				}
 
-				int32 Stride = StructProperty->ArrayDim * StructProperty->ElementSize;
-				int8* InnerAddr = static_cast<int8*>(ArrayPtr->GetData());
-				void* InnerItemAddr = InnerAddr + Index * Stride;
+				FStructProperty* StructProperty = CastChecked<FStructProperty>(InnerProperty);
 
 				return HandleTerminalProperty(
 					VarDescs, VarDepth + 1, StructProperty, InnerItemAddr, Dest, DestAddr, NewValue, NewValueAddr, Params);
 			}
 			else if (InnerProperty->IsA<FObjectProperty>())
 			{
-				FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(InnerProperty);
-
-				int32 Index = Desc.ArrayAccessValue.Integer;
-				if (Index >= ArrayPtr->Num())
+				void* InnerItemAddr =
+					GetInnerItemAddrFromArray(ArrayProperty, OuterAddr, Desc.ArrayAccessValue.Integer, Params.bExtendIfNotPresent);
+				if (InnerItemAddr == nullptr)
 				{
 					return false;
 				}
 
-				int32 Stride = ObjectProperty->ArrayDim * ObjectProperty->ElementSize;
-				int8* InnerAddr = static_cast<int8*>(ArrayPtr->GetData());
-				void* InnerItemAddr = InnerAddr + Index * Stride;
+				FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(InnerProperty);
 				UObject* Object = ObjectProperty->GetPropertyValue_InContainer(InnerItemAddr);
 
 				return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr, Params);
@@ -192,22 +206,8 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 					return false;
 				}
 
-				void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-				auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
-				int32 Key = Desc.ArrayAccessValue.Integer;
-				uint8* ValueAddr = nullptr;
-				if (Params.bAddIfNotPresent)
-				{
-					// Add the map item if needed.
-					FScriptMapHelper MapHelper(MapProperty, MapAddr);
-					ValueAddr = (uint8*) MapHelper.FindOrAdd(&Key);
-				}
-				else
-				{
-					ValueAddr = MapPtr->FindValue(
-						&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-						[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
-				}
+				void* ValueAddr =
+					GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.Integer, Params.bExtendIfNotPresent);
 				if (ValueAddr == nullptr)
 				{
 					return false;
@@ -224,34 +224,28 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 
 			if (ValueProperty->IsA<FStructProperty>())
 			{
-				FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
-				void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-				auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
-				int32 Key = Desc.ArrayAccessValue.Integer;
-				uint8* ValueAddr = MapPtr->FindValue(
-					&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-					[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
+				void* ValueAddr =
+					GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.Integer, Params.bExtendIfNotPresent);
 				if (ValueAddr == nullptr)
 				{
 					return false;
 				}
+
+				FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
 
 				return HandleTerminalProperty(
 					VarDescs, VarDepth + 1, StructProperty, ValueAddr, Dest, DestAddr, NewValue, NewValueAddr, Params);
 			}
 			else if (ValueProperty->IsA<FObjectProperty>())
 			{
-				FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(ValueProperty);
-				void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-				auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
-				int32 Key = Desc.ArrayAccessValue.Integer;
-				void* ValueAddr = MapPtr->FindValue(
-					&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-					[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
+				void* ValueAddr =
+					GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.Integer, Params.bExtendIfNotPresent);
 				if (ValueAddr == nullptr)
 				{
 					return false;
 				}
+
+				FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(ValueProperty);
 				UObject* Object = ObjectProperty->GetPropertyValue(ValueAddr);
 
 				return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr, Params);
@@ -284,22 +278,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				return false;
 			}
 
-			void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-			auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
-			FString Key = Desc.ArrayAccessValue.String;
-			uint8* ValueAddr = nullptr;
-			if (Params.bAddIfNotPresent)
-			{
-				// Add the map item if needed.
-				FScriptMapHelper MapHelper(MapProperty, MapAddr);
-				ValueAddr = (uint8*) MapHelper.FindOrAdd(&Key);
-			}
-			else
-			{
-				ValueAddr = MapPtr->FindValue(
-					&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-					[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
-			}
+			void* ValueAddr = GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.String, Params.bExtendIfNotPresent);
 			if (ValueAddr == nullptr)
 			{
 				return false;
@@ -316,34 +295,26 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 
 		if (ValueProperty->IsA<FStructProperty>())
 		{
-			FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
-			void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-			auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
-			FString Key = Desc.ArrayAccessValue.String;
-			uint8* ValueAddr = MapPtr->FindValue(
-				&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-				[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
+			void* ValueAddr = GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.String, Params.bExtendIfNotPresent);
 			if (ValueAddr == nullptr)
 			{
 				return false;
 			}
+
+			FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
 
 			return HandleTerminalProperty(
 				VarDescs, VarDepth + 1, StructProperty, ValueAddr, Dest, DestAddr, NewValue, NewValueAddr, Params);
 		}
 		else if (ValueProperty->IsA<FObjectProperty>())
 		{
-			FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(ValueProperty);
-			void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
-			auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
-			FString Key = Desc.ArrayAccessValue.String;
-			void* ValueAddr = MapPtr->FindValue(
-				&Key, MapProperty->MapLayout, [KeyProperty](const void* Key) { return KeyProperty->GetValueTypeHash(Key); },
-				[KeyProperty](const void* A, const void* B) { return KeyProperty->Identical(A, B); });
+			void* ValueAddr = GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.String, Params.bExtendIfNotPresent);
 			if (ValueAddr == nullptr)
 			{
 				return false;
 			}
+
+			FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(ValueProperty);
 			UObject* Object = ObjectProperty->GetPropertyValue(ValueAddr);
 
 			return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr, Params);

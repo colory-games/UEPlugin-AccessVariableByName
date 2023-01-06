@@ -32,8 +32,7 @@ struct FVarDescription
 
 struct SetVariableParams
 {
-	bool bSizeToFit = false;
-	bool bAddIfNotPresent = false;
+	bool bExtendIfNotPresent = false;
 };
 
 namespace FVariableAccessFunctionLibraryUtils

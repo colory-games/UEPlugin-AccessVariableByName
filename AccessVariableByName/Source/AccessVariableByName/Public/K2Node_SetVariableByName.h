@@ -41,8 +41,7 @@ protected:
 	void CreateTargetPin();
 	void CreateVarNamePin();
 	void CreateNewValuePin(const FEdGraphPinType& PinType, FString PropertyName, int32 Index);
-	void CreateSizeToFitPin(bool bHidden);
-	void CreateAddIfNotPresentPin(bool bHidden);
+	void CreateExtendIfNotPresentPin(bool bHidden);
 	void CreateSuccessPin();
 	void CreateResultPin(const FEdGraphPinType& PinType, FString PropertyName, int32 Index);
 	void RecreateVariantPinInternal(UClass* TargetClass, const FString& VarName);
@@ -59,8 +58,7 @@ public:
 	UEdGraphPin* GetExecThenPin() const;
 	UEdGraphPin* GetTargetPin() const;
 	UEdGraphPin* GetVarNamePin() const;
-	UEdGraphPin* GetSizeToFitPin() const;
-	UEdGraphPin* GetAddIfNotPresentPin() const;
+	UEdGraphPin* GetExtendIfNotPresentPin() const;
 	UEdGraphPin* GetSuccessPin() const;
 	TArray<UEdGraphPin*> GetAllNewValuePins() const;
 	TArray<UEdGraphPin*> GetAllResultPins() const;
