@@ -11,6 +11,8 @@
 
 #include "BlueprintActionDatabaseRegistrar.h"
 #include "K2Node.h"
+#include "K2Node_CallFunction.h"
+#include "K2Node_MakeStruct.h"
 
 #include "K2Node_GetVariableByName.generated.h"
 
@@ -59,6 +61,8 @@ protected:
 	UFunction* FindGetterFunction(UEdGraphPin* Pin);
 	bool IsResultPin(const UEdGraphPin* Pin) const;
 	bool IsSupport(const UEdGraphPin* Pin) const;
+	UK2Node_MakeStruct* CreateMakeStructNode(FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph);
+	UK2Node_CallFunction* CreateGetFunctionCallNode(FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph, UEdGraphPin* ResultPin);
 
 public:
 	UK2Node_GetVariableByNameNode(const FObjectInitializer& ObjectInitializer);
@@ -69,6 +73,9 @@ public:
 	UEdGraphPin* GetSuccessPin() const;
 	TArray<UEdGraphPin*> GetAllResultPins() const;
 
-	UPROPERTY(EditAnywhere, Category = "Options")
+	UPROPERTY(EditAnywhere, Category = "Node Options")
 	bool bPureNode = true;
+
+	UPROPERTY(EditAnywhere, Category = "Access Variable Options")
+	bool bIncludeGenerationClass = false;
 };

@@ -14,7 +14,6 @@
 #include "EditorCategoryUtils.h"
 #include "GraphEditorSettings.h"
 #include "Internationalization/Regex.h"
-#include "K2Node_CallFunction.h"
 #include "K2Node_Self.h"
 #include "KismetCompiler.h"
 #include "Misc/EngineVersionComparison.h"
@@ -86,6 +85,39 @@ void UK2Node_GetVariableByNameNode::GetMenuActions(FBlueprintActionDatabaseRegis
 	}
 }
 
+UK2Node_MakeStruct* UK2Node_GetVariableByNameNode::CreateMakeStructNode(FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph)
+{
+	UK2Node_MakeStruct* MakeStruct = CompilerContext.SpawnIntermediateNode<UK2Node_MakeStruct>(this, SourceGraph);
+	MakeStruct->StructType = FAccessVariableParams::StaticStruct();
+	MakeStruct->AllocateDefaultPins();
+	MakeStruct->bMadeAfterOverridePinRemoval = true;
+	MakeStruct->GetSchema()->TrySetDefaultValue(
+		*MakeStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FAccessVariableParams, bIncludeGenerationClass)),
+		bIncludeGenerationClass ? TEXT("true") : TEXT("false")
+	);
+	MakeStruct->GetSchema()->TrySetDefaultValue(
+		*MakeStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FAccessVariableParams, bExtendIfNotPresent)),
+		TEXT("false")
+	);
+
+	return MakeStruct;
+}
+
+UK2Node_CallFunction* UK2Node_GetVariableByNameNode::CreateGetFunctionCallNode(FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph, UEdGraphPin* ResultPin)
+{
+	UFunction* GetterFunction = FindGetterFunction(ResultPin);
+	if (GetterFunction == nullptr)
+	{
+		CompilerContext.MessageLog.Error(*LOCTEXT("FunctionNotFound", "The getter function is not found.").ToString());
+		return nullptr;
+	}
+	UK2Node_CallFunction* CallFunction = CompilerContext.SpawnIntermediateNode<UK2Node_CallFunction>(this, SourceGraph);
+	CallFunction->SetFromFunction(GetterFunction);
+	CallFunction->AllocateDefaultPins();
+
+	return CallFunction;
+}
+
 void UK2Node_GetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph)
 {
 	Super::ExpandNode(CompilerContext, SourceGraph);
@@ -104,13 +136,12 @@ void UK2Node_GetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 		// clang-format on
 		return;
 	}
-
 	if (ResultPins.Num() == 0)
 	{
 		return;
 	}
+	
 	UEdGraphPin* ResultPin = ResultPins[0];
-
 	if (!IsSupport(ResultPin))
 	{
 		// clang-format off
@@ -122,27 +153,31 @@ void UK2Node_GetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 		return;
 	}
 
-	UFunction* GetterFunction = FindGetterFunction(ResultPin);
-	if (GetterFunction == nullptr)
+	// Create intermidiate nodes.
+	UK2Node_MakeStruct* MakeStruct = CreateMakeStructNode(CompilerContext, SourceGraph);
+	UK2Node_CallFunction* CallFunction = CreateGetFunctionCallNode(CompilerContext, SourceGraph, ResultPin);
+	if (CallFunction == nullptr)
 	{
-		CompilerContext.MessageLog.Error(*LOCTEXT("FunctionNotFound", "The getter function is not found.").ToString());
 		return;
 	}
 
-	UK2Node_CallFunction* CallFunction = CompilerContext.SpawnIntermediateNode<UK2Node_CallFunction>(this, SourceGraph);
-	CallFunction->SetFromFunction(GetterFunction);
-	CallFunction->AllocateDefaultPins();
-
 	UEdGraphPin* FunctionTargetPin = CallFunction->FindPinChecked(TEXT("Target"));
 	UEdGraphPin* FunctionVarNamePin = CallFunction->FindPinChecked(TEXT("VarName"));
+	UEdGraphPin* FunctionParamsPin = CallFunction->FindPinChecked(TEXT("Params"));
 	UEdGraphPin* FunctionSuccessPin = CallFunction->FindPinChecked(TEXT("Success"));
 	UEdGraphPin* FunctionResultPin = CallFunction->FindPinChecked(TEXT("Result"));
 
+	// Change result pin type along to node's one.
 	FunctionResultPin->PinType = ResultPin->PinType;
 	FunctionResultPin->PinType.PinSubCategory = ResultPin->PinType.PinSubCategory;
 	FunctionResultPin->PinType.PinSubCategoryObject = ResultPin->PinType.PinSubCategoryObject;
 	FunctionResultPin->PinType.PinValueType = ResultPin->PinType.PinValueType;
 
+	// Link between Makestruct node and CallFunction node.
+	UEdGraphPin* AccessVariableParamsPin = MakeStruct->FindPinChecked(TEXT("AccessVariableParams"));
+	AccessVariableParamsPin->MakeLinkTo(FunctionParamsPin);
+
+	// Link execution pins.
 	if (!bPureNode)
 	{
 		UEdGraphPin* ExecTriggeringPin = GetExecPin();
@@ -154,18 +189,22 @@ void UK2Node_GetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 		CompilerContext.MovePinLinksToIntermediate(*ExecThenPin, *FunctionExecThenPin);
 	}
 
+	// Link target pin.
 	if (TargetPin->LinkedTo.Num() >= 1)
 	{
 		CompilerContext.MovePinLinksToIntermediate(*TargetPin, *FunctionTargetPin);
 	}
 	else
 	{
+		// Handle self node case.
 		UK2Node_Self* SelfNode = CompilerContext.SpawnIntermediateNode<UK2Node_Self>(this, SourceGraph);
 		SelfNode->AllocateDefaultPins();
 
 		UEdGraphPin* OutPin = SelfNode->Pins[0];
 		OutPin->MakeLinkTo(FunctionTargetPin);
 	}
+
+	// Link rest pins.
 	CompilerContext.MovePinLinksToIntermediate(*VarNamePin, *FunctionVarNamePin);
 	CompilerContext.MovePinLinksToIntermediate(*SuccessPin, *FunctionSuccessPin);
 	CompilerContext.MovePinLinksToIntermediate(*ResultPin, *FunctionResultPin);

@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "VariableAccessFunctionLibraryUtils.generated.h"
+
 enum EArrayAccessType
 {
 	ArrayAccessType_None,
@@ -30,13 +32,29 @@ struct FVarDescription
 	FArrayAccessValue ArrayAccessValue;
 };
 
-struct FAccessVariableParams
+USTRUCT(BlueprintType)
+struct VARIABLEACCESSFUNCTIONLIBRARY_API FAccessVariableParams
 {
+	GENERATED_BODY()
+
 	// Common.
-	bool bIncludeGenerationClass = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIncludeGenerationClass = false;
 
 	// Set.
+	UPROPERTY(EditAnywhere, BLueprintReadWrite)
 	bool bExtendIfNotPresent = false;
+};
+
+UCLASS()
+class VARIABLEACCESSFUNCTIONLIBRARY_API UVariableAccessUtilLibrary : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+
+	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly)
+	static FAccessVariableParams MakeAccessVariableParams(bool bIncludeGenerationClass, bool bExtendIfNotPresent);
 };
 
 namespace FVariableAccessFunctionLibraryUtils

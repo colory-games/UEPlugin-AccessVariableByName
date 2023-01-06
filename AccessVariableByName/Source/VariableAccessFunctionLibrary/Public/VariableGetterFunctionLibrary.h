@@ -24,12 +24,13 @@ public:
 		void* ResultAddr, const FAccessVariableParams& Params);
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result"))
-	static void GetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result);
+	static void GetNestedVariableByName(UObject* Target, FName VarName, FAccessVariableParams Params, bool& Success, UProperty*& Result);
 
 	DECLARE_FUNCTION(execGetNestedVariableByName)
 	{
 		P_GET_OBJECT(UObject, Target);
 		P_GET_PROPERTY(FNameProperty, VarName);
+		P_GET_STRUCT(FAccessVariableParams, Params);
 		P_GET_PROPERTY_REF(FBoolProperty, Success);
 
 		Stack.StepCompiledIn<FMapProperty>(NULL);
@@ -39,19 +40,19 @@ public:
 
 		P_NATIVE_BEGIN;
 
-		FAccessVariableParams Params;
 		GenericGetNestedVariableByName(Target, VarName, Success, ResultProperty, ResultAddr, Params);
 
 		P_NATIVE_END;
 	}
 
 	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result"))
-	static void GetNestedVariableByNamePure(UObject* Target, FName VarName, bool& Success, UProperty*& Result);
+	static void GetNestedVariableByNamePure(UObject* Target, FName VarName, FAccessVariableParams Params, bool& Success, UProperty*& Result);
 
 	DECLARE_FUNCTION(execGetNestedVariableByNamePure)
 	{
 		P_GET_OBJECT(UObject, Target);
 		P_GET_PROPERTY(FNameProperty, VarName);
+		P_GET_STRUCT(FAccessVariableParams, Params);
 		P_GET_PROPERTY_REF(FBoolProperty, Success);
 
 		Stack.StepCompiledIn<FMapProperty>(NULL);
@@ -61,7 +62,6 @@ public:
 
 		P_NATIVE_BEGIN;
 
-		FAccessVariableParams Params;
 		GenericGetNestedVariableByName(Target, VarName, Success, ResultProperty, ResultAddr, Params);
 
 		P_NATIVE_END;

@@ -40,12 +40,12 @@ void UVariableGetterFunctionLibarary::GenericGetNestedVariableByName(
 		VarDescs, 0, Target, ResultProperty, ResultAddr, nullptr, nullptr, Params);
 }
 
-void UVariableGetterFunctionLibarary::GetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result)
+void UVariableGetterFunctionLibarary::GetNestedVariableByName(UObject* Target, FName VarName, FAccessVariableParams Params, bool& Success, UProperty*& Result)
 {
 	check(0);
 }
 
-void UVariableGetterFunctionLibarary::GetNestedVariableByNamePure(UObject* Target, FName VarName, bool& Success, UProperty*& Result)
+void UVariableGetterFunctionLibarary::GetNestedVariableByNamePure(UObject* Target, FName VarName, FAccessVariableParams Params, bool& Success, UProperty*& Result)
 {
 	check(0);
 }

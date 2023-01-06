@@ -11,6 +11,7 @@
 
 #include "BlueprintActionDatabaseRegistrar.h"
 #include "K2Node.h"
+#include "VariableAccessFunctionLibraryUtils.h"
 
 #include "K2Node_DynamicGetVariableByName.generated.h"
 
@@ -72,6 +73,9 @@ public:
 	void ChangeResultPinType(const FEdGraphPinType& PinType);
 	FEdGraphPinType GetResultPinType() const;
 
-	UPROPERTY(EditAnywhere, Category = "Options")
+	UPROPERTY(EditAnywhere, Category = "Node Options")
 	bool bPureNode = true;
+
+	UPROPERTY(EditAnywhere, Category = "Access Variable Options")
+	bool bIncludeGenerationClass = false;
 };
