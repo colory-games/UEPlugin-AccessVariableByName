@@ -63,11 +63,11 @@ protected:
 public:
 	UK2Node_GetVariableByNameNode(const FObjectInitializer& ObjectInitializer);
 
-	UEdGraphPin* GetExecThenPin();
-	UEdGraphPin* GetTargetPin();
-	UEdGraphPin* GetVarNamePin();
-	UEdGraphPin* GetSuccessPin();
-	TArray<UEdGraphPin*> GetAllResultPins();
+	UEdGraphPin* GetExecThenPin() const;
+	UEdGraphPin* GetTargetPin() const;
+	UEdGraphPin* GetVarNamePin() const;
+	UEdGraphPin* GetSuccessPin() const;
+	TArray<UEdGraphPin*> GetAllResultPins() const;
 
 	UPROPERTY(EditAnywhere, Category = "Options")
 	bool bPureNode = true;

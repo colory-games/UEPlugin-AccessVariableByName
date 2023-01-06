@@ -63,7 +63,6 @@ public:
 	UK2Node_DynamicGetVariableByNameNode(const FObjectInitializer& ObjectInitializer);
 
 	UEdGraphPin* GetFunctionPin() const;
-	UEdGraphPin* GetExecTriggeringPin() const;
 	UEdGraphPin* GetExecThenPin() const;
 	UEdGraphPin* GetTargetPin() const;
 	UEdGraphPin* GetVarNamePin() const;

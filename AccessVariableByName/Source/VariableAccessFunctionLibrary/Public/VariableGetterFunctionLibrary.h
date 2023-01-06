@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "VariableAccessFunctionLibraryUtils.h"
 
 #include "VariableGetterFunctionLibrary.generated.h"
 
@@ -20,7 +21,7 @@ class VARIABLEACCESSFUNCTIONLIBRARY_API UVariableGetterFunctionLibarary : public
 
 public:
 	static void GenericGetNestedVariableByName(
-		UObject* Target, FName VarName, bool& Success, FProperty* ResultProperty, void* ResultAddr);
+		UObject* Target, FName VarName, bool& Success, FProperty* ResultProperty, void* ResultAddr, const FAccessVariableParams& Params);
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result"))
 	static void GetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result);
@@ -38,7 +39,8 @@ public:
 
 		P_NATIVE_BEGIN;
 
-		GenericGetNestedVariableByName(Target, VarName, Success, ResultProperty, ResultAddr);
+		FAccessVariableParams Params;
+		GenericGetNestedVariableByName(Target, VarName, Success, ResultProperty, ResultAddr, Params);
 
 		P_NATIVE_END;
 	}
@@ -59,7 +61,8 @@ public:
 
 		P_NATIVE_BEGIN;
 
-		GenericGetNestedVariableByName(Target, VarName, Success, ResultProperty, ResultAddr);
+		FAccessVariableParams Params;
+		GenericGetNestedVariableByName(Target, VarName, Success, ResultProperty, ResultAddr, Params);
 
 		P_NATIVE_END;
 	}

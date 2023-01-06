@@ -366,7 +366,8 @@ void UK2Node_GetVariableByNameNode::RecreateResultPinInternal(UClass* TargetClas
 	TArray<FVarDescription> VarDescs;
 	FVariableAccessFunctionLibraryUtils::AnalyzeVarNames(Vars, &VarDescs);
 
-	TerminalProperty TP = GetTerminalProperty(VarDescs, 0, TargetClass);
+	FAccessVariableParams Params;
+	TerminalProperty TP = GetTerminalProperty(VarDescs, 0, TargetClass, Params);
 	if (TP.Property != nullptr)
 	{
 		const UEdGraphSchema_K2* Schema = GetDefault<UEdGraphSchema_K2>();
@@ -518,7 +519,7 @@ bool UK2Node_GetVariableByNameNode::IsSupport(const UEdGraphPin* Pin) const
 	return true;
 }
 
-UEdGraphPin* UK2Node_GetVariableByNameNode::GetExecThenPin()
+UEdGraphPin* UK2Node_GetVariableByNameNode::GetExecThenPin() const
 {
 	if (bPureNode)
 	{
@@ -530,22 +531,22 @@ UEdGraphPin* UK2Node_GetVariableByNameNode::GetExecThenPin()
 	}
 }
 
-UEdGraphPin* UK2Node_GetVariableByNameNode::GetTargetPin()
+UEdGraphPin* UK2Node_GetVariableByNameNode::GetTargetPin() const
 {
 	return FindPin(UEdGraphSchema_K2::PN_Self);
 }
 
-UEdGraphPin* UK2Node_GetVariableByNameNode::GetVarNamePin()
+UEdGraphPin* UK2Node_GetVariableByNameNode::GetVarNamePin() const
 {
 	return FindPinChecked(VarNamePinName);
 }
 
-UEdGraphPin* UK2Node_GetVariableByNameNode::GetSuccessPin()
+UEdGraphPin* UK2Node_GetVariableByNameNode::GetSuccessPin() const
 {
 	return FindPinChecked(SuccessPinName);
 }
 
-TArray<UEdGraphPin*> UK2Node_GetVariableByNameNode::GetAllResultPins()
+TArray<UEdGraphPin*> UK2Node_GetVariableByNameNode::GetAllResultPins() const
 {
 	TArray<UEdGraphPin*> Results;
 

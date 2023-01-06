@@ -13,7 +13,7 @@
 #include "VariableAccessFunctionLibraryUtils.h"
 
 void UVariableGetterFunctionLibarary::GenericGetNestedVariableByName(
-	UObject* Target, FName VarName, bool& Success, FProperty* ResultProperty, void* ResultAddr)
+	UObject* Target, FName VarName, bool& Success, FProperty* ResultProperty, void* ResultAddr, const FAccessVariableParams& Params)
 {
 	TArray<FString> Vars;
 	TArray<FVarDescription> VarDescs;
@@ -36,7 +36,6 @@ void UVariableGetterFunctionLibarary::GenericGetNestedVariableByName(
 	}
 #endif
 
-	SetVariableParams Params;
 	Success = FVariableAccessFunctionLibraryUtils::HandleTerminalProperty(
 		VarDescs, 0, Target, ResultProperty, ResultAddr, nullptr, nullptr, Params);
 }
