@@ -32,4 +32,5 @@ struct TerminalProperty
 
 FEdGraphPinType CreateDefaultPinType();
 UClass* GetClassFromNode(const UEdGraphNode* Node);
-TerminalProperty GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass, const FAccessVariableParams& Params);
+TerminalProperty GetTerminalProperty(
+	const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass, const FAccessVariableParams& Params);

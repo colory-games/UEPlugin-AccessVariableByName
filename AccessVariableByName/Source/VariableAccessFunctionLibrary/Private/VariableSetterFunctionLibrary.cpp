@@ -22,7 +22,8 @@ void UVariableSetterFunctionLibarary::SetNestedVariableByNameForAllTypes(
 }
 
 void UVariableSetterFunctionLibarary::GenericSetNestedVariableByName(UObject* Target, FName VarName, bool& Success,
-	FProperty* ResultProperty, void* ResultAddr, FProperty* NewValueProperty, void* NewValueAddr, const FAccessVariableParams& Params)
+	FProperty* ResultProperty, void* ResultAddr, FProperty* NewValueProperty, void* NewValueAddr,
+	const FAccessVariableParams& Params)
 {
 	TArray<FString> Vars;
 	TArray<FVarDescription> VarDescs;

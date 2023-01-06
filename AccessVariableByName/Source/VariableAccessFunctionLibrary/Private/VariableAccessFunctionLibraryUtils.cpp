@@ -100,7 +100,8 @@ TTuple<FProperty*, UObject*> GetObjectProperty(UObject* Object, FString VarName,
 		}
 
 		Property = FindFProperty<FProperty>(Blueprint->GetClass(), *VarName);
-		if (Property == nullptr) {
+		if (Property == nullptr)
+		{
 			return NullReturn;
 		}
 
@@ -303,24 +304,24 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 
 		if (VarDescs.Num() == VarDepth + 1)
 		{
-		if (!ValueProperty->SameType(Dest))
-		{
-			return false;
-		}
+			if (!ValueProperty->SameType(Dest))
+			{
+				return false;
+			}
 
-		void* ValueAddr = GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.String, Params.bExtendIfNotPresent);
-		if (ValueAddr == nullptr)
-		{
-			return false;
-		}
+			void* ValueAddr = GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.String, Params.bExtendIfNotPresent);
+			if (ValueAddr == nullptr)
+			{
+				return false;
+			}
 
-		if (NewValue != nullptr)
-		{
-			Dest->CopyCompleteValue(ValueAddr, NewValueAddr);
-		}
-		Dest->CopyCompleteValue(DestAddr, ValueAddr);
+			if (NewValue != nullptr)
+			{
+				Dest->CopyCompleteValue(ValueAddr, NewValueAddr);
+			}
+			Dest->CopyCompleteValue(DestAddr, ValueAddr);
 
-		return true;
+			return true;
 		}
 
 		if (ValueProperty->IsA<FStructProperty>())

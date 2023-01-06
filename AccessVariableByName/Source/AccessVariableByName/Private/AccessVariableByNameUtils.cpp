@@ -25,7 +25,8 @@ const FString VarNamePinFriendlyName(TEXT("Var Name"));
 const FString ExtendIfNotPresentPinFriendlyName(TEXT("Extend If not Present"));
 const FString SuccessPinFriendlyName(TEXT("Success"));
 
-TerminalProperty GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass, const FAccessVariableParams& Params);
+TerminalProperty GetTerminalProperty(
+	const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass, const FAccessVariableParams& Params);
 
 FEdGraphPinType CreateDefaultPinType()
 {
@@ -69,7 +70,8 @@ TTuple<FProperty*, UClass*> GetObjectProperty(UClass* TargetClass, FString VarNa
 		}
 
 		Property = FindFProperty<FProperty>(Blueprint->GetClass(), *VarName);
-		if (Property == nullptr) {
+		if (Property == nullptr)
+		{
 			return NullReturn;
 		}
 
@@ -79,7 +81,8 @@ TTuple<FProperty*, UClass*> GetObjectProperty(UClass* TargetClass, FString VarNa
 	return NullReturn;
 }
 
-TerminalProperty GetTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property, const FAccessVariableParams& Params)
+TerminalProperty GetTerminalPropertyInternal(
+	const TArray<FVarDescription>& VarDescs, int32 VarDepth, FProperty* Property, const FAccessVariableParams& Params)
 {
 	if (VarDescs.Num() <= VarDepth)
 	{
@@ -215,7 +218,8 @@ TerminalProperty GetTerminalPropertyInternal(const TArray<FVarDescription>& VarD
 	return TerminalProperty();
 }
 
-TerminalProperty GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass, const FAccessVariableParams& Params)
+TerminalProperty GetTerminalProperty(
+	const TArray<FVarDescription>& VarDescs, int32 VarDepth, UScriptStruct* OuterClass, const FAccessVariableParams& Params)
 {
 	if (VarDescs.Num() <= VarDepth)
 	{
@@ -238,7 +242,8 @@ TerminalProperty GetTerminalProperty(const TArray<FVarDescription>& VarDescs, in
 	return GetTerminalPropertyInternal(VarDescs, VarDepth, Property, Params);
 }
 
-TerminalProperty GetTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass, const FAccessVariableParams& Params)
+TerminalProperty GetTerminalProperty(
+	const TArray<FVarDescription>& VarDescs, int32 VarDepth, UClass* OuterClass, const FAccessVariableParams& Params)
 {
 	if (VarDescs.Num() <= VarDepth)
 	{

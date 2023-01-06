@@ -20,8 +20,8 @@ class VARIABLEACCESSFUNCTIONLIBRARY_API UVariableGetterFunctionLibarary : public
 	GENERATED_BODY()
 
 public:
-	static void GenericGetNestedVariableByName(
-		UObject* Target, FName VarName, bool& Success, FProperty* ResultProperty, void* ResultAddr, const FAccessVariableParams& Params);
+	static void GenericGetNestedVariableByName(UObject* Target, FName VarName, bool& Success, FProperty* ResultProperty,
+		void* ResultAddr, const FAccessVariableParams& Params);
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result"))
 	static void GetNestedVariableByName(UObject* Target, FName VarName, bool& Success, UProperty*& Result);
