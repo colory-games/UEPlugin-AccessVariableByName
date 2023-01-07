@@ -26,7 +26,12 @@ It is useful to check if the variable name and pin type is valid on the compilat
 
 ### Additional Information
 
-* 'Get Variable by Name' node supports Pure node.
+'Get Variable by Name' node have following properties.
+
+|Category|Property Name|Description|
+|---|---|---|
+|Node Options|Pure Node|Make node a pure node if true.|
+|Access Variable Options|Include Generation Class|Include variables from a generation class (UBlueprint) if true.|
 
 ## Set Variable by Name
 
@@ -50,9 +55,12 @@ This node analyzes the name and the target (static analysis), and changes the ty
 
 ### Additional Information
 
-* 'Set Variable by Name' node supports contextual pins
-  * Size to Fit: If `True`, an array will be expanded if index is greater than the current size of the array.
-  * Add If not Present: If `True`, a map will be add an element if key is not presented in the current map.
+'Set Variable by Name' node have following properties.
+
+|Category|Property Name|Description|
+|---|---|---|
+|Access Variable Options|Include Generation Class|Include variables from a generation class (UBlueprint) if true.|
+|Container Type Access Options|Extend If Not Present|Create elements automatically if true when the element does not present.|
 
 ## Get Variable by Name (Dynamic)
 
@@ -77,7 +85,12 @@ But this node accepts [the name which can be changed dynamically at runtime](#dy
 
 ### Additional Information
 
-* 'Get Variable by Name' node supports Pure node.
+'Get Variable by Name (Dynamic)' node have following properties.
+
+|Category|Property Name|Description|
+|---|---|---|
+|Node Options|Pure Node|Make node a pure node if true.|
+|Access Variable Options|Include Generation Class|Include variables from a generation class (UBlueprint) if true.|
 
 ## Set Variable by Name (Dynamic)
 
@@ -103,9 +116,12 @@ But this node accepts [the name which can be changed dynamically at runtime](#dy
 
 ### Additional Information
 
-* 'Set Variable by Name' node supports contextual options
-  * Size to Fit: If `True`, an array will be expanded if index is greater than the current size of the array.
-  * Add If not Present: If `True`, a map will be add an element if key is not presented in the current map.
+'Set Variable by Name (Dynamic)' node have following properties.
+
+|Category|Property Name|Description|
+|---|---|---|
+|Access Variable Options|Include Generation Class|Include variables from a generation class (UBlueprint) if true.|
+|Container Type Access Options|Extend If Not Present|Create elements automatically if true when the element does not present.|
 
 ## Custom Syntax
 
