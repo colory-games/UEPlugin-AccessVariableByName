@@ -53,7 +53,7 @@ void UK2Node_GetVariableByNameNode::PostEditChangeProperty(struct FPropertyChang
 
 	UClass* TargetClass = GetTargetClass(OldTargetPin);
 	FString VarName = OldVarNamePin->DefaultValue;
-	RecreateResultPinInternal(TargetClass, VarName);
+	RecreateVariantPinInternal(TargetClass, VarName);
 
 	// Restore connection.
 	RestoreSplitPins(OldPins);
@@ -263,7 +263,7 @@ void UK2Node_GetVariableByNameNode::ReallocatePinsDuringReconstruction(TArray<UE
 
 	UClass* TargetClass = GetTargetClass(OldTargetPin);
 	FString VarName = OldVarNamePin->DefaultValue;
-	RecreateResultPinInternal(TargetClass, VarName);
+	RecreateVariantPinInternal(TargetClass, VarName);
 
 	RestoreSplitPins(OldPins);
 }
@@ -315,7 +315,7 @@ void UK2Node_GetVariableByNameNode::PinDefaultValueChanged(UEdGraphPin* Pin)
 
 	if (Pin->PinName == UEdGraphSchema_K2::PN_Self)
 	{
-		RecreateResultPin();
+		RecreateVariantPin();
 	}
 	else if (Pin->PinName == VarNamePinName)
 	{
@@ -324,7 +324,7 @@ void UK2Node_GetVariableByNameNode::PinDefaultValueChanged(UEdGraphPin* Pin)
 		{
 			ResultPin->BreakAllPinLinks();
 		}
-		RecreateResultPin();
+		RecreateVariantPin();
 	}
 }
 
@@ -337,7 +337,7 @@ void UK2Node_GetVariableByNameNode::PinConnectionListChanged(UEdGraphPin* Pin)
 
 	if (Pin->PinName == UEdGraphSchema_K2::PN_Self)
 	{
-		RecreateResultPin();
+		RecreateVariantPin();
 	}
 }
 
@@ -393,7 +393,7 @@ void UK2Node_GetVariableByNameNode::CreateResultPin(const FEdGraphPinType& PinTy
 	Pin->PinType = PinType;
 }
 
-void UK2Node_GetVariableByNameNode::RecreateResultPinInternal(UClass* TargetClass, const FString& VarName)
+void UK2Node_GetVariableByNameNode::RecreateVariantPinInternal(UClass* TargetClass, const FString& VarName)
 {
 	if (TargetClass == nullptr)
 	{
@@ -406,6 +406,7 @@ void UK2Node_GetVariableByNameNode::RecreateResultPinInternal(UClass* TargetClas
 	FVariableAccessFunctionLibraryUtils::AnalyzeVarNames(Vars, &VarDescs);
 
 	FAccessVariableParams Params;
+	Params.bIncludeGenerationClass = bIncludeGenerationClass;
 	TerminalProperty TP = GetTerminalProperty(VarDescs, 0, TargetClass, Params);
 	if (TP.Property != nullptr)
 	{
@@ -417,7 +418,7 @@ void UK2Node_GetVariableByNameNode::RecreateResultPinInternal(UClass* TargetClas
 	}
 }
 
-void UK2Node_GetVariableByNameNode::RecreateResultPin()
+void UK2Node_GetVariableByNameNode::RecreateVariantPin()
 {
 	Modify();
 
@@ -435,7 +436,7 @@ void UK2Node_GetVariableByNameNode::RecreateResultPin()
 	// Create new result pin.
 	UClass* TargetClass = GetTargetClass();
 	FString VarName = GetVarNamePin()->DefaultValue;
-	RecreateResultPinInternal(TargetClass, VarName);
+	RecreateVariantPinInternal(TargetClass, VarName);
 
 	// Restore connection.
 	RestoreSplitPins(UnusedPins);

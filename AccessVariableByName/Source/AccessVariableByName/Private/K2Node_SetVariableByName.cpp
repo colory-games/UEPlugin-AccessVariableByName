@@ -14,7 +14,6 @@
 #include "EditorCategoryUtils.h"
 #include "GraphEditorSettings.h"
 #include "Internationalization/Regex.h"
-#include "K2Node_CallFunction.h"
 #include "K2Node_Self.h"
 #include "KismetCompiler.h"
 #include "Misc/EngineVersionComparison.h"
@@ -24,6 +23,49 @@
 
 UK2Node_SetVariableByNameNode::UK2Node_SetVariableByNameNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+}
+
+void UK2Node_SetVariableByNameNode::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	if (PropertyChangedEvent.ChangeType == EPropertyChangeType::Unspecified)
+	{
+		return;
+	}
+
+	TArray<UEdGraphPin*> OldPins = MoveTemp(Pins);
+	UEdGraphPin* OldTargetPin = nullptr;
+	UEdGraphPin* OldVarNamePin = nullptr;
+	for (auto& Pin : OldPins)
+	{
+		if (Pin->GetFName() == UEdGraphSchema_K2::PN_Self)
+		{
+			OldTargetPin = Pin;
+		}
+		else if (Pin->GetFName() == VarNamePinName)
+		{
+			OldVarNamePin = Pin;
+		}
+	}
+
+	AllocateDefaultPins();
+
+	UClass* TargetClass = GetTargetClass(OldTargetPin);
+	FString VarName = OldVarNamePin->DefaultValue;
+	RecreateVariantPinInternal(TargetClass, VarName);
+
+	// Restore connection.
+	RestoreSplitPins(OldPins);
+	RewireOldPinsToNewPins(OldPins, Pins, nullptr);
+
+	for (auto& Pin : OldPins)
+	{
+		RemovePin(Pin);
+	}
+
+	UEdGraph* Graph = GetGraph();
+	Graph->NotifyGraphChanged();
 }
 
 FText UK2Node_SetVariableByNameNode::GetMenuCategory() const
@@ -43,6 +85,40 @@ void UK2Node_SetVariableByNameNode::GetMenuActions(FBlueprintActionDatabaseRegis
 	}
 }
 
+UK2Node_MakeStruct* UK2Node_SetVariableByNameNode::CreateMakeStructNode(FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph)
+{
+	UK2Node_MakeStruct* MakeStruct = CompilerContext.SpawnIntermediateNode<UK2Node_MakeStruct>(this, SourceGraph);
+	MakeStruct->StructType = FAccessVariableParams::StaticStruct();
+	MakeStruct->AllocateDefaultPins();
+	MakeStruct->bMadeAfterOverridePinRemoval = true;
+	MakeStruct->GetSchema()->TrySetDefaultValue(
+		*MakeStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FAccessVariableParams, bIncludeGenerationClass)),
+		bIncludeGenerationClass ? TEXT("true") : TEXT("false")
+	);
+	MakeStruct->GetSchema()->TrySetDefaultValue(
+		*MakeStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FAccessVariableParams, bExtendIfNotPresent)),
+		bExtendIfNotPresent ? TEXT("true") : TEXT("false")
+	);
+
+	return MakeStruct;
+}
+
+UK2Node_CallFunction* UK2Node_SetVariableByNameNode::CreateGetFunctionCallNode(FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph, UEdGraphPin* ResultPin)
+{
+	UFunction* SetterFunction = FindSetterFunction(ResultPin);
+	if (SetterFunction == nullptr)
+	{
+		CompilerContext.MessageLog.Error(*LOCTEXT("FunctionNotFound", "The setter function is not found.").ToString());
+		return nullptr;
+	}
+
+	UK2Node_CallFunction* CallFunction = CompilerContext.SpawnIntermediateNode<UK2Node_CallFunction>(this, SourceGraph);
+	CallFunction->SetFromFunction(SetterFunction);
+	CallFunction->AllocateDefaultPins();
+
+	return CallFunction;
+}
+
 void UK2Node_SetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph)
 {
 	Super::ExpandNode(CompilerContext, SourceGraph);
@@ -51,7 +127,6 @@ void UK2Node_SetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 	UEdGraphPin* ExecThenPin = GetExecThenPin();
 	UEdGraphPin* TargetPin = GetTargetPin();
 	UEdGraphPin* VarNamePin = GetVarNamePin();
-	UEdGraphPin* ExtendIfNotPresentPin = GetExtendIfNotPresentPin();
 	UEdGraphPin* SuccessPin = GetSuccessPin();
 	TArray<UEdGraphPin*> NewValuePins = GetAllNewValuePins();
 	TArray<UEdGraphPin*> ResultPins = GetAllResultPins();
@@ -84,25 +159,24 @@ void UK2Node_SetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 		return;
 	}
 
-	UFunction* SetterFunction = FindSetterFunction(ResultPin);
-	if (SetterFunction == nullptr)
+	// Create intermidiate nodes.
+	UK2Node_MakeStruct* MakeStruct = CreateMakeStructNode(CompilerContext, SourceGraph);
+	UK2Node_CallFunction* CallFunction = CreateGetFunctionCallNode(CompilerContext, SourceGraph, ResultPin);
+	if (CallFunction == nullptr)
 	{
-		CompilerContext.MessageLog.Error(*LOCTEXT("FunctionNotFound", "The setter function is not found.").ToString());
 		return;
 	}
-
-	UK2Node_CallFunction* CallFunction = CompilerContext.SpawnIntermediateNode<UK2Node_CallFunction>(this, SourceGraph);
-	CallFunction->SetFromFunction(SetterFunction);
-	CallFunction->AllocateDefaultPins();
 
 	UEdGraphPin* FunctionExecTriggeringPin = CallFunction->GetExecPin();
 	UEdGraphPin* FunctionExecThenPin = CallFunction->GetThenPin();
 	UEdGraphPin* FunctionTargetPin = CallFunction->FindPinChecked(TEXT("Target"));
 	UEdGraphPin* FunctionVarNamePin = CallFunction->FindPinChecked(TEXT("VarName"));
 	UEdGraphPin* FunctionNewValuePin = CallFunction->FindPinChecked(TEXT("NewValue"));
+	UEdGraphPin* FunctionParamsPin = CallFunction->FindPinChecked(TEXT("Params"));
 	UEdGraphPin* FunctionSuccessPin = CallFunction->FindPinChecked(TEXT("Success"));
 	UEdGraphPin* FunctionResultPin = CallFunction->FindPinChecked(TEXT("Result"));
 
+	// Change new value pin and result pin type along to node's one.
 	FunctionNewValuePin->PinType = NewValuePin->PinType;
 	FunctionNewValuePin->PinType.PinSubCategory = NewValuePin->PinType.PinSubCategory;
 	FunctionNewValuePin->PinType.PinSubCategoryObject = NewValuePin->PinType.PinSubCategoryObject;
@@ -112,25 +186,30 @@ void UK2Node_SetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 	FunctionResultPin->PinType.PinSubCategoryObject = ResultPin->PinType.PinSubCategoryObject;
 	FunctionResultPin->PinType.PinValueType = ResultPin->PinType.PinValueType;
 
+	// Link between Makestruct node and CallFunction node.
+	UEdGraphPin* AccessVariableParamsPin = MakeStruct->FindPinChecked(TEXT("AccessVariableParams"));
+	AccessVariableParamsPin->MakeLinkTo(FunctionParamsPin);
+
+	// Link execution pins.
 	CompilerContext.MovePinLinksToIntermediate(*ExecTriggeringPin, *FunctionExecTriggeringPin);
 	CompilerContext.MovePinLinksToIntermediate(*ExecThenPin, *FunctionExecThenPin);
+
+	// Link target pin.
 	if (TargetPin->LinkedTo.Num() >= 1)
 	{
 		CompilerContext.MovePinLinksToIntermediate(*TargetPin, *FunctionTargetPin);
 	}
 	else
 	{
+		// Handle self node case.
 		UK2Node_Self* SelfNode = CompilerContext.SpawnIntermediateNode<UK2Node_Self>(this, SourceGraph);
 		SelfNode->AllocateDefaultPins();
 
 		UEdGraphPin* OutPin = SelfNode->Pins[0];
 		OutPin->MakeLinkTo(FunctionTargetPin);
 	}
-	if (!ExtendIfNotPresentPin->bHidden)
-	{
-		UEdGraphPin* FunctionExtendIfNotPresentPin = CallFunction->FindPinChecked(TEXT("bExtendIfNotPresent"));
-		CompilerContext.MovePinLinksToIntermediate(*ExtendIfNotPresentPin, *FunctionExtendIfNotPresentPin);
-	}
+
+	// Link rest pins.
 	CompilerContext.MovePinLinksToIntermediate(*VarNamePin, *FunctionVarNamePin);
 	CompilerContext.MovePinLinksToIntermediate(*NewValuePin, *FunctionNewValuePin);
 	CompilerContext.MovePinLinksToIntermediate(*SuccessPin, *FunctionSuccessPin);
@@ -148,16 +227,14 @@ void UK2Node_SetVariableByNameNode::AllocateDefaultPins()
 	// 1: Execution Then (Out, Exec)
 	// 2: Target (In, Object Reference)
 	// 3: Var Name (In, FName)
-	// 4: Extend If not Present (In, Boolean)
-	// 5: Success (Out, Boolean)
-	// 6+(N*2): New Value (In, *)
-	// 6+(N*2)+1: Result (Out, *)
+	// 4: Success (Out, Boolean)
+	// 5+(N*2): New Value (In, *)
+	// 5+(N*2)+1: Result (Out, *)
 
 	CreateExecTriggeringPin();
 	CreateExecThenPin();
 	CreateTargetPin();
 	CreateVarNamePin();
-	CreateExtendIfNotPresentPin(true);
 	CreateSuccessPin();
 
 	Super::AllocateDefaultPins();
@@ -291,19 +368,10 @@ void UK2Node_SetVariableByNameNode::CreateVarNamePin()
 	Pin->PinFriendlyName = FText::AsCultureInvariant(VarNamePinFriendlyName);
 }
 
-void UK2Node_SetVariableByNameNode::CreateExtendIfNotPresentPin(bool bHidden)
-{
-	FCreatePinParams Params;
-	Params.Index = 4;
-	UEdGraphPin* Pin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Boolean, ExtendIfNotPresentPinName, Params);
-	Pin->PinFriendlyName = FText::AsCultureInvariant(ExtendIfNotPresentPinFriendlyName);
-	Pin->bHidden = bHidden;
-}
-
 void UK2Node_SetVariableByNameNode::CreateSuccessPin()
 {
 	FCreatePinParams Params;
-	Params.Index = 5;
+	Params.Index = 4;
 	UEdGraphPin* Pin = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Boolean, SuccessPinName, Params);
 	Pin->PinFriendlyName = FText::AsCultureInvariant(SuccessPinFriendlyName);
 }
@@ -314,7 +382,7 @@ void UK2Node_SetVariableByNameNode::CreateNewValuePin(const FEdGraphPinType& Pin
 	FString NewValuePinFriendlyName = PropertyName;
 
 	FCreatePinParams Params;
-	Params.Index = 6 + Index * 2;
+	Params.Index = 5 + Index * 2;
 	UEdGraphPin* Pin = CreatePin(EGPD_Input, UEdGraphSchema_K2::PC_Boolean, NewValuePinName, Params);
 	Pin->PinFriendlyName = FText::AsCultureInvariant(NewValuePinFriendlyName);
 	Pin->PinType = PinType;
@@ -326,7 +394,7 @@ void UK2Node_SetVariableByNameNode::CreateResultPin(const FEdGraphPinType& PinTy
 	FString ResultPinFriendlyName = PropertyName;
 
 	FCreatePinParams Params;
-	Params.Index = 6 + Index * 2 + 1;
+	Params.Index = 5 + Index * 2 + 1;
 	UEdGraphPin* Pin = CreatePin(EGPD_Output, UEdGraphSchema_K2::PC_Boolean, ResultPinName, Params);
 	Pin->PinFriendlyName = FText::AsCultureInvariant(ResultPinFriendlyName);
 	Pin->PinType = PinType;
@@ -345,6 +413,8 @@ void UK2Node_SetVariableByNameNode::RecreateVariantPinInternal(UClass* TargetCla
 	FVariableAccessFunctionLibraryUtils::AnalyzeVarNames(Vars, &VarDescs);
 
 	FAccessVariableParams Params;
+	Params.bIncludeGenerationClass = bIncludeGenerationClass;
+	Params.bExtendIfNotPresent = bExtendIfNotPresent;
 	TerminalProperty TP = GetTerminalProperty(VarDescs, 0, TargetClass, Params);
 	if (TP.Property != nullptr)
 	{
@@ -354,21 +424,6 @@ void UK2Node_SetVariableByNameNode::RecreateVariantPinInternal(UClass* TargetCla
 		Schema->ConvertPropertyToPinType(TP.Property, PinType);
 		CreateNewValuePin(PinType, TP.Property->GetAuthoredName(), 0);
 		CreateResultPin(PinType, TP.Property->GetAuthoredName(), 0);
-
-		// Change visibility of contextual pin
-		GetExtendIfNotPresentPin()->bHidden = true;
-		for (auto& Desc : VarDescs)
-		{
-			if (Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_Integer ||
-				Desc.ArrayAccessType == EArrayAccessType::ArrayAccessType_String)
-			{
-				GetExtendIfNotPresentPin()->bHidden = false;
-			}
-		}
-	}
-	else
-	{
-		GetExtendIfNotPresentPin()->bHidden = true;
 	}
 }
 
@@ -462,11 +517,6 @@ UFunction* UK2Node_SetVariableByNameNode::FindSetterFunction(UEdGraphPin* Pin)
 {
 	UClass* FunctionLibrary = UVariableSetterFunctionLibarary::StaticClass();
 
-	if (!GetExtendIfNotPresentPin()->bHidden)
-	{
-		return FunctionLibrary->FindFunctionByName(FName("SetNestedVariableByNameForAllTypes"));
-	}
-
 	return FunctionLibrary->FindFunctionByName(FName("SetNestedVariableByName"));
 }
 
@@ -540,11 +590,6 @@ UEdGraphPin* UK2Node_SetVariableByNameNode::GetTargetPin() const
 UEdGraphPin* UK2Node_SetVariableByNameNode::GetVarNamePin() const
 {
 	return FindPinChecked(VarNamePinName);
-}
-
-UEdGraphPin* UK2Node_SetVariableByNameNode::GetExtendIfNotPresentPin() const
-{
-	return FindPinChecked(ExtendIfNotPresentPinName);
 }
 
 UEdGraphPin* UK2Node_SetVariableByNameNode::GetSuccessPin() const

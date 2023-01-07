@@ -55,8 +55,8 @@ protected:
 	void CreateVarNamePin();
 	void CreateSuccessPin();
 	void CreateResultPin(const FEdGraphPinType& PinType, FString PropertyName, int32 Index);
-	void RecreateResultPin();
-	void RecreateResultPinInternal(UClass* TargetClass, const FString& VarName);
+	void RecreateVariantPin();
+	void RecreateVariantPinInternal(UClass* TargetClass, const FString& VarName);
 	UClass* GetTargetClass(UEdGraphPin* Pin = nullptr);
 	UFunction* FindGetterFunction(UEdGraphPin* Pin);
 	bool IsResultPin(const UEdGraphPin* Pin) const;
@@ -73,9 +73,11 @@ public:
 	UEdGraphPin* GetSuccessPin() const;
 	TArray<UEdGraphPin*> GetAllResultPins() const;
 
+	// Make node a pure node if true.
 	UPROPERTY(EditAnywhere, Category = "Node Options")
 	bool bPureNode = true;
 
+	// Include variables from a generation class (UBlueprint) if true.
 	UPROPERTY(EditAnywhere, Category = "Access Variable Options")
 	bool bIncludeGenerationClass = false;
 };

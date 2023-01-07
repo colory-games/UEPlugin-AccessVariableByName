@@ -73,9 +73,11 @@ public:
 	void ChangeResultPinType(const FEdGraphPinType& PinType);
 	FEdGraphPinType GetResultPinType() const;
 
+	// Make node a pure node if true.
 	UPROPERTY(EditAnywhere, Category = "Node Options")
 	bool bPureNode = true;
 
+	// Include variables from a generation class (UBlueprint) if true.
 	UPROPERTY(EditAnywhere, Category = "Access Variable Options")
 	bool bIncludeGenerationClass = false;
 };
