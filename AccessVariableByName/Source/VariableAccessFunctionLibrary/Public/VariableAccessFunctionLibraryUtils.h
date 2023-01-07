@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "Kismet/BlueprintFunctionLibrary.h"
+
 #include "VariableAccessFunctionLibraryUtils.generated.h"
 
 enum EArrayAccessType
