@@ -60,7 +60,8 @@ protected:
 	bool IsResultPin(const UEdGraphPin* Pin) const;
 	bool IsSupport(const UEdGraphPin* Pin) const;
 	UK2Node_MakeStruct* CreateMakeStructNode(FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph);
-	UK2Node_CallFunction* CreateGetFunctionCallNode(FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph, UEdGraphPin* ResultPin);
+	UK2Node_CallFunction* CreateGetFunctionCallNode(
+		FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph, UEdGraphPin* ResultPin);
 
 public:
 	UK2Node_SetVariableByNameNode(const FObjectInitializer& ObjectInitializer);
