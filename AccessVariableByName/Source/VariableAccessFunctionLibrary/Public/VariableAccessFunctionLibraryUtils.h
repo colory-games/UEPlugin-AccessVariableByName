@@ -40,11 +40,15 @@ struct VARIABLEACCESSFUNCTIONLIBRARY_API FAccessVariableParams
 	GENERATED_BODY()
 
 	// Common.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+
+	// Include variables from a generation class (UBlueprint) if true.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Access Variable Options")
 	bool bIncludeGenerationClass = false;
 
 	// Set.
-	UPROPERTY(EditAnywhere, BLueprintReadWrite)
+
+	// Create elements automatically if true when the element does not present.
+	UPROPERTY(EditAnywhere, BLueprintReadWrite, Category = "Container Type Access Options")
 	bool bExtendIfNotPresent = false;
 };
 
