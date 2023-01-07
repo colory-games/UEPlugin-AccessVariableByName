@@ -12,6 +12,16 @@
 #include "Internationalization/Regex.h"
 #include "UObject/UnrealType.h"
 
+FAccessVariableParams UVariableAccessUtilLibrary::MakeAccessVariableParams(bool bIncludeGenerationClass, bool bExtendIfNotPresent)
+{
+	FAccessVariableParams Params;
+
+	Params.bIncludeGenerationClass = bIncludeGenerationClass;
+	Params.bExtendIfNotPresent = bExtendIfNotPresent;
+
+	return Params;
+}
+
 namespace FVariableAccessFunctionLibraryUtils
 {
 bool HandleTerminalProperty(const TArray<FVarDescription>& VarDescs, int32 VarDepth, FStructProperty* OuterProperty,

@@ -10,13 +10,7 @@
 #include "VariableSetterFunctionLibrary.h"
 
 void UVariableSetterFunctionLibarary::SetNestedVariableByName(
-	UObject* Target, FName VarName, bool& Success, UProperty*& Result, UProperty* NewValue)
-{
-	check(0);
-}
-
-void UVariableSetterFunctionLibarary::SetNestedVariableByNameForAllTypes(
-	UObject* Target, FName VarName, bool bExtendIfNotPresent, bool& Success, UProperty*& Result, UProperty* NewValue)
+	UObject* Target, FName VarName, FAccessVariableParams Params, bool& Success, UProperty*& Result, UProperty* NewValue)
 {
 	check(0);
 }

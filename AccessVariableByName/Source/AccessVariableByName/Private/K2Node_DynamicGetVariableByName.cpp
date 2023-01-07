@@ -23,6 +23,8 @@
 
 class FKCHandler_DynamicGetVariableByName : public FNodeHandlingFunctor
 {
+	TMap<FString, FBPTerminal*> TermMap;
+
 public:
 	FKCHandler_DynamicGetVariableByName(FKismetCompilerContext& InCompilerContext) : FNodeHandlingFunctor(InCompilerContext)
 	{
@@ -57,20 +59,15 @@ public:
 		return true;
 	}
 
-	virtual void RegisterNets(FKismetFunctionContext& Context, UEdGraphNode* Node) override
+	void RegisterNodePinNets(FKismetFunctionContext& Context, UK2Node_DynamicGetVariableByNameNode* Node)
 	{
-		UK2Node_DynamicGetVariableByNameNode* DynamicGetVariableByNameNode =
-			CastChecked<UK2Node_DynamicGetVariableByNameNode>(Node);
-
-		FNodeHandlingFunctor::RegisterNets(Context, Node);
-
-		for (auto Pin : DynamicGetVariableByNameNode->Pins)
+		for (auto Pin : Node->Pins)
 		{
 			if (Pin && Pin->Direction == EGPD_Input)
 			{
 				if (Pin->LinkedTo.Num() == 0)
 				{
-					if (Pin == DynamicGetVariableByNameNode->GetTargetPin())
+					if (Pin == Node->GetTargetPin())
 					{
 						FBPTerminal* Term = new FBPTerminal();
 						Term->CopyFromPin(Pin, Pin->PinName);
@@ -82,7 +79,7 @@ public:
 						Context.Literals.Add(Term);
 						Context.NetMap.Add(Pin, Term);
 					}
-					else if (Pin == DynamicGetVariableByNameNode->GetVarNamePin())
+					else if (Pin == Node->GetVarNamePin())
 					{
 						RegisterLiteral(Context, Pin);
 					}
@@ -91,8 +88,7 @@ public:
 
 			if (Pin && Pin->Direction == EGPD_Output)
 			{
-				if (Pin == DynamicGetVariableByNameNode->GetSuccessPin() ||
-					Pin == DynamicGetVariableByNameNode->GetAllResultPins()[0])
+				if (Pin == Node->GetSuccessPin() || Pin == Node->GetAllResultPins()[0])
 				{
 					FString NewName = FString::Format(TEXT("{0}_{1}"), {*Node->GetName(), *Pin->PinName.ToString()});
 					FBPTerminal* Term = Context.CreateLocalTerminalFromPinAutoChooseScope(Pin, NewName);
@@ -102,18 +98,60 @@ public:
 		}
 	}
 
-	virtual void Compile(FKismetFunctionContext& Context, UEdGraphNode* Node) override
+	void RegisterTemporaryNets(FKismetFunctionContext& Context, UK2Node_DynamicGetVariableByNameNode* Node)
+	{
+		FBPTerminal* AccessVariableParams = Context.CreateLocalTerminal();
+		AccessVariableParams->Type.PinCategory = UEdGraphSchema_K2::PC_Struct;
+		AccessVariableParams->Type.PinSubCategoryObject = FAccessVariableParams::StaticStruct();
+		AccessVariableParams->Source = Node;
+		TermMap.Add("AccessVariableParamsTemp", AccessVariableParams);
+	}
+
+	void RegisterParameterNets(FKismetFunctionContext& Context, UK2Node_DynamicGetVariableByNameNode* Node)
+	{
+		FBPTerminal* IncludeGenerationClass = Context.CreateLocalTerminal(ETerminalSpecification::TS_Literal);
+		IncludeGenerationClass->bIsLiteral = true;
+		IncludeGenerationClass->Type.PinCategory = UEdGraphSchema_K2::PC_Boolean;
+		IncludeGenerationClass->Name = Node->bIncludeGenerationClass ? TEXT("true") : TEXT("false");
+		TermMap.Add("bIncludeGenerationClass", IncludeGenerationClass);
+
+		FBPTerminal* ExtendIfNotPresent = Context.CreateLocalTerminal(ETerminalSpecification::TS_Literal);
+		ExtendIfNotPresent->bIsLiteral = true;
+		ExtendIfNotPresent->Type.PinCategory = UEdGraphSchema_K2::PC_Boolean;
+		ExtendIfNotPresent->Name = TEXT("false");
+		TermMap.Add("bExtendIfNotPresent", ExtendIfNotPresent);
+	}
+
+	virtual void RegisterNets(FKismetFunctionContext& Context, UEdGraphNode* Node) override
 	{
 		UK2Node_DynamicGetVariableByNameNode* DynamicGetVariableByNameNode =
 			CastChecked<UK2Node_DynamicGetVariableByNameNode>(Node);
 
-		UEdGraphPin* FunctionPin = DynamicGetVariableByNameNode->GetFunctionPin();
-		FBPTerminal* FunctionContext = Context.NetMap.FindRef(FunctionPin);
-		UClass* FunctionClass = Cast<UClass>(FunctionPin->PinType.PinSubCategoryObject.Get());
-		UFunction* FunctionPtr = FindUField<UFunction>(FunctionClass, FunctionPin->PinName);
+		FNodeHandlingFunctor::RegisterNets(Context, Node);
+
+		RegisterNodePinNets(Context, DynamicGetVariableByNameNode);
+		RegisterTemporaryNets(Context, DynamicGetVariableByNameNode);
+		RegisterParameterNets(Context, DynamicGetVariableByNameNode);
+	}
+
+	void CreateMakeStructStatement(FKismetFunctionContext& Context, UK2Node_DynamicGetVariableByNameNode* Node)
+	{
+		UClass* FunctionClass = UVariableAccessUtilLibrary::StaticClass();
+		UFunction* FunctionPtr = FindUField<UFunction>(FunctionClass, TEXT("MakeAccessVariableParams"));
 		check(FunctionPtr);
 
-		UEdGraphPin* TargetPin = DynamicGetVariableByNameNode->GetTargetPin();
+		FBlueprintCompiledStatement& Statement = Context.AppendStatementForNode(Node);
+		Statement.Type = KCST_CallFunction;
+		Statement.FunctionToCall = FunctionPtr;
+		Statement.bIsParentContext = false;
+		Statement.LHS = TermMap.FindRef("AccessVariableParamsTemp");
+		Statement.RHS.Add(TermMap.FindRef("bIncludeGenerationClass"));
+		Statement.RHS.Add(TermMap.FindRef("bExtendIfNotPresent"));
+	}
+
+	void CreateGetFunctionCallStatement(FKismetFunctionContext& Context, UK2Node_DynamicGetVariableByNameNode* Node)
+	{
+		UEdGraphPin* TargetPin = Node->GetTargetPin();
 		FBPTerminal* TargetTerm = nullptr;
 		if (TargetPin->LinkedTo.Num() >= 1)
 		{
@@ -125,15 +163,15 @@ public:
 			TargetTerm = Context.NetMap.FindRef(TargetPin);
 		}
 
-		UEdGraphPin* VarNamePin = DynamicGetVariableByNameNode->GetVarNamePin();
+		UEdGraphPin* VarNamePin = Node->GetVarNamePin();
 		UEdGraphPin* VarNameNet = FEdGraphUtilities::GetNetFromPin(VarNamePin);
 		FBPTerminal* VarNameTerm = Context.NetMap.FindRef(VarNameNet);
 
-		UEdGraphPin* SuccessPin = DynamicGetVariableByNameNode->GetSuccessPin();
+		UEdGraphPin* SuccessPin = Node->GetSuccessPin();
 		UEdGraphPin* SuccessNet = FEdGraphUtilities::GetNetFromPin(SuccessPin);
 		FBPTerminal* SuccessTerm = Context.NetMap.FindRef(SuccessNet);
 
-		UEdGraphPin* ResultPin = DynamicGetVariableByNameNode->GetAllResultPins()[0];
+		UEdGraphPin* ResultPin = Node->GetAllResultPins()[0];
 		UEdGraphPin* ResultNet = FEdGraphUtilities::GetNetFromPin(ResultPin);
 		FBPTerminal* ResultTerm = Context.NetMap.FindRef(ResultNet);
 		if (!IsSupport(ResultPin))
@@ -147,15 +185,31 @@ public:
 			return;
 		}
 
-		FBlueprintCompiledStatement& CallFuncStatement = Context.AppendStatementForNode(DynamicGetVariableByNameNode);
-		CallFuncStatement.Type = KCST_CallFunction;
-		CallFuncStatement.FunctionToCall = FunctionPtr;
-		CallFuncStatement.FunctionContext = FunctionContext;
-		CallFuncStatement.bIsParentContext = false;
-		CallFuncStatement.RHS.Add(TargetTerm);
-		CallFuncStatement.RHS.Add(VarNameTerm);
-		CallFuncStatement.RHS.Add(SuccessTerm);
-		CallFuncStatement.RHS.Add(ResultTerm);
+		UEdGraphPin* FunctionPin = Node->GetFunctionPin();
+		FBPTerminal* FunctionContext = Context.NetMap.FindRef(FunctionPin);
+		UClass* FunctionClass = Cast<UClass>(FunctionPin->PinType.PinSubCategoryObject.Get());
+		UFunction* FunctionPtr = FindUField<UFunction>(FunctionClass, FunctionPin->PinName);
+		check(FunctionPtr);
+
+		FBlueprintCompiledStatement& Statement = Context.AppendStatementForNode(Node);
+		Statement.Type = KCST_CallFunction;
+		Statement.FunctionToCall = FunctionPtr;
+		Statement.FunctionContext = FunctionContext;
+		Statement.bIsParentContext = false;
+		Statement.RHS.Add(TargetTerm);
+		Statement.RHS.Add(VarNameTerm);
+		Statement.RHS.Add(TermMap.FindRef("AccessVariableParamsTemp"));
+		Statement.RHS.Add(SuccessTerm);
+		Statement.RHS.Add(ResultTerm);
+	}
+
+	virtual void Compile(FKismetFunctionContext& Context, UEdGraphNode* Node) override
+	{
+		UK2Node_DynamicGetVariableByNameNode* DynamicGetVariableByNameNode =
+			CastChecked<UK2Node_DynamicGetVariableByNameNode>(Node);
+
+		CreateMakeStructStatement(Context, DynamicGetVariableByNameNode);
+		CreateGetFunctionCallStatement(Context, DynamicGetVariableByNameNode);
 
 		if (!DynamicGetVariableByNameNode->bPureNode)
 		{

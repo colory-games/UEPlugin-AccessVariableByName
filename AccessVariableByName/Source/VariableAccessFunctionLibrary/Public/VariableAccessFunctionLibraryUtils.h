@@ -9,6 +9,10 @@
 
 #pragma once
 
+#include "Kismet/BlueprintFunctionLibrary.h"
+
+#include "VariableAccessFunctionLibraryUtils.generated.h"
+
 enum EArrayAccessType
 {
 	ArrayAccessType_None,
@@ -30,13 +34,32 @@ struct FVarDescription
 	FArrayAccessValue ArrayAccessValue;
 };
 
-struct FAccessVariableParams
+USTRUCT(BlueprintType)
+struct VARIABLEACCESSFUNCTIONLIBRARY_API FAccessVariableParams
 {
+	GENERATED_BODY()
+
 	// Common.
-	bool bIncludeGenerationClass = true;
+
+	// Include variables from a generation class (UBlueprint) if true.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Access Variable Options")
+	bool bIncludeGenerationClass = false;
 
 	// Set.
+
+	// Create elements automatically if true when the element does not present.
+	UPROPERTY(EditAnywhere, BLueprintReadWrite, Category = "Container Type Access Options")
 	bool bExtendIfNotPresent = false;
+};
+
+UCLASS()
+class VARIABLEACCESSFUNCTIONLIBRARY_API UVariableAccessUtilLibrary : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly)
+	static FAccessVariableParams MakeAccessVariableParams(bool bIncludeGenerationClass, bool bExtendIfNotPresent);
 };
 
 namespace FVariableAccessFunctionLibraryUtils

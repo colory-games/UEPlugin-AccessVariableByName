@@ -20,6 +20,9 @@ class UK2Node_DynamicSetVariableByNameNode : public UK2Node
 	GENERATED_BODY()
 
 protected:
+	// Override from UObject
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
+
 	// Override from UK2Node
 	virtual FText GetMenuCategory() const override;
 	virtual void GetMenuActions(FBlueprintActionDatabaseRegistrar& ActionRegistrar) const override;
@@ -68,6 +71,11 @@ public:
 	void ChangeVariantPinType(const FEdGraphPinType& PinType);
 	FEdGraphPinType GetVariantPinType() const;
 
-	UPROPERTY(EditAnywhere, Category = "ContainerDataTypeAccessOptions")
+	// Include variables from a generation class (UBlueprint) if true.
+	UPROPERTY(EditAnywhere, Category = "Access Variable Options")
+	bool bIncludeGenerationClass = false;
+
+	// Create elements automatically if true when the element does not present.
+	UPROPERTY(EditAnywhere, Category = "Container Type Access Options")
 	bool bExtendIfNotPresent = false;
 };

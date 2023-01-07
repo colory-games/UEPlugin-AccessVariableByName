@@ -11,6 +11,8 @@
 
 #include "BlueprintActionDatabaseRegistrar.h"
 #include "K2Node.h"
+#include "K2Node_CallFunction.h"
+#include "K2Node_MakeStruct.h"
 
 #include "K2Node_GetVariableByName.generated.h"
 
@@ -53,12 +55,15 @@ protected:
 	void CreateVarNamePin();
 	void CreateSuccessPin();
 	void CreateResultPin(const FEdGraphPinType& PinType, FString PropertyName, int32 Index);
-	void RecreateResultPin();
-	void RecreateResultPinInternal(UClass* TargetClass, const FString& VarName);
+	void RecreateVariantPin();
+	void RecreateVariantPinInternal(UClass* TargetClass, const FString& VarName);
 	UClass* GetTargetClass(UEdGraphPin* Pin = nullptr);
 	UFunction* FindGetterFunction(UEdGraphPin* Pin);
 	bool IsResultPin(const UEdGraphPin* Pin) const;
 	bool IsSupport(const UEdGraphPin* Pin) const;
+	UK2Node_MakeStruct* CreateMakeStructNode(FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph);
+	UK2Node_CallFunction* CreateGetFunctionCallNode(
+		FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph, UEdGraphPin* ResultPin);
 
 public:
 	UK2Node_GetVariableByNameNode(const FObjectInitializer& ObjectInitializer);
@@ -69,6 +74,11 @@ public:
 	UEdGraphPin* GetSuccessPin() const;
 	TArray<UEdGraphPin*> GetAllResultPins() const;
 
-	UPROPERTY(EditAnywhere, Category = "Options")
+	// Make node a pure node if true.
+	UPROPERTY(EditAnywhere, Category = "Node Options")
 	bool bPureNode = true;
+
+	// Include variables from a generation class (UBlueprint) if true.
+	UPROPERTY(EditAnywhere, Category = "Access Variable Options")
+	bool bIncludeGenerationClass = false;
 };
