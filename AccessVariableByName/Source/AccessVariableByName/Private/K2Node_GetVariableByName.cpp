@@ -85,7 +85,8 @@ void UK2Node_GetVariableByNameNode::GetMenuActions(FBlueprintActionDatabaseRegis
 	}
 }
 
-UK2Node_MakeStruct* UK2Node_GetVariableByNameNode::CreateMakeStructNode(FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph)
+UK2Node_MakeStruct* UK2Node_GetVariableByNameNode::CreateMakeStructNode(
+	FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph)
 {
 	UK2Node_MakeStruct* MakeStruct = CompilerContext.SpawnIntermediateNode<UK2Node_MakeStruct>(this, SourceGraph);
 	MakeStruct->StructType = FAccessVariableParams::StaticStruct();
@@ -93,17 +94,15 @@ UK2Node_MakeStruct* UK2Node_GetVariableByNameNode::CreateMakeStructNode(FKismetC
 	MakeStruct->bMadeAfterOverridePinRemoval = true;
 	MakeStruct->GetSchema()->TrySetDefaultValue(
 		*MakeStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FAccessVariableParams, bIncludeGenerationClass)),
-		bIncludeGenerationClass ? TEXT("true") : TEXT("false")
-	);
+		bIncludeGenerationClass ? TEXT("true") : TEXT("false"));
 	MakeStruct->GetSchema()->TrySetDefaultValue(
-		*MakeStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FAccessVariableParams, bExtendIfNotPresent)),
-		TEXT("false")
-	);
+		*MakeStruct->FindPinChecked(GET_MEMBER_NAME_STRING_CHECKED(FAccessVariableParams, bExtendIfNotPresent)), TEXT("false"));
 
 	return MakeStruct;
 }
 
-UK2Node_CallFunction* UK2Node_GetVariableByNameNode::CreateGetFunctionCallNode(FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph, UEdGraphPin* ResultPin)
+UK2Node_CallFunction* UK2Node_GetVariableByNameNode::CreateGetFunctionCallNode(
+	FKismetCompilerContext& CompilerContext, UEdGraph* SourceGraph, UEdGraphPin* ResultPin)
 {
 	UFunction* GetterFunction = FindGetterFunction(ResultPin);
 	if (GetterFunction == nullptr)
@@ -140,7 +139,7 @@ void UK2Node_GetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 	{
 		return;
 	}
-	
+
 	UEdGraphPin* ResultPin = ResultPins[0];
 	if (!IsSupport(ResultPin))
 	{

@@ -52,7 +52,6 @@ class VARIABLEACCESSFUNCTIONLIBRARY_API UVariableAccessUtilLibrary : public UBlu
 	GENERATED_BODY()
 
 public:
-
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly)
 	static FAccessVariableParams MakeAccessVariableParams(bool bIncludeGenerationClass, bool bExtendIfNotPresent);
 };

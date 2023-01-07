@@ -24,7 +24,8 @@ public:
 		void* ResultAddr, const FAccessVariableParams& Params);
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result"))
-	static void GetNestedVariableByName(UObject* Target, FName VarName, FAccessVariableParams Params, bool& Success, UProperty*& Result);
+	static void GetNestedVariableByName(
+		UObject* Target, FName VarName, FAccessVariableParams Params, bool& Success, UProperty*& Result);
 
 	DECLARE_FUNCTION(execGetNestedVariableByName)
 	{
@@ -46,7 +47,8 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result"))
-	static void GetNestedVariableByNamePure(UObject* Target, FName VarName, FAccessVariableParams Params, bool& Success, UProperty*& Result);
+	static void GetNestedVariableByNamePure(
+		UObject* Target, FName VarName, FAccessVariableParams Params, bool& Success, UProperty*& Result);
 
 	DECLARE_FUNCTION(execGetNestedVariableByNamePure)
 	{

@@ -79,8 +79,7 @@ public:
 						Context.Literals.Add(Term);
 						Context.NetMap.Add(Pin, Term);
 					}
-					else if (Pin == Node->GetVarNamePin() ||
-						Pin == Node->GetAllNewValuePins()[0])
+					else if (Pin == Node->GetVarNamePin() || Pin == Node->GetAllNewValuePins()[0])
 					{
 						RegisterLiteral(Context, Pin);
 					}
@@ -91,7 +90,7 @@ public:
 			{
 				if (Pin == Node->GetSuccessPin() || Pin == Node->GetAllResultPins()[0])
 				{
-					FString NewName = FString::Format(TEXT("{0}_{1}"), { *Node->GetName(), *Pin->PinName.ToString() });
+					FString NewName = FString::Format(TEXT("{0}_{1}"), {*Node->GetName(), *Pin->PinName.ToString()});
 					FBPTerminal* Term = Context.CreateLocalTerminalFromPinAutoChooseScope(Pin, NewName);
 					Context.NetMap.Add(Pin, Term);
 				}

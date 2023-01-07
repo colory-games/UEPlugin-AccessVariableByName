@@ -24,7 +24,8 @@ public:
 		void* ResultAddr, FProperty* NewValueProperty, void* NewValueAddr, const FAccessVariableParams& Params);
 
 	UFUNCTION(BlueprintCallable, BlueprintInternalUseOnly, CustomThunk, meta = (CustomStructureParam = "Result,NewValue"))
-	static void SetNestedVariableByName(UObject* Target, FName VarName, FAccessVariableParams Params, bool& Success, UProperty*& Result, UProperty* NewValue);
+	static void SetNestedVariableByName(
+		UObject* Target, FName VarName, FAccessVariableParams Params, bool& Success, UProperty*& Result, UProperty* NewValue);
 
 	DECLARE_FUNCTION(execSetNestedVariableByName)
 	{
