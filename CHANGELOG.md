@@ -1,6 +1,14 @@
 # Change Log
 
-## [Unreleased](https://github.com/colory-games/UEPlugin-AccessVariableByName/compare/v1.1.1...main)
+## [Unreleased](https://github.com/colory-games/UEPlugin-AccessVariableByName/compare/v1.2.0...main)
+
+## [Version 1.2.0](https://github.com/colory-games/UEPlugin-AccessVariableByName/compare/v1.1.1...v1.2.0) - 2023.XX.XX
+
+### Updated Features
+
+* Support 'Extend If not Present' option for the intermidiate container variables
+* Support 'Include Generation Class' option to access to the variables of UBlueprint
+* Move optional pins to node properties
 
 ## [Version 1.1.1](https://github.com/colory-games/UEPlugin-AccessVariableByName/compare/v1.1.0...v1.1.1) - 2022.12.16
 
