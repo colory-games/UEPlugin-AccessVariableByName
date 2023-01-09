@@ -2,7 +2,7 @@
 
 ## [Unreleased](https://github.com/colory-games/UEPlugin-AccessVariableByName/compare/v1.2.0...main)
 
-## [Version 1.2.0](https://github.com/colory-games/UEPlugin-AccessVariableByName/compare/v1.1.1...v1.2.0) - 2023.XX.XX
+## [Version 1.2.0](https://github.com/colory-games/UEPlugin-AccessVariableByName/compare/v1.1.1...v1.2.0) - 2023.1.9
 
 ### Updated Features
 
