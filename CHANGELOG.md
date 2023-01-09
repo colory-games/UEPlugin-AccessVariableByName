@@ -6,7 +6,7 @@
 
 ### Updated Features
 
-* Support 'Extend If not Present' option for the intermidiate container variables
+* Support 'Extend If not Present' option for the intermediate container variables
 * Support 'Include Generation Class' option to access to the variables of UBlueprint
 * Move optional pins to node properties
 
