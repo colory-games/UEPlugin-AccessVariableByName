@@ -84,6 +84,7 @@ void SGraphNodeDynamicSetVariableByNameNode::CreatePinWidgets()
 					]
 		];
 
+#if !UE_VERSION_OLDER_THAN(5, 0, 0)
 	if (OnGetPinInfo().PinCategory == UEdGraphSchema_K2::PC_Real)
 	{
 		LeftNodeBox->AddSlot()
@@ -102,6 +103,7 @@ void SGraphNodeDynamicSetVariableByNameNode::CreatePinWidgets()
 					]
 			];
 	}
+#endif
 	// clang-format on
 }
 

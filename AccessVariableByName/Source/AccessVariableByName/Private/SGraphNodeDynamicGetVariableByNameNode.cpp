@@ -83,7 +83,8 @@ void SGraphNodeDynamicGetVariableByNameNode::CreatePinWidgets()
 							.Font(IDetailLayoutBuilder::GetDetailFont())
 					]
 		];
-	
+
+#if !UE_VERSION_OLDER_THAN(5, 0, 0)	
 	if (OnGetPinInfo().PinCategory == UEdGraphSchema_K2::PC_Real)
 	{
 		LeftNodeBox->AddSlot()
@@ -102,6 +103,7 @@ void SGraphNodeDynamicGetVariableByNameNode::CreatePinWidgets()
 					]
 			];
 	}
+#endif
 	// clang-format on
 }
 
