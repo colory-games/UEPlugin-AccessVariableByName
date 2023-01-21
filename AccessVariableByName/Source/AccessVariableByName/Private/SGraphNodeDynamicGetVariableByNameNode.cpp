@@ -102,7 +102,6 @@ void SGraphNodeDynamicGetVariableByNameNode::CreatePinWidgets()
 					]
 			];
 	}
-
 	// clang-format on
 }
 

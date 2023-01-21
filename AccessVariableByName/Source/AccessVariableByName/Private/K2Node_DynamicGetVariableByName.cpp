@@ -18,6 +18,7 @@
 #include "K2Node_CallFunction.h"
 #include "KismetCompiler.h"
 #include "Kismet2/BlueprintEditorUtils.h"
+#include "Misc/EngineVersionComparison.h"
 #include "VariableGetterFunctionLibrary.h"
 
 #define LOCTEXT_NAMESPACE "K2Node"
@@ -234,6 +235,8 @@ UK2Node_DynamicGetVariableByNameNode::UK2Node_DynamicGetVariableByNameNode(const
 	{
 		InternalCallFuncName = FName("GetNestedVariableByName");
 	}
+
+	VariantPinType.PinCategory = UEdGraphSchema_K2::PC_Boolean;
 }
 
 void UK2Node_DynamicGetVariableByNameNode::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
@@ -263,10 +266,12 @@ void UK2Node_DynamicGetVariableByNameNode::PostEditChangeProperty(struct FProper
 		if (IsResultPin(Pin))
 		{
 			Pin->PinType = VariantPinType;
+#if !UE_VERSION_OLDER_THAN(5, 0, 0)
 			if (Pin->PinType.PinCategory == UEdGraphSchema_K2::PC_Real)
 			{
 				Pin->PinType.PinSubCategory = bSinglePrecision ? UEdGraphSchema_K2::PC_Float : UEdGraphSchema_K2::PC_Double;
 			}
+#endif
 		}
 	}
 
@@ -342,7 +347,7 @@ void UK2Node_DynamicGetVariableByNameNode::AllocateDefaultPins()
 	CreateTargetPin();
 	CreateVarNamePin();
 	CreateSuccessPin();
-	CreateResultPin(CreateDefaultPinType(), 0);
+	CreateResultPin(VariantPinType, 0);
 
 	Super::AllocateDefaultPins();
 }
