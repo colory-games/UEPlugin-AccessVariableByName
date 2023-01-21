@@ -16,8 +16,8 @@
 #include "GraphEditorSettings.h"
 #include "Internationalization/Regex.h"
 #include "K2Node_CallFunction.h"
-#include "KismetCompiler.h"
 #include "Kismet2/BlueprintEditorUtils.h"
+#include "KismetCompiler.h"
 #include "Misc/EngineVersionComparison.h"
 #include "VariableGetterFunctionLibrary.h"
 
@@ -347,7 +347,16 @@ void UK2Node_DynamicGetVariableByNameNode::AllocateDefaultPins()
 	CreateTargetPin();
 	CreateVarNamePin();
 	CreateSuccessPin();
-	CreateResultPin(VariantPinType, 0);
+
+	FEdGraphPinType InitialPinType = VariantPinType;
+#if !UE_VERSION_OLDER_THAN(5, 0, 0)
+	if (InitialPinType.PinCategory == UEdGraphSchema_K2::PC_Real)
+	{
+		InitialPinType.PinSubCategory = bSinglePrecision ? UEdGraphSchema_K2::PC_Float : UEdGraphSchema_K2::PC_Double;
+	}
+#endif
+
+	CreateResultPin(InitialPinType, 0);
 
 	Super::AllocateDefaultPins();
 }
@@ -363,7 +372,16 @@ void UK2Node_DynamicGetVariableByNameNode::ReallocatePinsDuringReconstruction(TA
 	CreateTargetPin();
 	CreateVarNamePin();
 	CreateSuccessPin();
-	CreateResultPin(VariantPinType, 0);
+
+	FEdGraphPinType InitialPinType = VariantPinType;
+#if !UE_VERSION_OLDER_THAN(5, 0, 0)
+	if (InitialPinType.PinCategory == UEdGraphSchema_K2::PC_Real)
+	{
+		InitialPinType.PinSubCategory = bSinglePrecision ? UEdGraphSchema_K2::PC_Float : UEdGraphSchema_K2::PC_Double;
+	}
+#endif
+
+	CreateResultPin(InitialPinType, 0);
 
 	RestoreSplitPins(OldPins);
 }

@@ -90,6 +90,7 @@ But this node accepts [the name which can be changed dynamically at runtime](#dy
 |Category|Property Name|Description|
 |---|---|---|
 |Node Options|Pure Node|Make node a pure node if true.|
+|Access Variable Options|Single Precision|PAccess float variable as a single precision float variable.|
 |Access Variable Options|Include Generation Class|Include variables from a generation class (UBlueprint) if true.|
 
 ## Set Variable by Name (Dynamic)
@@ -121,6 +122,7 @@ But this node accepts [the name which can be changed dynamically at runtime](#dy
 |Category|Property Name|Description|
 |---|---|---|
 |Access Variable Options|Include Generation Class|Include variables from a generation class (UBlueprint) if true.|
+|Access Variable Options|Single Precision|PAccess float variable as a single precision float variable.|
 |Container Type Access Options|Extend If Not Present|Create elements automatically if true when the element does not present.|
 
 ## Custom Syntax
