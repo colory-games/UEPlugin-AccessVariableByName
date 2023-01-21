@@ -28,4 +28,6 @@ protected:
 	FEdGraphPinType OnGetPinInfo() const;
 	void OnPrePinInfoChanged(const FEdGraphPinType& PinType);
 	void OnPinInfoChanged(const FEdGraphPinType& PinType);
+	ECheckBoxState OnGetSinglePrecision() const;
+	void OnGetSinglePrecisionChanged(ECheckBoxState CheckState);
 };

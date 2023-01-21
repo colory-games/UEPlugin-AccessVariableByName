@@ -48,7 +48,7 @@ struct VARIABLEACCESSFUNCTIONLIBRARY_API FAccessVariableParams
 	// Set.
 
 	// Create elements automatically if true when the element does not present.
-	UPROPERTY(EditAnywhere, BLueprintReadWrite, Category = "Container Type Access Options")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Container Type Access Options")
 	bool bExtendIfNotPresent = false;
 };
 

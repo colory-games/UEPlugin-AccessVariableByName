@@ -17,6 +17,7 @@
 #include "Internationalization/Regex.h"
 #include "K2Node_CallFunction.h"
 #include "KismetCompiler.h"
+#include "Kismet2/BlueprintEditorUtils.h"
 #include "VariableGetterFunctionLibrary.h"
 
 #define LOCTEXT_NAMESPACE "K2Node"
@@ -244,23 +245,28 @@ void UK2Node_DynamicGetVariableByNameNode::PostEditChangeProperty(struct FProper
 		return;
 	}
 
+	// Get old variant pin type.
 	TArray<UEdGraphPin*> OldPins = MoveTemp(Pins);
-	FEdGraphPinType ResultPinType;
+	FEdGraphPinType OldVariantPinType;
 	for (auto& Pin : OldPins)
 	{
 		if (IsResultPin(Pin))
 		{
-			ResultPinType = Pin->PinType;
-			break;
+			OldVariantPinType = Pin->PinType;
 		}
 	}
 
+	// Allocate new pins.
 	AllocateDefaultPins();
 	for (auto& Pin : Pins)
 	{
 		if (IsResultPin(Pin))
 		{
-			Pin->PinType = ResultPinType;
+			Pin->PinType = VariantPinType;
+			if (Pin->PinType.PinCategory == UEdGraphSchema_K2::PC_Real)
+			{
+				Pin->PinType.PinSubCategory = bSinglePrecision ? UEdGraphSchema_K2::PC_Float : UEdGraphSchema_K2::PC_Double;
+			}
 		}
 	}
 
@@ -268,6 +274,19 @@ void UK2Node_DynamicGetVariableByNameNode::PostEditChangeProperty(struct FProper
 	RestoreSplitPins(OldPins);
 	RewireOldPinsToNewPins(OldPins, Pins, nullptr);
 
+	// Break connection if the variant pin type is changed.
+	if (OldVariantPinType != VariantPinType)
+	{
+		for (auto& Pin : Pins)
+		{
+			if (IsResultPin(Pin))
+			{
+				Pin->BreakAllPinLinks();
+			}
+		}
+	}
+
+	// Remove old pins.
 	for (auto& Pin : OldPins)
 	{
 		RemovePin(Pin);
@@ -275,6 +294,8 @@ void UK2Node_DynamicGetVariableByNameNode::PostEditChangeProperty(struct FProper
 
 	UEdGraph* Graph = GetGraph();
 	Graph->NotifyGraphChanged();
+
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(GetBlueprint());
 }
 
 FText UK2Node_DynamicGetVariableByNameNode::GetMenuCategory() const
@@ -328,16 +349,6 @@ void UK2Node_DynamicGetVariableByNameNode::AllocateDefaultPins()
 
 void UK2Node_DynamicGetVariableByNameNode::ReallocatePinsDuringReconstruction(TArray<UEdGraphPin*>& OldPins)
 {
-	FEdGraphPinType ResultPinType;
-	for (auto& Pin : OldPins)
-	{
-		if (IsResultPin(Pin))
-		{
-			ResultPinType = Pin->PinType;
-			break;
-		}
-	}
-
 	CreateFunctionPin();
 	if (!bPureNode)
 	{
@@ -347,7 +358,7 @@ void UK2Node_DynamicGetVariableByNameNode::ReallocatePinsDuringReconstruction(TA
 	CreateTargetPin();
 	CreateVarNamePin();
 	CreateSuccessPin();
-	CreateResultPin(ResultPinType, 0);
+	CreateResultPin(VariantPinType, 0);
 
 	RestoreSplitPins(OldPins);
 }
@@ -570,22 +581,6 @@ TArray<UEdGraphPin*> UK2Node_DynamicGetVariableByNameNode::GetAllResultPins() co
 	}
 
 	return Results;
-}
-
-void UK2Node_DynamicGetVariableByNameNode::ChangeResultPinType(const FEdGraphPinType& PinType)
-{
-	RecreateVariantPins(PinType);
-}
-
-FEdGraphPinType UK2Node_DynamicGetVariableByNameNode::GetResultPinType() const
-{
-	TArray<UEdGraphPin*> ResultPins = GetAllResultPins();
-	if (ResultPins.Num() == 0)
-	{
-		return CreateDefaultPinType();
-	}
-
-	return ResultPins[0]->PinType;
 }
 
 #undef LOCTEXT_NAMESPACE
