@@ -363,6 +363,17 @@ void UK2Node_DynamicGetVariableByNameNode::AllocateDefaultPins()
 
 void UK2Node_DynamicGetVariableByNameNode::ReallocatePinsDuringReconstruction(TArray<UEdGraphPin*>& OldPins)
 {
+	// Get previous result pin.
+	UEdGraphPin* OldResultPin = nullptr;
+	for (auto& Pin : OldPins)
+	{
+		if (IsResultPin(Pin))
+		{
+			OldResultPin = Pin;
+			break;
+		}
+	}
+
 	CreateFunctionPin();
 	if (!bPureNode)
 	{
@@ -373,7 +384,16 @@ void UK2Node_DynamicGetVariableByNameNode::ReallocatePinsDuringReconstruction(TA
 	CreateVarNamePin();
 	CreateSuccessPin();
 
+	// [Backward compatibility] Change pin type to the previous result pin type.
 	FEdGraphPinType InitialPinType = VariantPinType;
+	if (OldResultPin != nullptr)
+	{
+		if (InitialPinType.PinCategory == UEdGraphSchema_K2::PC_Boolean)
+		{
+			InitialPinType = OldResultPin->PinType;
+		}
+	}
+
 #if !UE_VERSION_OLDER_THAN(5, 0, 0)
 	if (InitialPinType.PinCategory == UEdGraphSchema_K2::PC_Real)
 	{
@@ -384,6 +404,8 @@ void UK2Node_DynamicGetVariableByNameNode::ReallocatePinsDuringReconstruction(TA
 	CreateResultPin(InitialPinType, 0);
 
 	RestoreSplitPins(OldPins);
+
+	VariantPinType = InitialPinType;
 }
 
 FText UK2Node_DynamicGetVariableByNameNode::GetTooltipText() const

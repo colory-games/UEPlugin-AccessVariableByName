@@ -17,6 +17,7 @@
 #include "GraphEditorSettings.h"
 #include "K2Node_DynamicGetVariableByName.h"
 #include "Kismet2/BlueprintEditorUtils.h"
+#include "Misc/EngineVersionComparison.h"
 #include "NodeFactory.h"
 #include "SPinTypeSelector.h"
 
