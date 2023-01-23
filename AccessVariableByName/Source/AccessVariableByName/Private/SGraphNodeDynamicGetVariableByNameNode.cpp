@@ -17,6 +17,7 @@
 #include "GraphEditorSettings.h"
 #include "K2Node_DynamicGetVariableByName.h"
 #include "Kismet2/BlueprintEditorUtils.h"
+#include "Misc/EngineVersionComparison.h"
 #include "NodeFactory.h"
 #include "SPinTypeSelector.h"
 
@@ -83,6 +84,27 @@ void SGraphNodeDynamicGetVariableByNameNode::CreatePinWidgets()
 							.Font(IDetailLayoutBuilder::GetDetailFont())
 					]
 		];
+
+#if !UE_VERSION_OLDER_THAN(5, 0, 0)	
+	if (OnGetPinInfo().PinCategory == UEdGraphSchema_K2::PC_Real)
+	{
+		LeftNodeBox->AddSlot()
+			.AutoHeight()
+			.HAlign(HAlign_Left)
+			.VAlign(VAlign_Center)
+			.Padding(10.0, 4.0f, 8.0f, 10.0f)
+			[
+				SNew(SCheckBox)
+					.IsChecked(this, &SGraphNodeDynamicGetVariableByNameNode::OnGetSinglePrecision)
+					.OnCheckStateChanged(this, &SGraphNodeDynamicGetVariableByNameNode::OnGetSinglePrecisionChanged)
+					[
+						SNew(STextBlock)
+							.Font(IDetailLayoutBuilder::GetDetailFont())
+							.Text(FText::FromString("Single Precision"))
+					]
+			];
+	}
+#endif
 	// clang-format on
 }
 
@@ -94,7 +116,7 @@ FEdGraphPinType SGraphNodeDynamicGetVariableByNameNode::OnGetPinInfo() const
 		return CreateDefaultPinType();
 	}
 
-	return Node->GetResultPinType();
+	return Node->VariantPinType;
 }
 
 void SGraphNodeDynamicGetVariableByNameNode::OnPrePinInfoChanged(const FEdGraphPinType& PinType)
@@ -109,5 +131,42 @@ void SGraphNodeDynamicGetVariableByNameNode::OnPinInfoChanged(const FEdGraphPinT
 		return;
 	}
 
-	Node->ChangeResultPinType(PinType);
+	Node->VariantPinType = PinType;
+
+	FProperty* ChangedProperty = Node->StaticClass()->FindPropertyByName("VariantPinType");
+	FPropertyChangedEvent Event(ChangedProperty, EPropertyChangeType::ValueSet);
+	Node->PostEditChangeProperty(Event);
+}
+
+ECheckBoxState SGraphNodeDynamicGetVariableByNameNode::OnGetSinglePrecision() const
+{
+	UK2Node_DynamicGetVariableByNameNode* Node = Cast<UK2Node_DynamicGetVariableByNameNode>(GraphNode);
+	if (Node == nullptr)
+	{
+		return ECheckBoxState::Unchecked;
+	}
+
+	return Node->bSinglePrecision ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
+}
+
+void SGraphNodeDynamicGetVariableByNameNode::OnGetSinglePrecisionChanged(ECheckBoxState CheckState)
+{
+	UK2Node_DynamicGetVariableByNameNode* Node = Cast<UK2Node_DynamicGetVariableByNameNode>(GraphNode);
+	if (Node == nullptr)
+	{
+		return;
+	}
+
+	if (CheckState == ECheckBoxState::Checked)
+	{
+		Node->bSinglePrecision = true;
+	}
+	else if (CheckState == ECheckBoxState::Unchecked)
+	{
+		Node->bSinglePrecision = false;
+	}
+
+	FProperty* ChangedProperty = Node->StaticClass()->FindPropertyByName("bSinglePrecision");
+	FPropertyChangedEvent Event(ChangedProperty, EPropertyChangeType::ValueSet);
+	Node->PostEditChangeProperty(Event);
 }

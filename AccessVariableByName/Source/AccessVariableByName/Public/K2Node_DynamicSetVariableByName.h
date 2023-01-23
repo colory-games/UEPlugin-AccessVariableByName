@@ -68,14 +68,20 @@ public:
 	TArray<UEdGraphPin*> GetAllNewValuePins() const;
 	TArray<UEdGraphPin*> GetAllResultPins() const;
 
-	void ChangeVariantPinType(const FEdGraphPinType& PinType);
-	FEdGraphPinType GetVariantPinType() const;
+	UPROPERTY()
+	FEdGraphPinType VariantPinType;
 
 	// Include variables from a generation class (UBlueprint) if true.
 	UPROPERTY(EditAnywhere, Category = "Access Variable Options")
 	bool bIncludeGenerationClass = false;
 
+	// Access float variable as a single precision float variable.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Access Variable Options")
+	bool bSinglePrecision = false;
+
 	// Create elements automatically if true when the element does not present.
 	UPROPERTY(EditAnywhere, Category = "Container Type Access Options")
 	bool bExtendIfNotPresent = false;
+
+	friend class SGraphNodeDynamicSetVariableByNameNode;
 };

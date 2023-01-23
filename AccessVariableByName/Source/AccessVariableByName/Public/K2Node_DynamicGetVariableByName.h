@@ -70,14 +70,20 @@ public:
 	UEdGraphPin* GetSuccessPin() const;
 	TArray<UEdGraphPin*> GetAllResultPins() const;
 
-	void ChangeResultPinType(const FEdGraphPinType& PinType);
-	FEdGraphPinType GetResultPinType() const;
+	UPROPERTY()
+	FEdGraphPinType VariantPinType;
 
 	// Make node a pure node if true.
 	UPROPERTY(EditAnywhere, Category = "Node Options")
 	bool bPureNode = true;
 
+	// Access float variable as a single precision float variable.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Access Variable Options")
+	bool bSinglePrecision = false;
+
 	// Include variables from a generation class (UBlueprint) if true.
 	UPROPERTY(EditAnywhere, Category = "Access Variable Options")
 	bool bIncludeGenerationClass = false;
+
+	friend class SGraphNodeDynamicGetVariableByNameNode;
 };
