@@ -105,6 +105,7 @@ public:
 		FBPTerminal* AccessVariableParams = Context.CreateLocalTerminal();
 		AccessVariableParams->Type.PinCategory = UEdGraphSchema_K2::PC_Struct;
 		AccessVariableParams->Type.PinSubCategoryObject = FAccessVariableParams::StaticStruct();
+		AccessVariableParams->Name = Context.NetNameMap->MakeValidName(Node, TEXT("AccessVariableParamsTemp"));
 		AccessVariableParams->Source = Node;
 		TermMap.Add("AccessVariableParamsTemp", AccessVariableParams);
 	}
