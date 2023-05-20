@@ -102,14 +102,14 @@ TerminalProperty GetTerminalPropertyInternal(
 
 		if (Property->IsA<FStructProperty>())
 		{
-			FStructProperty* StructProperty = CastChecked<FStructProperty>(Property);
+			FStructProperty* StructProperty = CastFieldChecked<FStructProperty>(Property);
 			UScriptStruct* ScriptStruct = StructProperty->Struct;
 
 			return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct, Params);
 		}
 		else if (Property->IsA<FObjectProperty>())
 		{
-			FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(Property);
+			FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(Property);
 			UClass* Class = ObjectProperty->PropertyClass;
 
 			return GetTerminalProperty(VarDescs, VarDepth + 1, Class, Params);
@@ -121,7 +121,7 @@ TerminalProperty GetTerminalPropertyInternal(
 	{
 		if (Property->IsA<FArrayProperty>())
 		{
-			FArrayProperty* ArrayProperty = CastChecked<FArrayProperty>(Property);
+			FArrayProperty* ArrayProperty = CastFieldChecked<FArrayProperty>(Property);
 
 			if (VarDescs.Num() == VarDepth + 1)
 			{
@@ -134,14 +134,14 @@ TerminalProperty GetTerminalPropertyInternal(
 			FProperty* InnerProperty = ArrayProperty->Inner;
 			if (InnerProperty->IsA<FStructProperty>())
 			{
-				FStructProperty* StructProperty = CastChecked<FStructProperty>(InnerProperty);
+				FStructProperty* StructProperty = CastFieldChecked<FStructProperty>(InnerProperty);
 				UScriptStruct* ScriptStruct = StructProperty->Struct;
 
 				return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct, Params);
 			}
 			else if (InnerProperty->IsA<FObjectProperty>())
 			{
-				FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(InnerProperty);
+				FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(InnerProperty);
 				UClass* Class = ObjectProperty->PropertyClass;
 
 				return GetTerminalProperty(VarDescs, VarDepth + 1, Class, Params);
@@ -151,7 +151,7 @@ TerminalProperty GetTerminalPropertyInternal(
 		}
 		else if (Property->IsA<FMapProperty>())
 		{
-			FMapProperty* MapProperty = CastChecked<FMapProperty>(Property);
+			FMapProperty* MapProperty = CastFieldChecked<FMapProperty>(Property);
 
 			if (VarDescs.Num() == VarDepth + 1)
 			{
@@ -164,14 +164,14 @@ TerminalProperty GetTerminalPropertyInternal(
 			FProperty* ValueProperty = MapProperty->ValueProp;
 			if (ValueProperty->IsA<FStructProperty>())
 			{
-				FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
+				FStructProperty* StructProperty = CastFieldChecked<FStructProperty>(ValueProperty);
 				UScriptStruct* ScriptStruct = StructProperty->Struct;
 
 				return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct, Params);
 			}
 			else if (ValueProperty->IsA<FObjectProperty>())
 			{
-				FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(ValueProperty);
+				FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(ValueProperty);
 				UClass* Class = ObjectProperty->PropertyClass;
 
 				return GetTerminalProperty(VarDescs, VarDepth + 1, Class, Params);
@@ -186,7 +186,7 @@ TerminalProperty GetTerminalPropertyInternal(
 		{
 			return TerminalProperty();
 		}
-		FMapProperty* MapProperty = CastChecked<FMapProperty>(Property);
+		FMapProperty* MapProperty = CastFieldChecked<FMapProperty>(Property);
 
 		if (VarDescs.Num() == VarDepth + 1)
 		{
@@ -199,14 +199,14 @@ TerminalProperty GetTerminalPropertyInternal(
 		FProperty* ValueProperty = MapProperty->ValueProp;
 		if (ValueProperty->IsA<FStructProperty>())
 		{
-			FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
+			FStructProperty* StructProperty = CastFieldChecked<FStructProperty>(ValueProperty);
 			UScriptStruct* ScriptStruct = StructProperty->Struct;
 
 			return GetTerminalProperty(VarDescs, VarDepth + 1, ScriptStruct, Params);
 		}
 		else if (ValueProperty->IsA<FObjectProperty>())
 		{
-			FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(ValueProperty);
+			FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(ValueProperty);
 			UClass* Class = ObjectProperty->PropertyClass;
 
 			return GetTerminalProperty(VarDescs, VarDepth + 1, Class, Params);

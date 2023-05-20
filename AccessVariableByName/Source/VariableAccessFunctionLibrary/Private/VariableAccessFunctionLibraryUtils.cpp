@@ -153,7 +153,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 
 		if (Property->IsA<FStructProperty>())
 		{
-			FStructProperty* StructProperty = CastChecked<FStructProperty>(Property);
+			FStructProperty* StructProperty = CastFieldChecked<FStructProperty>(Property);
 			void* StructAddr = Property->ContainerPtrToValuePtr<void>(OuterAddr);
 
 			return HandleTerminalProperty(
@@ -161,7 +161,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 		}
 		else if (Property->IsA<FObjectProperty>())
 		{
-			FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(Property);
+			FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(Property);
 			UObject* Object = ObjectProperty->GetPropertyValue_InContainer(OuterAddr);
 			void* ObjectAddr = ObjectProperty->ContainerPtrToValuePtr<void>(OuterAddr);
 
@@ -174,7 +174,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 	{
 		if (Property->IsA<FArrayProperty>())
 		{
-			FArrayProperty* ArrayProperty = CastChecked<FArrayProperty>(Property);
+			FArrayProperty* ArrayProperty = CastFieldChecked<FArrayProperty>(Property);
 			FProperty* InnerProperty = ArrayProperty->Inner;
 
 			if (VarDescs.Num() == VarDepth + 1)
@@ -209,7 +209,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 					return false;
 				}
 
-				FStructProperty* StructProperty = CastChecked<FStructProperty>(InnerProperty);
+				FStructProperty* StructProperty = CastFieldChecked<FStructProperty>(InnerProperty);
 
 				return HandleTerminalProperty(
 					VarDescs, VarDepth + 1, StructProperty, InnerItemAddr, Dest, DestAddr, NewValue, NewValueAddr, Params);
@@ -223,7 +223,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 					return false;
 				}
 
-				FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(InnerProperty);
+				FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(InnerProperty);
 				UObject* Object = ObjectProperty->GetPropertyValue_InContainer(InnerItemAddr);
 
 				return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr, Params);
@@ -233,7 +233,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 		}
 		else if (Property->IsA<FMapProperty>())
 		{
-			FMapProperty* MapProperty = CastChecked<FMapProperty>(Property);
+			FMapProperty* MapProperty = CastFieldChecked<FMapProperty>(Property);
 
 			FProperty* KeyProperty = MapProperty->KeyProp;
 			FProperty* ValueProperty = MapProperty->ValueProp;
@@ -274,7 +274,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 					return false;
 				}
 
-				FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
+				FStructProperty* StructProperty = CastFieldChecked<FStructProperty>(ValueProperty);
 
 				return HandleTerminalProperty(
 					VarDescs, VarDepth + 1, StructProperty, ValueAddr, Dest, DestAddr, NewValue, NewValueAddr, Params);
@@ -288,7 +288,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 					return false;
 				}
 
-				FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(ValueProperty);
+				FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(ValueProperty);
 				UObject* Object = ObjectProperty->GetPropertyValue(ValueAddr);
 
 				return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr, Params);
@@ -305,7 +305,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 		{
 			return false;
 		}
-		FMapProperty* MapProperty = CastChecked<FMapProperty>(Property);
+		FMapProperty* MapProperty = CastFieldChecked<FMapProperty>(Property);
 
 		FProperty* KeyProperty = MapProperty->KeyProp;
 		FProperty* ValueProperty = MapProperty->ValueProp;
@@ -344,7 +344,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				return false;
 			}
 
-			FStructProperty* StructProperty = CastChecked<FStructProperty>(ValueProperty);
+			FStructProperty* StructProperty = CastFieldChecked<FStructProperty>(ValueProperty);
 
 			return HandleTerminalProperty(
 				VarDescs, VarDepth + 1, StructProperty, ValueAddr, Dest, DestAddr, NewValue, NewValueAddr, Params);
@@ -357,7 +357,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 				return false;
 			}
 
-			FObjectProperty* ObjectProperty = CastChecked<FObjectProperty>(ValueProperty);
+			FObjectProperty* ObjectProperty = CastFieldChecked<FObjectProperty>(ValueProperty);
 			UObject* Object = ObjectProperty->GetPropertyValue(ValueAddr);
 
 			return HandleTerminalProperty(VarDescs, VarDepth + 1, Object, Dest, DestAddr, NewValue, NewValueAddr, Params);
