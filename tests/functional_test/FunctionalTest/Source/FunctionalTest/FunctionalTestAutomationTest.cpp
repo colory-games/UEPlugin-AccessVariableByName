@@ -6,11 +6,13 @@
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFuntionalTestGetVariableByName, "AccessVariableByName.FunctionalTest.GetVariableByName",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter);
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFuntionalTestGetVariableByNameDynamic, "AccessVariableByName.FunctionalTest.GetVariableByNameDynamic",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFuntionalTestGetVariableByNameDynamic,
+	"AccessVariableByName.FunctionalTest.GetVariableByNameDynamic",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter);
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFuntionalTestSetVariableByName, "AccessVariableByName.FunctionalTest.SetVariableByName",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter);
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFuntionalTestSetVariableByNameDynamic, "AccessVariableByName.FunctionalTest.SetVariableByNameDynamic",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFuntionalTestSetVariableByNameDynamic,
+	"AccessVariableByName.FunctionalTest.SetVariableByNameDynamic",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter);
 
 bool TestCommon(FAutomationTestBase* AuctionmationTest, UBlueprint* Blueprint)
