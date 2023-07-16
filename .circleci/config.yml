@@ -7,7 +7,7 @@ workflows:
             - unreal-engine-ci
           matrix:
             parameters:
-              unreal-engine-version: ["5.1.0"]
+              unreal-engine-version: ["4.27.0", "5.0.0", "5.1.0", "5.2.0"]
               version: ["full"]
       - build-plugin:
           context:
@@ -73,7 +73,7 @@ jobs:
               -archive \
               -archivedirectory=/tmp/Packaged
       - run:
-          name: "Unit test against Plugin"
+          name: "Functional test against Plugin"
           command: |
             /home/ue4/UnrealEngine/Engine/Binaries/Linux/UnrealEditor \
               ${PWD}/tests/functional_test/FunctionalTest/FunctionalTest.uproject \
