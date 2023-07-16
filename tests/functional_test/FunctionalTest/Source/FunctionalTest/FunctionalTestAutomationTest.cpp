@@ -6,16 +6,16 @@
 
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
-	FFuntionalTestGetVariableByName, "AccessVariable.FunctionalTest.GetVariableByName",
+	FFuntionalTestGetVariableByName, "AccessVariableByName.FunctionalTest.GetVariableByName",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter);
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
-	FFuntionalTestGetVariableByNameDynamic, "AccessVariable.FunctionalTest.GetVariableByNameDynamic",
+	FFuntionalTestGetVariableByNameDynamic, "AccessVariableByName.FunctionalTest.GetVariableByNameDynamic",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter);
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
-	FFuntionalTestSetVariableByName, "AccessVariable.FunctionalTest.SetVariableByName",
+	FFuntionalTestSetVariableByName, "AccessVariableByName.FunctionalTest.SetVariableByName",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter);
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
-	FFuntionalTestSetVariableByNameDynamic, "AccessVariable.FunctionalTest.SetVariableByNameDynamic",
+	FFuntionalTestSetVariableByNameDynamic, "AccessVariableByName.FunctionalTest.SetVariableByNameDynamic",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter);
 
 
@@ -64,7 +64,7 @@ bool FFuntionalTestGetVariableByNameDynamic::RunTest(const FString& Parameters)
 
 bool FFuntionalTestSetVariableByName::RunTest(const FString& Parameters)
 {
-	UBlueprint* Blueprint = LoadObject<UBlueprint>(nullptr, TEXT("/Game/FunctionalTest/SetVariableByNameDynamic.SetVariableByName"));
+	UBlueprint* Blueprint = LoadObject<UBlueprint>(nullptr, TEXT("/Game/FunctionalTest/SetVariableByName.SetVariableByName"));
 
 	return TestCommon(this, Blueprint);
 }
