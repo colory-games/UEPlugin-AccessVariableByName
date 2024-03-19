@@ -47,18 +47,64 @@ void* GetInnerItemAddrFromArray(FArrayProperty* ArrayProperty, void* OuterAddr, 
 }
 
 template <typename T>
-void* GetValueAddrFromMap(FMapProperty* MapProperty, void* OuterAddr, T Key, bool bExtendIfNotPresent)
+T* GetKeyAddrFromMap(FMapProperty* MapProperty, void* OuterAddr, T Key, bool bExtendIfNotPresent)
 {
 	void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
 	auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
 	FScriptMapHelper MapHelper(MapProperty, MapAddr);
 
-	if (bExtendIfNotPresent)
+	for (FScriptMapHelper::FIterator MapIt = MapHelper.CreateIterator(); MapIt; ++MapIt)
 	{
-		return MapHelper.FindOrAdd(&Key);
+		T* KeyPtr = (T*)MapHelper.GetKeyPtr(*MapIt);
+		T ActualKey = *KeyPtr;
+		if (Key == ActualKey)
+		{
+			return KeyPtr;
+		}
 	}
 
-	return MapHelper.FindValueFromHash(&Key);
+	return nullptr;
+}
+
+template <>
+FName* GetKeyAddrFromMap<FName>(FMapProperty* MapProperty, void* OuterAddr, FName Key, bool bExtendIfNotPresent)
+{
+	void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
+	auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
+	FScriptMapHelper MapHelper(MapProperty, MapAddr);
+
+	for (FScriptMapHelper::FIterator MapIt = MapHelper.CreateIterator(); MapIt; ++MapIt)
+	{
+		FName* KeyPtr = (FName*)MapHelper.GetKeyPtr(*MapIt);
+		FString KeyString = Key.ToString();
+		FString ActualKeyString = KeyPtr->ToString();
+		if (KeyString == ActualKeyString)
+		{
+			return KeyPtr;
+		}
+	}
+
+	return nullptr;
+}
+
+template <typename T>
+void* GetValueAddrFromMap(FMapProperty* MapProperty, void* OuterAddr, T Key, bool bExtendIfNotPresent)
+{
+	void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
+	auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
+	FScriptMapHelper MapHelper(MapProperty, MapAddr);
+	T* KeyAddr = GetKeyAddrFromMap(MapProperty, OuterAddr, Key, bExtendIfNotPresent);
+	if (KeyAddr == nullptr)
+	{
+		return nullptr;
+	}
+
+	if (bExtendIfNotPresent)
+	{
+		return MapHelper.FindOrAdd(KeyAddr);
+	}
+
+	return MapHelper.FindValueFromHash(KeyAddr);
 }
 
 FProperty* GetScriptStructProperty(UScriptStruct* ScriptStruct, FString VarName)
@@ -237,7 +283,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 
 			FProperty* KeyProperty = MapProperty->KeyProp;
 			FProperty* ValueProperty = MapProperty->ValueProp;
-			if (!KeyProperty->IsA<FIntProperty>() && !KeyProperty->IsA<FInt64Property>())
+			if (!KeyProperty->IsA<FByteProperty>() && !KeyProperty->IsA<FIntProperty>() && !KeyProperty->IsA<FInt64Property>())
 			{
 				return false;
 			}
@@ -309,7 +355,7 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 
 		FProperty* KeyProperty = MapProperty->KeyProp;
 		FProperty* ValueProperty = MapProperty->ValueProp;
-		if (!KeyProperty->IsA<FStrProperty>())
+		if (!KeyProperty->IsA<FStrProperty>() && !KeyProperty->IsA<FNameProperty>() && !KeyProperty->IsA<FTextProperty>())
 		{
 			return false;
 		}
@@ -338,7 +384,15 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 
 		if (ValueProperty->IsA<FStructProperty>())
 		{
-			void* ValueAddr = GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.String, Params.bExtendIfNotPresent);
+			void* ValueAddr = nullptr;
+			if (KeyProperty->IsA<FStrProperty>())
+			{
+				ValueAddr = GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.String, Params.bExtendIfNotPresent);
+			}
+			else if (KeyProperty->IsA<FNameProperty>())
+			{
+				ValueAddr = GetValueAddrFromMap(MapProperty, OuterAddr, FName(*Desc.ArrayAccessValue.String), Params.bExtendIfNotPresent);
+			}
 			if (ValueAddr == nullptr)
 			{
 				return false;
@@ -351,7 +405,15 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 		}
 		else if (ValueProperty->IsA<FObjectProperty>())
 		{
-			void* ValueAddr = GetValueAddrFromMap(MapProperty, OuterAddr, Desc.ArrayAccessValue.String, Params.bExtendIfNotPresent);
+			void* ValueAddr = nullptr;
+			if (KeyProperty->IsA<FStrProperty>())
+			{
+				ValueAddr = GetValueAddrFromMap<FString>(MapProperty, OuterAddr, Desc.ArrayAccessValue.String, Params.bExtendIfNotPresent);
+			}
+			else if (KeyProperty->IsA<FNameProperty>())
+			{
+				ValueAddr = GetValueAddrFromMap<FName>(MapProperty, OuterAddr, FName(*Desc.ArrayAccessValue.String), Params.bExtendIfNotPresent);
+			}
 			if (ValueAddr == nullptr)
 			{
 				return false;
