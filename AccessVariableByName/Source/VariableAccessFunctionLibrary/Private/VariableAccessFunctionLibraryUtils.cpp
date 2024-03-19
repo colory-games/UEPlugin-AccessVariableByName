@@ -414,8 +414,8 @@ bool HandleTerminalPropertyInternal(const TArray<FVarDescription>& VarDescs, int
 			}
 			else if (KeyProperty->IsA<FNameProperty>())
 			{
-				ValueAddr =
-					GetValueAddrFromMap<FName>(MapProperty, OuterAddr, FName(*Desc.ArrayAccessValue.String), Params.bExtendIfNotPresent);
+				ValueAddr = GetValueAddrFromMap<FName>(
+					MapProperty, OuterAddr, FName(*Desc.ArrayAccessValue.String), Params.bExtendIfNotPresent);
 			}
 			if (ValueAddr == nullptr)
 			{
