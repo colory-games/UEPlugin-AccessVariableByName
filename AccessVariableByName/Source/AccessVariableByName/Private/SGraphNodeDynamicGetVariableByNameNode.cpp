@@ -51,7 +51,11 @@ void SGraphNodeDynamicGetVariableByNameNode::CreatePinWidgets()
 		.VAlign(VAlign_Center)
 		.Padding(5.0f, 8.0f, 8.0f, 5.0f)
 		[
+#if !UE_VERSION_OLDER_THAN(5, 0, 0)
 			SNew(SImage).Image(FAppStyle::GetBrush("Graph.Pin.DefaultPinSeparator"))
+#else
+			SNew(SImage).Image(FEditorStyle::GetBrush("Graph.Pin.DefaultPinSeparator"))
+#endif
 		];
 
 	LeftNodeBox->AddSlot()
