@@ -15,7 +15,7 @@
 #include "VariableSetterFunctionLibrary.generated.h"
 
 UCLASS()
-class VARIABLEACCESSFUNCTIONLIBRARY_API UVariableSetterFunctionLibarary : public UBlueprintFunctionLibrary
+class VARIABLEACCESSFUNCTIONLIBRARY_API UVariableSetterFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
