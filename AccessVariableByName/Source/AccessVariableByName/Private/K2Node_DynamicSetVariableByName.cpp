@@ -228,8 +228,8 @@ public:
 UK2Node_DynamicSetVariableByNameNode::UK2Node_DynamicSetVariableByNameNode(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	InternalCallFuncClass = UVariableSetterFunctionLibarary::StaticClass();
-	InternalCallFuncName = FName("SetNestedVariableByName");
+	InternalCallFuncClass = UVariableSetterFunctionLibrary::StaticClass();
+	InternalCallFuncName = GET_FUNCTION_NAME_CHECKED(UVariableSetterFunctionLibrary, SetNestedVariableByName);
 
 	VariantPinType.PinCategory = UEdGraphSchema_K2::PC_Boolean;
 }
@@ -429,7 +429,7 @@ void UK2Node_DynamicSetVariableByNameNode::CreateFunctionPin()
 	FCreatePinParams Params;
 	Params.Index = 0;
 
-	UClass* FunctionClass = UVariableSetterFunctionLibarary::StaticClass();
+	UClass* FunctionClass = UVariableSetterFunctionLibrary::StaticClass();
 	UFunction* FunctionPtr = FunctionClass->FindFunctionByName(InternalCallFuncName);
 	check(FunctionPtr);
 
