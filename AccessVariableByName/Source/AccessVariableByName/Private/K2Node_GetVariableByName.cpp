@@ -505,15 +505,15 @@ UClass* UK2Node_GetVariableByNameNode::GetTargetClass(UEdGraphPin* Pin)
 
 UFunction* UK2Node_GetVariableByNameNode::FindGetterFunction(UEdGraphPin* Pin)
 {
-	UClass* FunctionLibrary = UVariableGetterFunctionLibrary::StaticClass();
+	UClass* FunctionLibrary = UVariableGetterFunctionLibarary::StaticClass();
 
 	if (bPureNode)
 	{
 		return FunctionLibrary->FindFunctionByName(
-			GET_FUNCTION_NAME_CHECKED(UVariableGetterFunctionLibrary, GetNestedVariableByNamePure));
+			GET_FUNCTION_NAME_CHECKED(UVariableGetterFunctionLibarary, GetNestedVariableByNamePure));
 	}
 
-	return FunctionLibrary->FindFunctionByName(GET_FUNCTION_NAME_CHECKED(UVariableGetterFunctionLibrary, GetNestedVariableByName));
+	return FunctionLibrary->FindFunctionByName(GET_FUNCTION_NAME_CHECKED(UVariableGetterFunctionLibarary, GetNestedVariableByName));
 }
 
 bool UK2Node_GetVariableByNameNode::IsResultPin(const UEdGraphPin* Pin) const

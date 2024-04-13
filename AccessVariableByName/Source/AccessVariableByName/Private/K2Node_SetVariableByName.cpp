@@ -515,9 +515,9 @@ UClass* UK2Node_SetVariableByNameNode::GetTargetClass(UEdGraphPin* Pin)
 
 UFunction* UK2Node_SetVariableByNameNode::FindSetterFunction(UEdGraphPin* Pin)
 {
-	UClass* FunctionLibrary = UVariableSetterFunctionLibrary::StaticClass();
+	UClass* FunctionLibrary = UVariableSetterFunctionLibarary::StaticClass();
 
-	return FunctionLibrary->FindFunctionByName(GET_FUNCTION_NAME_CHECKED(UVariableSetterFunctionLibrary, SetNestedVariableByName));
+	return FunctionLibrary->FindFunctionByName(GET_FUNCTION_NAME_CHECKED(UVariableSetterFunctionLibarary, SetNestedVariableByName));
 }
 
 bool UK2Node_SetVariableByNameNode::IsNewValuePin(const UEdGraphPin* Pin) const

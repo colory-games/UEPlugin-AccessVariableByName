@@ -226,7 +226,7 @@ public:
 UK2Node_DynamicGetVariableByNameNode::UK2Node_DynamicGetVariableByNameNode(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	InternalCallFuncClass = UVariableGetterFunctionLibrary::StaticClass();
+	InternalCallFuncClass = UVariableGetterFunctionLibarary::StaticClass();
 
 	if (bPureNode)
 	{
@@ -454,14 +454,14 @@ void UK2Node_DynamicGetVariableByNameNode::CreateFunctionPin()
 
 	if (bPureNode)
 	{
-		InternalCallFuncName = GET_FUNCTION_NAME_CHECKED(UVariableGetterFunctionLibrary, GetNestedVariableByNamePure);
+		InternalCallFuncName = GET_FUNCTION_NAME_CHECKED(UVariableGetterFunctionLibarary, GetNestedVariableByNamePure);
 	}
 	else
 	{
-		InternalCallFuncName = GET_FUNCTION_NAME_CHECKED(UVariableGetterFunctionLibrary, GetNestedVariableByName);
+		InternalCallFuncName = GET_FUNCTION_NAME_CHECKED(UVariableGetterFunctionLibarary, GetNestedVariableByName);
 	}
 
-	UClass* FunctionClass = UVariableGetterFunctionLibrary::StaticClass();
+	UClass* FunctionClass = UVariableGetterFunctionLibarary::StaticClass();
 	UFunction* FunctionPtr = FunctionClass->FindFunctionByName(InternalCallFuncName);
 	check(FunctionPtr);
 

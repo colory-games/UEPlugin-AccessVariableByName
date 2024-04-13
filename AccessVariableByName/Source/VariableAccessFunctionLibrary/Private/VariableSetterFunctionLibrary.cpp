@@ -9,13 +9,13 @@
 
 #include "VariableSetterFunctionLibrary.h"
 
-void UVariableSetterFunctionLibrary::SetNestedVariableByName(
+void UVariableSetterFunctionLibarary::SetNestedVariableByName(
 	UObject* Target, FName VarName, FAccessVariableParams Params, bool& Success, UProperty*& Result, UProperty* NewValue)
 {
 	check(0);
 }
 
-void UVariableSetterFunctionLibrary::GenericSetNestedVariableByName(UObject* Target, FName VarName, bool& Success,
+void UVariableSetterFunctionLibarary::GenericSetNestedVariableByName(UObject* Target, FName VarName, bool& Success,
 	FProperty* ResultProperty, void* ResultAddr, FProperty* NewValueProperty, void* NewValueAddr,
 	const FAccessVariableParams& Params)
 {
