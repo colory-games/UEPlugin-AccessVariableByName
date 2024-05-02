@@ -55,7 +55,7 @@ T* GetKeyAddrFromMap(FMapProperty* MapProperty, void* OuterAddr, T Key, bool bEx
 
 	for (FScriptMapHelper::FIterator MapIt = MapHelper.CreateIterator(); MapIt; ++MapIt)
 	{
-		T* KeyPtr = (T*) MapHelper.GetKeyPtr(*MapIt);
+		T* KeyPtr = (T*) MapHelper.GetKeyPtr(MapIt);
 		T ActualKey = *KeyPtr;
 		if (Key == ActualKey)
 		{
@@ -75,7 +75,7 @@ FName* GetKeyAddrFromMap<FName>(FMapProperty* MapProperty, void* OuterAddr, FNam
 
 	for (FScriptMapHelper::FIterator MapIt = MapHelper.CreateIterator(); MapIt; ++MapIt)
 	{
-		FName* KeyPtr = (FName*) MapHelper.GetKeyPtr(*MapIt);
+		FName* KeyPtr = (FName*) MapHelper.GetKeyPtr(MapIt);
 		FString KeyString = Key.ToString();
 		FString ActualKeyString = KeyPtr->ToString();
 		if (KeyString == ActualKeyString)
