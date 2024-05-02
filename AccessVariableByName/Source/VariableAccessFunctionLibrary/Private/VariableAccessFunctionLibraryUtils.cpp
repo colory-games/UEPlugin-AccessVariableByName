@@ -48,7 +48,7 @@ void* GetInnerItemAddrFromArray(FArrayProperty* ArrayProperty, void* OuterAddr, 
 }
 
 template <typename T>
-T* GetKeyAddrFromMap(FMapProperty* MapProperty, void* OuterAddr, T Key, bool bExtendIfNotPresent)
+T* GetKeyAddrFromMap(FMapProperty* MapProperty, void* OuterAddr, T Key)
 {
 	void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
 	auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
@@ -72,7 +72,7 @@ T* GetKeyAddrFromMap(FMapProperty* MapProperty, void* OuterAddr, T Key, bool bEx
 }
 
 template <>
-FName* GetKeyAddrFromMap<FName>(FMapProperty* MapProperty, void* OuterAddr, FName Key, bool bExtendIfNotPresent)
+FName* GetKeyAddrFromMap<FName>(FMapProperty* MapProperty, void* OuterAddr, FName Key)
 {
 	void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
 	auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
@@ -102,15 +102,15 @@ void* GetValueAddrFromMap(FMapProperty* MapProperty, void* OuterAddr, T Key, boo
 	void* MapAddr = MapProperty->ContainerPtrToValuePtr<void>(OuterAddr);
 	auto MapPtr = MapProperty->GetPropertyValuePtr(MapAddr);
 	FScriptMapHelper MapHelper(MapProperty, MapAddr);
-	T* KeyAddr = GetKeyAddrFromMap(MapProperty, OuterAddr, Key, bExtendIfNotPresent);
-	if (KeyAddr == nullptr)
+	T* KeyAddr = GetKeyAddrFromMap(MapProperty, OuterAddr, Key);
+	if (KeyAddr == nullptr && !bExtendIfNotPresent)
 	{
 		return nullptr;
 	}
 
 	if (bExtendIfNotPresent)
 	{
-		return MapHelper.FindOrAdd(KeyAddr);
+		return MapHelper.FindOrAdd(&Key);
 	}
 
 	return MapHelper.FindValueFromHash(KeyAddr);
