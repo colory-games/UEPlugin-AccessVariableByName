@@ -10,6 +10,7 @@
 #include "VariableAccessFunctionLibraryUtils.h"
 
 #include "Internationalization/Regex.h"
+#include "Misc/EngineVersionComparison.h"
 #include "UObject/UnrealType.h"
 
 FAccessVariableParams UVariableAccessUtilLibrary::MakeAccessVariableParams(bool bIncludeGenerationClass, bool bExtendIfNotPresent)
