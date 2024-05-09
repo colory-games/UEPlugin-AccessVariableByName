@@ -509,10 +509,11 @@ UFunction* UK2Node_GetVariableByNameNode::FindGetterFunction(UEdGraphPin* Pin)
 
 	if (bPureNode)
 	{
-		return FunctionLibrary->FindFunctionByName(FName("GetNestedVariableByNamePure"));
+		return FunctionLibrary->FindFunctionByName(
+			GET_FUNCTION_NAME_CHECKED(UVariableGetterFunctionLibarary, GetNestedVariableByNamePure));
 	}
 
-	return FunctionLibrary->FindFunctionByName(FName("GetNestedVariableByName"));
+	return FunctionLibrary->FindFunctionByName(GET_FUNCTION_NAME_CHECKED(UVariableGetterFunctionLibarary, GetNestedVariableByName));
 }
 
 bool UK2Node_GetVariableByNameNode::IsResultPin(const UEdGraphPin* Pin) const

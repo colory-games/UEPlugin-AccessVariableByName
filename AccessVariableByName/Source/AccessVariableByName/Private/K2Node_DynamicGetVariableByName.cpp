@@ -454,11 +454,11 @@ void UK2Node_DynamicGetVariableByNameNode::CreateFunctionPin()
 
 	if (bPureNode)
 	{
-		InternalCallFuncName = FName("GetNestedVariableByNamePure");
+		InternalCallFuncName = GET_FUNCTION_NAME_CHECKED(UVariableGetterFunctionLibarary, GetNestedVariableByNamePure);
 	}
 	else
 	{
-		InternalCallFuncName = FName("GetNestedVariableByName");
+		InternalCallFuncName = GET_FUNCTION_NAME_CHECKED(UVariableGetterFunctionLibarary, GetNestedVariableByName);
 	}
 
 	UClass* FunctionClass = UVariableGetterFunctionLibarary::StaticClass();
