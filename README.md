@@ -72,7 +72,7 @@ See [CHANGELOG.md](CHANGELOG.md).
 ## Bug Report / Feature Request / Disscussions
 
 If you want to report problems or request features, please [make issues](https://github.com/colory-games/UEPlugin-AccessVariableByName/issues).  
-You can also discuss about this plugin at [Discord (access-variable-by-name channel)](https://discord.gg/WPZRMgg2qGd).
+You can also discuss about this plugin at [Discord (access-variable-by-name channel)](https://discord.gg/WPZRMgg2qG).
 
 ## Project Author
 
