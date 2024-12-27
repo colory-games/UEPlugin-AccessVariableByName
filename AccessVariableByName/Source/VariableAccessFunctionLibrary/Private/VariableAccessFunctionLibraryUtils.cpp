@@ -11,6 +11,7 @@
 
 #include "Internationalization/Regex.h"
 #include "Misc/EngineVersionComparison.h"
+#include "UObject/TextProperty.h"
 #include "UObject/UnrealType.h"
 
 FAccessVariableParams UVariableAccessUtilLibrary::MakeAccessVariableParams(bool bIncludeGenerationClass, bool bExtendIfNotPresent)

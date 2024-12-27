@@ -10,6 +10,7 @@
 #pragma once
 
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "Misc/EngineVersionComparison.h"
 #include "VariableAccessFunctionLibraryUtils.h"
 
 #include "VariableSetterFunctionLibrary.generated.h"
@@ -38,7 +39,11 @@ public:
 		void* ResultAddr = Stack.MostRecentPropertyAddress;
 		FProperty* ResultProperty = Stack.MostRecentProperty;
 
+#if !UE_VERSION_OLDER_THAN(5, 5, 0)
+		int32 PropertySize = ResultProperty->GetElementSize() * ResultProperty->ArrayDim;
+#else
 		int32 PropertySize = ResultProperty->ElementSize * ResultProperty->ArrayDim;
+#endif
 		void* NewValueAddr = FMemory_Alloca(PropertySize);
 		ResultProperty->InitializeValue(NewValueAddr);
 		Stack.MostRecentPropertyAddress = NULL;

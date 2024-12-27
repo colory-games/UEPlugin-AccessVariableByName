@@ -9,6 +9,7 @@
 
 #include "AccessVariableByNameUtils.h"
 
+#include "EdGraphSchema_K2.h"
 #include "Internationalization/Regex.h"
 #include "UObject/UnrealType.h"
 
