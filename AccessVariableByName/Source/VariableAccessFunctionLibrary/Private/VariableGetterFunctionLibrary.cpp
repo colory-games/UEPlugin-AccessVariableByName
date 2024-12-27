@@ -24,14 +24,14 @@ void UVariableGetterFunctionLibarary::GenericGetNestedVariableByName(
 	if (VarDescs.Num() >= 2)
 	{
 		UE_LOG(LogTemp, Error,
-			TEXT("Nested property is not supported on the free version. Please consider to buy full version at Marketplace."));
+			TEXT("Nested property is not supported on the free version. Please consider to buy full version at Fab."));
 		return;
 	}
 	if (VarDescs.Num() == 1 && VarDescs[0].ArrayAccessType != ArrayAccessType_None)
 	{
 		UE_LOG(LogTemp, Error,
 			TEXT("The access of Array/Map's element is not supported on the free version. "
-				 "Please consider to buy full version at Marketplace."));
+				 "Please consider to buy full version at Fab."));
 		return;
 	}
 #endif
