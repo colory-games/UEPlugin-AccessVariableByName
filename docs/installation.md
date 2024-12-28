@@ -6,7 +6,7 @@ Free trial version does not support below features.
 * A Variable whose type is Struct/Enum/Array/Set/Map.
 * A Syntax to access the nested variable.
 
-To get the benefit fully from this plugin, consider to buy this plugin at [the Marketplace](https://www.unrealengine.com/marketplace/en-US/product/access-variable-by-name).
+To get the benefit fully from this plugin, consider to buy this plugin at [Fab](https://www.fab.com/listings/79c18369-ef76-4fa0-b7c4-4ddfe640ba2b).
 
 ## 1. Download source code
 

@@ -153,7 +153,7 @@ void UK2Node_SetVariableByNameNode::ExpandNode(FKismetCompilerContext& CompilerC
 		// clang-format off
 		CompilerContext.MessageLog.Error(*LOCTEXT("NotSupported",
 			"Property types 'Struct', 'Enum', 'Array', 'Set', 'Map' are not supported on the free version. "
-			"Please consider to buy full version at Marketplace.")
+			"Please consider to buy full version at Fab.")
 			.ToString());
 		// clang-format on
 		return;
