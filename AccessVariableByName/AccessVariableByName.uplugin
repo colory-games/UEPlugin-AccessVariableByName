@@ -11,7 +11,7 @@
   "DocsURL": "https://github.com/colory-games/UEPlugin-AccessVariableByName",
   "MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/b9e4a73c7e974b1581e711243a693fe3",
   "SupportURL": "https://github.com/colory-games/UEPlugin-AccessVariableByName",
-  "CanContainContent": true,
+  "CanContainContent": false,
   "IsBetaVersion": false,
   "Installed": false,
   "Modules": [
