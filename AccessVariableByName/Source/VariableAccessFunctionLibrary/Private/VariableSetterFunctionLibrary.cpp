@@ -42,4 +42,8 @@ void UVariableSetterFunctionLibarary::GenericSetNestedVariableByName(UObject* Ta
 
 	Success = FVariableAccessFunctionLibraryUtils::HandleTerminalProperty(
 		VarDescs, 0, Target, ResultProperty, ResultAddr, NewValueProperty, NewValueAddr, Params);
+	if (!Success && ResultProperty != nullptr)
+	{
+		ResultProperty->ClearValue(ResultAddr);
+	}
 }
