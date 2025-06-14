@@ -1,6 +1,19 @@
 # Change Log
 
-## [Unreleased](https://github.com/colory-games/UEPlugin-AccessVariableByName/compare/v1.6.0...main)
+## [Unreleased](https://github.com/colory-games/UEPlugin-AccessVariableByName/compare/v1.7.0...main)
+
+## [Version 1.7.0](https://github.com/colory-games/UEPlugin-AccessVariableByName/compare/v1.6.0...v1.7.0) - 2025.6.13
+
+### Updated Features
+
+* Support on Unreal Engine 5.6
+
+### Other Updates
+
+* Hide the plugin in Content Browser
+* Fill result values on failure to get variable value
+* Change a publisher name 'Marketplace' to 'Fab'
+
 
 ## [Version 1.6.0](https://github.com/colory-games/UEPlugin-AccessVariableByName/compare/v1.5.0...v1.6.0) - 2024.12.27
 

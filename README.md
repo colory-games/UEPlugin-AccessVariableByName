@@ -84,3 +84,7 @@ The maintainer of this project is as follows.
 |Name|Contact|
 |---|---|
 |[**@nutti**](https://github.com/nutti)|[Website (Japanese Only)](https://colorful-pico.net/) \| [Twitter](https://twitter.com/nutti__)|
+
+### Contributors
+
+* [**@pdxmholmes**](https://github.com/pdxmholmes)
