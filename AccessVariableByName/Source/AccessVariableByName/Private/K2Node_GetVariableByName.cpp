@@ -427,7 +427,11 @@ void UK2Node_GetVariableByNameNode::RecreateVariantPin()
 		UEdGraphPin* OldPin = UnusedPins[Index];
 		if (!IsResultPin(OldPin))
 		{
+#if UE_VERSION_OLDER_THAN(5, 8, 0)
 			UnusedPins.RemoveAt(Index--, 1, false);
+#else
+			UnusedPins.RemoveAt(Index--, 1, EAllowShrinking::No);
+#endif
 			Pins.Add(OldPin);
 		}
 	}
