@@ -1,6 +1,16 @@
 # Change Log
 
-## [Unreleased](https://github.com/colory-games/UEPlugin-AccessVariableByName/compare/v1.8.0...main)
+## [Unreleased](https://github.com/colory-games/UEPlugin-AccessVariableByName/compare/v1.9.0...main)
+
+## [Version 1.9.0](https://github.com/colory-games/UEPlugin-AccessVariableByName/compare/v1.8.0...v1.9.0) - 2026.XX.XX
+
+### Updated Features
+
+* Support on Unreal Engine 5.8
+
+### Other Updates
+
+* Fix bugs
 
 ## [Version 1.8.0](https://github.com/colory-games/UEPlugin-AccessVariableByName/compare/v1.7.0...v1.8.0) - 2025.12.25
 
