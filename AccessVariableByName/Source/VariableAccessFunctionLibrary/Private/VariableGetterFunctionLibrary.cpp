@@ -12,7 +12,7 @@
 #include "UObject/TextProperty.h"
 #include "VariableAccessFunctionLibraryUtils.h"
 
-void UVariableGetterFunctionLibarary::GenericGetNestedVariableByName(
+void UVariableGetterFunctionLibrary::GenericGetNestedVariableByName(
 	UObject* Target, FName VarName, bool& Success, FProperty* ResultProperty, void* ResultAddr, const FAccessVariableParams& Params)
 {
 	TArray<FString> Vars;
@@ -44,13 +44,13 @@ void UVariableGetterFunctionLibarary::GenericGetNestedVariableByName(
 	}
 }
 
-void UVariableGetterFunctionLibarary::GetNestedVariableByName(
+void UVariableGetterFunctionLibrary::GetNestedVariableByName(
 	UObject* Target, FName VarName, FAccessVariableParams Params, bool& Success, UProperty*& Result)
 {
 	check(0);
 }
 
-void UVariableGetterFunctionLibarary::GetNestedVariableByNamePure(
+void UVariableGetterFunctionLibrary::GetNestedVariableByNamePure(
 	UObject* Target, FName VarName, FAccessVariableParams Params, bool& Success, UProperty*& Result)
 {
 	check(0);
